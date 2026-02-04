@@ -1,13 +1,11 @@
 from fastapi import FastAPI
-
+from core.database import init_db
+from routers import users_controller
 app = FastAPI()
+@app.on_event("startup")
+def on_startup():
+    init_db()
+
+app.include_router(users_controller.router)
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
