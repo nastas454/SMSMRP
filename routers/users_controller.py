@@ -21,3 +21,4 @@ def create_user(user_create: UserCreate=Form()):
 @router.delete("/users/{user_id}")
 def delete_user(user_id: int):
     return users_service.delete_user(user_id)
+
