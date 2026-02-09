@@ -1,5 +1,3 @@
-import uuid
-
 from sqlalchemy import Integer, Column, String, Enum, UUID
 from sqlalchemy.dialects.postgresql import ARRAY
 from core.database import Base

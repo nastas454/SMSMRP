@@ -1,10 +1,7 @@
 from fastapi import APIRouter
-from fastapi.params import Depends, Form
-from sqlalchemy.orm import Session
-from core.database import init_db
+from fastapi.params import Form
 from services.auth_service import AuthService
-from services.users_service import UsersService
-from shcemas.users.user_create import UserCreate, LoginUser
+from shcemas.users.user_schemas import UserCreate, LoginUser
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 auth_service = AuthService()

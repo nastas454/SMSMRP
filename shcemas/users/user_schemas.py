@@ -1,0 +1,36 @@
+from typing import Optional
+from pydantic import EmailStr, BaseModel
+from models.sex_enum import Sex
+
+class UserCreate(BaseModel):
+    first_name: str
+    last_name: str
+    age: int
+    sex: Sex
+
+    email: EmailStr
+    login: str
+    password: str
+
+    injuries: list[str]
+
+class UserResponse(BaseModel):
+    first_name: str
+    last_name: str
+    age: int
+    sex: Sex
+    email: EmailStr
+    login: str
+
+class LoginUser(BaseModel):
+    username: str
+    password: str
+
+class ChangeUser(BaseModel):
+    first_name: Optional[str]|None = None
+    last_name: Optional[str]|None = None
+    age: Optional[str]|None = None
+
+class ChangeUserPassword(BaseModel):
+    password: str
+    confirm_password: str

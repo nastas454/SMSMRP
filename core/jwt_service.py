@@ -14,3 +14,11 @@ class JwtUtility:
            "exp": expire
        }
        return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+   @staticmethod
+   def decode_token(token: str) -> int | None:
+       try:
+           payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+           return payload.get("id")
+       except Exception:
+           return None
