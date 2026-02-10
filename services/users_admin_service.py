@@ -3,7 +3,7 @@ from sqlalchemy.sql.functions import current_user
 from core.database import SessionLocal
 from models.role_enum import Role
 from repositories.users_repository import UserRepository
-from shcemas.users.user_schemas import UserCreate
+from shcemas.users.user_schemas import UserCreate, UserResponse
 
 
 class UsersAdminService:
@@ -15,13 +15,13 @@ class UsersAdminService:
         users = self.repo.get_all()
         if not users:
             return {"message": "No users found"}
-        return users
+        return [UserResponse.model_validate(user) for user in users]
 
     def get_user(self, user_id: int):
         user = self.repo.get_by_id(user_id)
         if not user:
             return {"message": "User not found"}
-        return user
+        return UserResponse.model_validate(user)
 
     def change_role(self, user_id: int, role: str):
         user = self.repo.get_by_id(user_id)
@@ -30,7 +30,7 @@ class UsersAdminService:
         if role == user.role:
             return {"message": "Role already selected"}
         user.role = role
-        return  self.repo.change_user(user)
+        return UserResponse.model_validate(self.repo.change_user(user))
 
     def delete_user(self, user_id: int):
         user = self.repo.get_by_id(user_id)

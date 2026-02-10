@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import EmailStr, BaseModel
+from pydantic import EmailStr, BaseModel, ConfigDict
 from models.sex_enum import Sex
 
 class UserCreate(BaseModel):
@@ -15,12 +15,15 @@ class UserCreate(BaseModel):
     injuries: list[str]
 
 class UserResponse(BaseModel):
+    id: int
     first_name: str
     last_name: str
     age: int
     sex: Sex
     email: EmailStr
     login: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 class LoginUser(BaseModel):
     username: str
