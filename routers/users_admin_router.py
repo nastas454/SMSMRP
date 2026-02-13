@@ -14,10 +14,6 @@ def get_user(user_id: int):
 def get_all_users():
     return users_admin_service.get_all_users()
 
-@router.patch("/{user_id:int}/role")
-def change_user_role(user_id: int, role: Role):
-    return users_admin_service.change_role(user_id, role)
-
 @router.delete("/{user_id:int}")
 def delete_user(user_id: int):
     return users_admin_service.delete_user(user_id)

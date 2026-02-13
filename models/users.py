@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Column, String, Enum, UUID
+from sqlalchemy import Integer, Column, String, Enum, Boolean, true
 from sqlalchemy.dialects.postgresql import ARRAY
 from core.database import Base
 from models.role_enum import Role
@@ -16,11 +16,11 @@ class Users(Base):
     email = Column(String,nullable=False, index=True, unique=True)
     login = Column(String,nullable=False, index=True, unique=True)
     password = Column(String,nullable=False)
-    role = Column(Enum(Role),nullable=False, index=True, default=Role.USER)
+    role = Column(String,nullable=False, index=True, default=Role.USER.value)
 
     injuries = Column(ARRAY(String),nullable=True, default=[])
     courses = Column(ARRAY(Integer),nullable=True, default=[])
     doctors = Column(ARRAY(Integer),nullable=True, default=[])
 
-
+    is_active = Column(Boolean,nullable=False, index=True, default=True)
 

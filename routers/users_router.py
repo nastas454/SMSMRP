@@ -3,7 +3,7 @@ from fastapi.params import Depends, Form
 from pydantic import EmailStr
 from core.auth_tools import get_current_user
 from services.users_service import UsersService
-from shcemas.users.user_schemas import ChangeUser, ChangeUserPassword
+from shcemas.user_schemas import ChangeUser, ChangeUserPassword
 
 router = APIRouter(prefix="/users", tags=["users"], dependencies=[Depends(get_current_user)])
 users_service = UsersService()

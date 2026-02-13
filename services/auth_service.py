@@ -1,14 +1,14 @@
 from core.database import SessionLocal
 from core.jwt_service import JwtUtility
 from core.password_hasher import PasswordHasher
-from repositories.users_repository import UserRepository
-from shcemas.users.user_schemas import UserCreate, LoginUser, UserResponse
-
+from models.users import Users
+from repositories.users_repository import UsersRepository
+from shcemas.user_schemas import UserCreate, LoginUser, UsersResponse
 
 class AuthService:
     def __init__(self):
         self.db = SessionLocal()
-        self.repo = UserRepository(self.db)
+        self.repo = UsersRepository(self.db)
         self.hasher = PasswordHasher()
         self.jwt = JwtUtility()
 
@@ -18,10 +18,11 @@ class AuthService:
         if self.repo.if_login_exists(str(register_dto.login)):
             raise Exception('This login already exists')
         register_dto.password = self.hasher.hash(register_dto.password)
-        return UserResponse.model_validate(self.repo.create_user(**register_dto.model_dump()))
+        user = Users(**register_dto.model_dump())
+        return UsersResponse.model_validate(self.repo.create_entity(user))
 
     def login_user(self, login_dto: LoginUser)->dict:
-        user = self.repo.get_user_by_login(str(login_dto.username))
+        user = self.repo.get_entity_by_filter(login=login_dto.username)
         if user is None:
             raise Exception('User does not exist')
         if not self.hasher.verify(login_dto.password, user.password):

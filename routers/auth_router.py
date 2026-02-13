@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi.params import Form
 from services.auth_service import AuthService
-from shcemas.users.user_schemas import UserCreate, LoginUser
+from shcemas.user_schemas import UserCreate, LoginUser
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 auth_service = AuthService()
