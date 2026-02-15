@@ -13,3 +13,11 @@ class DoctorsResponse(BaseModel):
     login: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class DoctorLogin(BaseModel):
+    username: str
+    password: str
+
+class ChangeDoctorPassword(BaseModel):
+    password: str
+    confirm_password: str

@@ -1,6 +1,6 @@
 from typing import Optional
 from pydantic import EmailStr, BaseModel, ConfigDict
-from models.sex_enum import Sex
+from models.enums.sex_enum import Sex
 
 class UserCreate(BaseModel):
     first_name: str

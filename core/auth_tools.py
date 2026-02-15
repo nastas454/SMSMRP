@@ -4,18 +4,18 @@ from core.database import SessionLocal
 from core.jwt_service import JwtUtility
 
 oauth2_scheme_users = OAuth2PasswordBearer(
-    tokenUrl="/auth/login",
-    scheme_name="UserAuth"  # Унікальне ім'я для користувачів
+    tokenUrl="/auth/users/login",
+    scheme_name="UserAuth"
 )
 
 oauth2_scheme_doctors = OAuth2PasswordBearer(
-    tokenUrl="/auth/login",
-    scheme_name="DoctorAuth"  # Унікальне ім'я для лікарів
+    tokenUrl="/auth/doctors/login",
+    scheme_name="DoctorAuth"
 )
 
 oauth2_scheme_admins = OAuth2PasswordBearer(
-    tokenUrl="/admin/login",
-    scheme_name="AdminAuth"  # Унікальне ім'я для адмінів
+    tokenUrl="/auth/admin/login",
+    scheme_name="AdminAuth"
 )
 db = SessionLocal()
 
@@ -27,13 +27,11 @@ def get_current_user(token: str = Depends(oauth2_scheme_users)) -> int:
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
     if payload.get("role") != "user":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized as user",
         )
-
     return payload.get("id")
 
 def get_current_doctor(token: str = Depends(oauth2_scheme_doctors)) -> int:
@@ -44,15 +42,12 @@ def get_current_doctor(token: str = Depends(oauth2_scheme_doctors)) -> int:
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
     if payload.get("role") != "doctor":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized as doctor",
         )
-
     return payload.get("id")
-
 
 def get_current_admin(token: str = Depends(oauth2_scheme_admins)) -> int:
     payload = JwtUtility.decode_token(token)
@@ -62,11 +57,9 @@ def get_current_admin(token: str = Depends(oauth2_scheme_admins)) -> int:
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
     if payload.get("role") != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized as admin",
         )
-
     return payload.get("id")

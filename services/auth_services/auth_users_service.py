@@ -5,7 +5,7 @@ from models.users import Users
 from repositories.users_repository import UsersRepository
 from shcemas.user_schemas import UserCreate, LoginUser, UsersResponse
 
-class AuthService:
+class AuthUserService:
     def __init__(self):
         self.db = SessionLocal()
         self.repo = UsersRepository(self.db)
@@ -28,6 +28,6 @@ class AuthService:
         if not self.hasher.verify(login_dto.password, user.password):
             raise Exception('Password does not match')
         return {
-            "access_token": self.jwt.create_access_token(str(user.id)),
+            "access_token": self.jwt.create_access_token(str(user.id), user.role),
             "token_type": "Bearer"
         }

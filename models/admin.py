@@ -1,7 +1,7 @@
 from datetime import datetime
-from sqlalchemy import Integer, Column, String, Enum, Boolean, true, DateTime
+from sqlalchemy import Integer, Column, String, Boolean, DateTime
 from core.database import Base
-from models.role_enum import Role
+from models.enums.role_enum import Role
 
 class Admins(Base):
     __tablename__ = 'admin'

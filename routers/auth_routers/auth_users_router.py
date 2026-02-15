@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 from fastapi.params import Form
-from services.auth_service import AuthService
+from services.auth_services.auth_users_service import AuthUserService
 from shcemas.user_schemas import UserCreate, LoginUser
 
-router = APIRouter(prefix="/auth", tags=["auth"])
-auth_service = AuthService()
+router = APIRouter(prefix="/auth/users", tags=["authorization"])
+auth_service = AuthUserService()
 
 @router.post("/register")
 def register_user(register_dto: UserCreate=Form()):

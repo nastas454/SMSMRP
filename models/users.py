@@ -1,8 +1,8 @@
-from sqlalchemy import Integer, Column, String, Enum, Boolean, true
+from sqlalchemy import Integer, Column, String, Enum, Boolean
 from sqlalchemy.dialects.postgresql import ARRAY
 from core.database import Base
-from models.role_enum import Role
-from models.sex_enum import Sex
+from models.enums.role_enum import Role
+from models.enums.sex_enum import Sex
 
 class Users(Base):
     __tablename__ = 'users'
