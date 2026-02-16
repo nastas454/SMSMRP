@@ -1,5 +1,6 @@
 from sqlalchemy import Integer, Column, String, Boolean
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import relationship
+
 from core.database import Base
 from models.enums.role_enum import Role
 
@@ -14,7 +15,6 @@ class Doctors(Base):
     password = Column(String,nullable=False)
 
     role = Column(String,nullable=False, index=True, default=Role.DOCTOR.value)
-    courses = Column(ARRAY(Integer),nullable=True, default=[])
-    patients = Column(ARRAY(Integer),nullable=True, default=[])
+    courses = relationship("Courses", back_populates="doctor", cascade="all, delete")
 
     is_active = Column(Boolean, nullable=False, index=True, default=True)

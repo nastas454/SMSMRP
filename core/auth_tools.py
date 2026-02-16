@@ -32,7 +32,7 @@ def get_current_user(token: str = Depends(oauth2_scheme_users)) -> int:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized as user",
         )
-    return payload.get("id")
+    return int(payload.get("id"))
 
 def get_current_doctor(token: str = Depends(oauth2_scheme_doctors)) -> int:
     payload = JwtUtility.decode_token(token)
@@ -47,7 +47,7 @@ def get_current_doctor(token: str = Depends(oauth2_scheme_doctors)) -> int:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized as doctor",
         )
-    return payload.get("id")
+    return int(payload.get("id"))
 
 def get_current_admin(token: str = Depends(oauth2_scheme_admins)) -> int:
     payload = JwtUtility.decode_token(token)
@@ -62,4 +62,4 @@ def get_current_admin(token: str = Depends(oauth2_scheme_admins)) -> int:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized as admin",
         )
-    return payload.get("id")
+    return int(payload.get("id"))

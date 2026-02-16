@@ -1,6 +1,8 @@
 from sqlalchemy import Integer, Column, String, Enum, Boolean
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import relationship
 from core.database import Base
+from models.associations import course_users
 from models.enums.role_enum import Role
 from models.enums.sex_enum import Sex
 
@@ -19,7 +21,7 @@ class Users(Base):
     role = Column(String,nullable=False, index=True, default=Role.USER.value)
 
     injuries = Column(ARRAY(String),nullable=True, default=[])
-    courses = Column(ARRAY(Integer),nullable=True, default=[])
+    courses = relationship("Courses", secondary=course_users, back_populates="users")
     doctors = Column(ARRAY(Integer),nullable=True, default=[])
 
     is_active = Column(Boolean,nullable=False, index=True, default=True)
