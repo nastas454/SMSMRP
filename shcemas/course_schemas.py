@@ -1,8 +1,13 @@
-from pydantic import BaseModel, ConfigDict
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
 
 class CoursesCreate(BaseModel):
     course_name: str
+    description : str
     injuries: list[str]
+    course_content : dict[str, Any]
 
 class CoursesResponse(BaseModel):
     id: int

@@ -10,7 +10,9 @@ class Courses(Base):
 
     id = Column(Integer, primary_key=True)
     course_name = Column(String, nullable=False, index=True)
+    description = Column(String, nullable=False)
     injuries = Column(ARRAY(String),nullable=False, default=[])
+    course_s3_key = Column(String,nullable=False, default=[])
 
     doctor_id = Column(Integer, ForeignKey('doctors.id'), nullable=False)
     doctor = relationship("Doctors", back_populates="courses")

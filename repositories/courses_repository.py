@@ -1,7 +1,7 @@
 from psycopg2._psycopg import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from models.courses import Courses
 from models.users import Users
 from repositories.common_repository import CommonRepository
@@ -9,6 +9,15 @@ from repositories.common_repository import CommonRepository
 class CoursesRepository(CommonRepository[Courses]):
     def __init__(self, db: AsyncSession):
         super().__init__(db, Courses)
+
+    async def get_by_id(self, course_id: int):
+        query = (
+            select(Courses)
+            .where(Courses.id == course_id)
+            .options(selectinload(Courses.users))  # <--- ДОДАЙ ЦЕЙ РЯДОК
+        )
+        result = await self.db.execute(query)
+        return result.scalars().first()
 
     async def get_doctor_one_course(self, course_id: int, doctor_id: int) -> Courses|None:
         stmt = select(Courses).where(Courses.id == course_id, Courses.doctor_id == doctor_id)

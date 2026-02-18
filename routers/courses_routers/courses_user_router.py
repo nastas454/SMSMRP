@@ -6,7 +6,7 @@ from services.courses_servises.courses_users_service import CoursesUsersService
 router = APIRouter(prefix="/user/courses", tags=["course(user)"], dependencies=[Depends(get_current_user)])
 Service = Annotated[CoursesUsersService, Depends(CoursesUsersService)]
 
-@router.post("/join")
+@router.post("/{course_id:int}/join")
 async def join_course(course_service: Service, course_id: int, user_id: int = Depends(get_current_user)):
     return await course_service.join_course(course_id, user_id)
 
