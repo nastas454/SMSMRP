@@ -12,8 +12,6 @@ class UserCreate(BaseModel):
     login: str
     password: str
 
-    injuries: list[str]
-
 class UsersResponse(BaseModel):
     id: int
     first_name: str

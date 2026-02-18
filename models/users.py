@@ -20,7 +20,6 @@ class Users(Base):
     password = Column(String,nullable=False)
     role = Column(String,nullable=False, index=True, default=Role.USER.value)
 
-    injuries = Column(ARRAY(String),nullable=True, default=[])
     courses = relationship("Courses", secondary=course_users, back_populates="users")
     doctors = Column(ARRAY(Integer),nullable=True, default=[])
 

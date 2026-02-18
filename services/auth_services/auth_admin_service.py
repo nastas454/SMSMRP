@@ -1,5 +1,6 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
 
 from core.database import SessionLocal, get_session_local
 from core.jwt_service import JwtUtility
@@ -17,9 +18,15 @@ class AuthAdminService:
     async def login_admin(self, login_dto: AdminLogin) -> dict:
         admin = await self.repo.get_entity_by_filter(login=login_dto.username)
         if admin is None:
-            raise Exception('Admin does not exist')
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Адміністратора з таким логіном не знайдено"
+            )
         if not self.hasher.verify(login_dto.password, admin.password):
-            raise Exception('Password does not match')
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Невірний пароль"
+            )
         return {
             "access_token": self.jwt.create_access_token(str(admin.id), str(admin.role)),
             "token_type": "Bearer"
