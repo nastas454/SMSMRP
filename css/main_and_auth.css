@@ -4,7 +4,7 @@ body, html {
   height: 100%;
   font-family: 'Montserrat', sans-serif;
   overflow: hidden;
-  background-color: #e1ebed; /* Світло-синій фон сторінки */
+  background-color: #e1ebed;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,9 +16,9 @@ body, html {
   border-radius: 50%;
   background: linear-gradient(45deg, #8ac7da, #57aed1);
   opacity: 0.3;   /* прозорість */
-  z-index: 0;       /* Найнижчий рівень, але вище за background-color body */
+  z-index: 0;
   animation: float 15s infinite ease-in-out;   /* швидкість анімації */
-  pointer-events: none; /* Щоб вони не заважали клікати */
+  pointer-events: none; /* щоб вони не заважали клікати */
 }
 
 /* Бульбашка головного екрану (зліва зверху) */
@@ -95,7 +95,7 @@ body, html {
   position: relative;
   width: 100vw;          /* ширина видимого екрана */
   max-width: none;
-  height: 40vh;        /* Висота смужки */
+  height: 40vh;        /* висота смужки */
   background: #e1ebed;
   overflow: hidden;
   margin-top: 60px;
@@ -260,7 +260,7 @@ body, html {
 /* Лейбли у вікні зворотнього зв'язку */
 .form-group label {
   display: block;
-  color: #284d5b; /* Синій колір лейблів */
+  color: #284d5b;
   margin-bottom: 5px;
   font-weight: 500;
 }
@@ -270,7 +270,7 @@ body, html {
 .form-group textarea {
   width: 100%;
   padding: 12px;
-  background-color: #e1ebed; /* світло-синій фон інпутів */
+  background-color: #e1ebed;
   border: none;
   border-radius: 5px;
   font-size: 16px;
@@ -324,7 +324,7 @@ body, html {
 /* c3: Зліва посередині */
 .c3 {
   top: 30%; left: 5%;
-  background: linear-gradient(45deg, #57aed1, #87ceeb); /* М'ятний градієнт */
+  background: linear-gradient(45deg, #57aed1, #87ceeb);
   animation-delay: 1s;
 }
 
@@ -385,7 +385,7 @@ body, html {
 
 /* Помилка введення даних */
 .error-message {
-  display: none; /* Спочатку приховано */
+  display: none; /* спочатку приховано */
   color: #d63031;
   background-color: #ff767520;
   padding: 10px;
@@ -437,7 +437,7 @@ body, html {
 
 /* Самі кнопки (Вхід / Реєстрація) */
 .toggle-btns button {
-  flex: 1;                        /* <--- робить кнопки однакової ширини */
+  flex: 1;                        /* кнопки однакової ширини */
   background: #e1ebed;
   border: none;
   padding: 12px 0;                /* висота кнопки */

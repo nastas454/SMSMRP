@@ -3,12 +3,9 @@ const API_BASE_URL = 'http://localhost:8000';
 // Керування розділами (Авторизація)
 function openAuth(role) {
   document.getElementById('landing-page').classList.add('hidden');
-  // Ховаємо брендинг і кнопку зв'язку при переході до авторизації
   document.querySelector('.brand-overlay').classList.add('hidden');
   document.querySelector('.contact-fab').classList.add('hidden');
-
   document.getElementById('auth-section').classList.remove('hidden');
-
   document.querySelectorAll('.form-wrapper').forEach(el => el.classList.add('hidden'));
 
   if (role === 'admin') {
@@ -21,10 +18,10 @@ function openAuth(role) {
   }
 }
 
+// Повернення назад
 function goBack() {
   document.getElementById('auth-section').classList.add('hidden');
   document.getElementById('landing-page').classList.remove('hidden');
-  // Повертаємо брендинг і кнопку
   document.querySelector('.brand-overlay').classList.remove('hidden');
   document.querySelector('.contact-fab').classList.remove('hidden');
 }
@@ -42,10 +39,9 @@ function toggleContactModal(show) {
 // Імітація відправки повідомлення
 function handleContactSubmit(event) {
   event.preventDefault();
-  // Тут можна додати fetch запит на сервер, якщо потрібно
   alert('Ваше повідомлення надіслано! Ми зв\'яжемося з вами найближчим часом.');
-  toggleContactModal(false); // Закрити вікно
-  event.target.reset(); // Очистити поля
+  toggleContactModal(false);
+  event.target.reset();
 }
 
 // Функцій логін/реєстрація
@@ -67,7 +63,7 @@ function togglePatientMode(mode) {
   }
 }
 
-// Допоміжна функція для розшифровки токена (залиште її без змін)
+// Допоміжна функція для розшифровки токена
 function parseJwt(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -81,11 +77,12 @@ function parseJwt(token) {
   }
 }
 
+// Логіка для авторизації
   async function handleLogin(event, apiPath) {
     event.preventDefault();
     const form = event.target;
 
-    // 1. Знаходимо блок помилки всередині цієї форми
+    // Блок помилки всередині цієї форми
     const errorBox = form.querySelector('.error-message');
 
     // Ховаємо попередні помилки перед новим запитом
@@ -110,7 +107,7 @@ function parseJwt(token) {
         body: formData
       });
 
-      // 2. Якщо статус не ОК (наприклад, 401, який ми налаштували в Python)
+      // Якщо статус не ОК
       if (!response.ok) {
         const errorData = await response.json();
 
@@ -122,12 +119,12 @@ function parseJwt(token) {
           errorBox.innerText = errorMessage;
           errorBox.style.display = 'block';
         } else {
-          alert(errorMessage); // Про всяк випадок, якщо блок не знайдено
+          alert(errorMessage);
         }
-        return; // Зупиняємо функцію, далі не йдемо
+        return;
       }
 
-      // --- Якщо все добре (успішний вхід) ---
+      // Якщо все добре (успішний вхід)
       const data = await response.json();
       const token = data.access_token;
       localStorage.setItem('access_token', token);
@@ -137,10 +134,11 @@ function parseJwt(token) {
 
       if (userRole) localStorage.setItem('user_role', userRole);
 
+      // Якщо це не адміністратор, то вхід на іншу домашню сторінку
       if (userRole === 'admin') {
-        window.location.href = 'main_page_for_admin.html';
+        window.location.href = 'home_page_for_admin.html';
       } else {
-        window.location.href = 'main_page.html';
+        window.location.href = 'home_page.html';
       }
 
     } catch (error) {
@@ -152,6 +150,7 @@ function parseJwt(token) {
     }
   }
 
+// Логіка реєстрації пацієнтів
 async function handleRegister(event) {
   event.preventDefault();
   const form = event.target;
@@ -159,7 +158,7 @@ async function handleRegister(event) {
 
   const submitBtn = form.querySelector('button[type="submit"]');
 
-  // --- 1. БЛОК ПОМИЛОК (Червоний) ---
+  // Блок помилок
   let errorBox = form.querySelector('.error-message');
   if (!errorBox) {
     errorBox = document.createElement('div');
@@ -167,17 +166,17 @@ async function handleRegister(event) {
     form.insertBefore(errorBox, submitBtn);
   }
 
-  // --- 2. БЛОК УСПІХУ (Зелений) ---
+  // Блок успіху
   let successBox = form.querySelector('.success-message');
   if (!successBox) {
     successBox = document.createElement('div');
-    successBox.className = 'success-message'; // Клас з CSS
+    successBox.className = 'success-message';
     form.insertBefore(successBox, submitBtn);
   }
 
   // Функції для показу повідомлень
   const showError = (text) => {
-    successBox.style.display = 'none'; // Ховаємо успіх, якщо є помилка
+    successBox.style.display = 'none'; // ховаємо успіх, якщо є помилка
 
     if (typeof text === 'object') {
       if (Array.isArray(text)) {
@@ -191,7 +190,7 @@ async function handleRegister(event) {
   };
 
   const showSuccess = (text) => {
-    errorBox.style.display = 'none'; // Ховаємо помилки
+    errorBox.style.display = 'none'; // ховаємо помилки
     successBox.innerText = text;
     successBox.style.display = 'block';
   };
@@ -200,7 +199,7 @@ async function handleRegister(event) {
   errorBox.style.display = 'none';
   successBox.style.display = 'none';
 
-  // --- ОТРИМАННЯ ДАНИХ ---
+  // Отримування даних
   const firstName = formData.get('first_name')?.trim();
   const lastName = formData.get('last_name')?.trim();
   const ageStr = formData.get('age');
@@ -208,7 +207,7 @@ async function handleRegister(event) {
   const password = formData.get('password');
   const sexRaw = formData.get('sex');
 
-  // --- ВАЛІДАЦІЯ (Regex) ---
+  // Валідація (Regex)
   const nameRegex = /^[a-zA-Zа-яА-ЯґҐєЄіІїЇ\-\']+$/;
   const loginRegex = /^[a-zA-Zа-яА-ЯґҐєЄіІїЇ0-9]+$/;
 
@@ -226,7 +225,7 @@ async function handleRegister(event) {
 
   if (!password || password.length < 8) { showError("❌ Пароль має бути не менше 8 символів."); return; }
 
-  // --- ПІДГОТОВКА ДАНИХ (Mapping) ---
+  // Підготовка даних (Mapping)
   if (formData.has('username') && !formData.has('login')) {
     formData.append('login', login);
     formData.delete('username');
@@ -234,7 +233,7 @@ async function handleRegister(event) {
   if (sexRaw === 'Чоловік') formData.set('sex', 'MALE');
   if (sexRaw === 'Жінка') formData.set('sex', 'FEMALE');
 
-  // --- ВІДПРАВКА ---
+  // Надсилаємо бек-енду
   try {
     const response = await fetch('http://localhost:8000/auth/users/register', {
       method: 'POST',
@@ -242,17 +241,16 @@ async function handleRegister(event) {
     });
 
     if (response.ok) {
-      // ✅ ТУТ ЗМІНИ: Показуємо зелений блок замість alert
       showSuccess('✅ Реєстрація успішна! Перенаправлення...');
       form.reset();
 
-      // Чекаємо 1.5 секунди, щоб користувач встиг прочитати повідомлення,
+      // Чекаємо 2 секунди, щоб користувач встиг прочитати повідомлення,
       // і тільки потім перемикаємо на вхід
       setTimeout(() => {
         if (typeof togglePatientMode === 'function') togglePatientMode('login');
-        // Приховуємо повідомлення після переходу (опціонально)
+        // Приховуємо повідомлення після переходу
         successBox.style.display = 'none';
-      }, 1500);
+      }, 2000);
 
     } else {
       const errorData = await response.json();

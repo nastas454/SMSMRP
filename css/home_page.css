@@ -1,0 +1,483 @@
+/* --- ЗАГАЛЬНІ --- */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #f0f8ff;
+  color: #284d5b;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- ШАПКА (HEADER) --- */
+.top-header {
+  height: 70px;
+  background: #4a8394;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  z-index: 10;
+  position: relative;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  filter: invert(1) brightness(100%);
+}
+
+.header-logo {
+  height: 50px;
+  width: auto;
+}
+
+.platform-name {
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
+  color: #e1ebed;
+  filter: invert(1) brightness(100%);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Кнопка "Додати курс" */
+.add-course-btn {
+  text-decoration: none;
+  color: #e1ebed;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+.add-course-btn:hover {
+  background-color: #779ea9;
+}
+
+/* Аватарка */
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  background-color: #f0f8ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #225061;
+  font-size: 20px;
+  cursor: pointer;
+  border: 2px solid #abc2c7;
+}
+
+/* --- ГОЛОВНИЙ МАКЕТ (SIDEBAR + MAIN) --- */
+.layout-container {
+  display: flex;
+  flex: 1; /* Займає всю висоту, що залишилась */
+  overflow: hidden; /* Щоб скролилось всередині */
+}
+
+/* --- БОКОВА ПАНЕЛЬ --- */
+.sidebar {
+  width: 300px;
+  background-color: #c9e2e8;
+  border-right: 1px solid #f0f8ff;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  justify-content: flex-start;
+  height: calc(100vh - 70px); /* Висота екрана мінус висота шапки */
+}
+
+/* Стилі підпису */
+.sidebar-footer {
+  margin-top: auto;
+  padding: 20px;
+  text-align: center;
+  color: #1d3037;
+  font-size: 16px;
+}
+
+.sidebar-footer p {
+  margin-bottom: 12px;
+}
+
+/* Іконки соцмереж */
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* Встановлює відстань 20px між усіма елементами всередині */
+}
+
+.social-icons a {
+  color: #225061; /* Колір іконок */
+  font-size: 20px;
+  text-decoration: none;
+  transition: transform 0.3s, color 0.3s;
+  display: inline-block;
+
+  margin: 0 10px; /* Додає по 10px зліва та справа від кожної іконки */
+}
+
+.social-icons a:hover {
+  color: #3691ae; /* Колір зміниться при наведенні */
+  transform: translateY(-3px); /* Іконка трохи підстрибне */
+}
+
+.social-icons a:hover {
+  opacity: 0.6;
+}
+
+.sidebar-title {
+  font-size: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  color: #1d3037;
+  font-weight: 500;
+  text-transform: uppercase;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #4a8394;
+  padding-left: 20px; /* 1. Відсуває текст вправо на 20px */
+  box-sizing: border-box; /* 2. Гарантує, що ці 20px не зроблять блок ширшим за 100% */
+}
+
+.course-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.course-list li {
+  padding: 15px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
+  color: #1d3037;
+  transition: all 0.2s;
+  background: linear-gradient(60deg, #92c3d6 10%, #e1ebed 100%);
+  border-bottom: 2px solid #4a8394;
+  position: relative;
+}
+
+.course-list li:hover {
+  background-color: #e1ebed;
+  color: #284d5b;
+  padding-left: 30px; /* Ефект зсуву */
+}
+
+/* Маленька вертикальна лінія зліва при наведенні */
+.course-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background-color: #4a8394;
+  transition: width 0.2s;
+}
+
+.course-list li:hover::before {
+  width: 6px;
+}
+
+/* --- ОСНОВНИЙ КОНТЕНТ --- */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto; /* Скрол тільки тут */
+}
+
+/* Сітка карток */
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Адаптивні колонки */
+  gap: 25px;
+}
+
+/* --- КАРТКА КУРСУ --- */
+.course-card {
+  background: #cce0e5;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 260px;
+  transition: transform 0.2s;
+  position: relative;
+  cursor: pointer;
+  border-bottom: 8px solid #7aaebf;
+  border-right: 8px solid #7aaebf
+}
+
+.course-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 30px rgba(16,24,27,0.2);
+}
+
+.card-header {
+  border-bottom: 1px solid #2a6479;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #1d3037; /* Заголовок як на малюнку */
+}
+
+.card-body p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #1c4a5a;
+}
+
+.card-label {
+  color: #3691ae; /* Блакитний колір підписів "травми:", "лікар:" */
+  font-weight: 600;
+  margin-right: 5px;
+}
+
+.card-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end; /* Лікар справа */
+  align-items: center;
+  font-size: 14px;
+  color: #1c4a5a;
+}
+
+/* Кнопка "три крапки" */
+.card-options {
+  position: absolute;
+  bottom: 15px;
+  right: 15px; /* Замість кнопки меню, як на малюнку, можна тут */
+  /* АБО в footer, як на малюнку */
+}
+
+.more-options-btn {
+  background: none;
+  border: none;
+  color: #3691ae;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Контейнер для прогресу */
+.progress-container {
+  margin-top: 15px;
+  background-color: #e8ebed;
+  border-radius: 10px;
+  height: 8px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Сама лінія прогресу */
+.progress-bar {
+  height: 100%;
+  background-color: #3691ae; /* Колір як у ваших лейблів */
+  transition: width 0.5s ease-in-out;
+}
+
+/* Текст з відсотками (опціонально) */
+.progress-text {
+  font-size: 12px;
+  color: #1c4a5a;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+  text-align: right;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.course-card {
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0; /* Початковий стан перед анімацією */
+}
+
+/* Додаємо затримку для кожної наступної картки */
+.course-card:nth-child(1) { animation-delay: 0.1s; }
+.course-card:nth-child(2) { animation-delay: 0.2s; }
+.course-card:nth-child(3) { animation-delay: 0.3s; }
+.course-card:nth-child(4) { animation-delay: 0.4s; }
+
+
+.welcome-banner {
+  background: linear-gradient(260deg, #3691ae 10%, #e1ebed 100%);
+  border-radius: 20px;
+  padding: 26px;
+  margin-bottom: 30px;
+  color: #1d3037;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 20px rgba(54, 145, 174, 0.2);
+}
+
+.welcome-text h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.welcome-text p {
+  margin: 10px 0 0 0;
+  opacity: 0.9;
+  font-size: 16px;
+}
+
+.welcome-stats {
+  display: flex;
+  gap: 25px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 15px 25px;
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+}
+
+.stat-divider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.3);
+  height: 40px;
+}
+
+/* Затемнення фону */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Напівпрозорий чорний */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Приховати модалку */
+.modal-overlay.hidden {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Саме вікно */
+.modal-container {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  margin-top: 10px;
+  box-sizing: border-box; /* Важливо для padding */
+}
+
+.modal-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-primary {
+  background-color: #007bff; /* Ваш основний колір */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-primary:hover { background-color: #0056b3; }
+
+.error-text {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+}

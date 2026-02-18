@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Головна | Rehabilitation Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/home_page.css">
+</head>
+<body>
+
+<header class="top-header">
+  <div class="logo-area">
+    <img src="img/Лого.svg" alt="Logo" class="header-logo"> <span class="platform-name">Rehabilitation Platform</span>
+  </div>
+
+  <div class="header-actions">
+    <a href="constructor_course.html" class="add-course-btn" id="add-course-btn">
+      <i class="fas fa-plus"></i> Додати курс
+    </a>
+
+    <div class="user-profile">
+      <div class="avatar-circle">
+        <i class="fas fa-user-md"></i>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="layout-container">
+
+  <aside class="sidebar">
+    <h3 class="sidebar-title">Мої курси</h3>
+    <ul id="sidebar-list" class="course-list">
+    </ul>
+
+    <footer class="sidebar-footer">
+      <p>© 2026 Rehabilitation Platform. Всі права захищено.</p>
+      <div class="social-icons">
+        <a href="https://www.instagram.com/yamamukushala/?hl=uk" target="_blank" title="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="http://t.me/YaMamuKushala" target="_blank" title="Telegram">
+          <i class="fab fa-telegram"></i>
+        </a>
+      </div>
+    </footer>
+  </aside>
+
+  <main class="main-content">
+    <section class="welcome-banner">
+      <div class="welcome-text">
+        <h1>Вітаємо, <span id="user-name"></span>! </h1>
+        <p id="motivation-quote"></p>
+      </div>
+      <div class="welcome-stats">
+        <div class="stat-item">
+          <span class="stat-value" id="active-courses-count">0</span>
+          <span class="stat-label">Курси активні</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-value">85%</span>
+          <span class="stat-label">Середній успіх</span>
+        </div>
+      </div>
+    </section>
+
+    <div id="courses-grid" class="courses-grid"></div>
+  </main>
+
+  <div id="join-modal" class="modal-overlay hidden">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Приєднатися до курсу</h3>
+        <button id="close-modal-btn" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p>Введіть код курсу, який вам надав лікар</p>
+        <input type="text" id="modal-course-id" placeholder="Код курсу" class="modal-input">
+        <p id="modal-error" class="error-text hidden"></p>
+      </div>
+
+      <div class="modal-footer">
+        <button id="confirm-join-btn" class="btn-primary">Доєднатись</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/home_page.js"></script>
+
+</body>
+</html>
