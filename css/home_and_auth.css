@@ -1,0 +1,588 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+  background-color: #e1ebed; /* Світло-синій фон сторінки */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Анімований фон(бульбашки) */
+.bg-circle {
+  position: fixed;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #8ac7da, #57aed1);
+  opacity: 0.3;   /* прозорість */
+  z-index: 0;       /* Найнижчий рівень, але вище за background-color body */
+  animation: float 15s infinite ease-in-out;   /* швидкість анімації */
+  pointer-events: none; /* Щоб вони не заважали клікати */
+}
+
+/* Бульбашка головного екрану (зліва зверху) */
+.c1 {
+  width: 300px;
+  height: 300px;
+  top: -40px;
+  left: -50px;
+}
+
+/* Бульбашка головного екрану (справа знизу) */
+.c2 {
+  width: 400px;
+  height: 400px;
+  bottom: -80px;
+  right: -50px;
+  animation-delay: 2s;
+}
+
+/* Анімація плавання бульбашок */
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1.2); }
+  50% { transform: translateY(30px) scale(1.5); }
+}
+
+/* Логотип */
+.brand-overlay {
+  position: absolute;
+  top: 3%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  text-align: center;
+  color: #284d5b;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Основне лого */
+.main-logo {
+  width: 120px;
+  height: auto; /* зберігає пропорції логотипу */
+  margin-bottom: 10px; /* Відступ від логотипу до тексту */
+
+  /* Якщо SVG чорний, а фон темний - цей фільтр зробить його білим */
+  /* filter: invert(1) brightness(100%); */
+
+  /* Додаємо легку тінь, щоб лого читалось на будь-якому фоні */
+  /* /filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); */
+}
+
+/* Назва */
+.brand-name {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+}
+
+/* Опис під назвою */
+.brand-desc {
+  margin: 8px 0 0;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Контейнер з кнопками для подальшої авторизації */
+.split-container {
+  display: flex;
+  position: relative;
+  width: 100vw;          /* ширина видимого екрана */
+  max-width: none;
+  height: 40vh;        /* Висота смужки */
+  background: #e1ebed;
+  overflow: hidden;
+  margin-top: 60px;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: 0 0 30px rgba(0,0,0,0.3); /* тінь зверху і знизу */
+  z-index: 10;
+}
+
+/* Іконки на головному екрані кнопок для реєстрації */
+.split-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+  display: block;
+  opacity: 0.8;
+  transition: transform 0.3s;
+}
+
+/* Анімація при наведенні на блок */
+.split-pane:hover .split-icon {
+  transform: scale(1.2) rotate(-10deg); /* трохи збільшується і нахиляється */
+}
+
+/* Плитки для різних ролей для входу */
+.split-pane {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* центруємо текст вертикально */
+  cursor: pointer;
+  transition: flex 0.9s ease;
+  position: relative;
+}
+
+/* Контент на плитці для входу */
+.pane-content {
+  text-align: center;
+  color: #e1ebed;
+  transition: transform 0.3s;
+}
+
+/* Анімація розширення панелей при наведенні */
+.split-pane:hover {
+  flex: 1.5;
+}
+
+/* Масштабування контенту всередині плитки */
+.split-pane:hover .pane-content {
+  transform: scale(1.1);
+}
+
+/* Кольори плиток*/
+.patient { background: linear-gradient(160deg, #60a7bd 20%, #e1ebed 120%); }
+.doctor { background: linear-gradient(160deg, #65a0b1 20%, #e1ebed 120%); }
+.admin { background: linear-gradient(160deg, #779ea9 20%, #e1ebed 120%); }
+
+/* Кнопка зворотнього зв'язку */
+.contact-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #284d5b;
+  color: #e1ebed;
+  border: none;
+  border-radius: 30px;
+  padding: 15px 25px;
+  font-size: 16px;
+  box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+  cursor: pointer;
+  z-index: 100;
+  transition: transform 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Рух кнопки зворотнього зв'язку при наведенні */
+.contact-fab:hover {
+  background-color: #105973;
+  transform: translateY(-2px);
+}
+
+/* Контактні дані */
+.site-footer {
+  position: absolute; /* притискаємо до низу */
+  bottom: 0;
+  width: 100%;
+  padding: 20px 0;
+  text-align: center;
+  color: #5a7d8b;
+  font-size: 14px;
+  z-index: 10;
+}
+
+/* Медіа */
+.social-links a {
+  color: #284d5b;
+  margin: 0 10px;
+  font-size: 18px;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+/* Колір при наведенні на іконки медіа */
+.social-links a:hover {
+  color: #45b5d8;
+}
+
+/* Вікно зворотнього зв'язку */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+/* Контейнери у вікні зворотнього зв'язку */
+.contact-form-container {
+  background: #e1ebed;
+  padding: 40px;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 16px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* Заголовок у вікні зворотнього зв'язку */
+.contact-title {
+  color: #284d5b;
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-size: 28px;
+  font-weight: 400;
+}
+
+/* Кнопка "закрити" у вікні зворотнього зв'язку */
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  font-size: 38px;
+  cursor: pointer;
+  color: #284d5b;
+}
+
+/* Колір кнопки "закрити" у вікні зворотнього зв'язку */
+.close-btn:hover { color: #333; }
+
+/* Стилі полів форми контактів */
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+/* Лейбли у вікні зворотнього зв'язку */
+.form-group label {
+  display: block;
+  color: #284d5b; /* Синій колір лейблів */
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+/* Форми у вікні зворотнього зв'язку */
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  background-color: #e1ebed; /* світло-синій фон інпутів */
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+  resize: none;
+}
+
+/* Ефект виділення полів при натисканні */
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: 2px solid #284d5b;
+  background-color: #fff;
+}
+
+/* Кнопка "Надіслати" */
+.submit-btn {
+  width: 100%;
+  background-color: #284d5b;
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 25px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.3s;
+}
+
+/* Ефект при наведенні на кнопку "Надіслати" */
+.submit-btn:hover {
+  background-color: #284d5b;
+}
+
+/* Бульбашки у вікні входу */
+.bg-circle {
+  position: fixed;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #4facfe, #00f2fe);
+  opacity: 0.2;     /* трохи прозоріші, щоб не відволікати */
+  z-index: 0;       /* найнижчий шар */
+  animation: float 15s infinite ease-in-out;
+  pointer-events: none;
+}
+
+/* Допоміжні класи для розмірів бульбашок */
+.small-circle { width: 150px; height: 150px; }
+.medium-circle { width: 250px; height: 250px; }
+
+/* Позиції та затримки для анімації бульбашок */
+/* c3: Зліва посередині */
+.c3 {
+  top: 30%; left: 5%;
+  background: linear-gradient(45deg, #57aed1, #87ceeb); /* М'ятний градієнт */
+  animation-delay: 1s;
+}
+
+/* c4: Справа зверху */
+.c4 {
+  top: 10%; right: 20%;
+  animation-delay: 3.5s;
+  opacity: 0.15;
+}
+
+/* c5: Майже по центру знизу */
+.c5 {
+  bottom: 15%; left: 40%;
+  animation-delay: 5s;
+  opacity: 0.1;
+}
+
+/* Контейнер авторизації */
+.auth-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 100; /* має бути вище за все */
+  transition: opacity 0.3s ease; /* плавна поява */
+}
+
+/* Клас для приховування */
+.hidden {
+  display: none !important;
+}
+
+/* Біла картка з формою для авторизації та реєстрації*/
+.form-wrapper {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+  z-index: 102; /* вище за фон контейнера */
+  margin-top: 60px; /* відступ від логотипу */
+}
+
+/* Стилізація елементів введення */
+.form-wrapper input, .form-wrapper select, .form-wrapper textarea {
+  width: 100%; padding: 12px; margin: 0;
+  border: 1px solid #beceda; border-radius: 16px; box-sizing: border-box;
+}
+
+/* Помилка введення даних */
+.error-message {
+  display: none; /* Спочатку приховано */
+  color: #d63031;
+  background-color: #ff767520;
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #d63031;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Повідомлення про успішну реєстрацію */
+.success-message {
+  display: none;
+  color: #27ae60;
+  background-color: #2ecc7120;
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #27ae60;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Кнопка підтвердження авторизації */
+.auth-btn {
+  width: 100%; padding: 12px; background-color: #284d5b; color: #e1ebed;
+  border: none; border-radius: 6px; cursor: pointer; font-size: 16px;
+}
+
+/* Кнопка "Назад" */
+.back-btn {
+  position: absolute; top: 10px; left: 20px;
+  background: transparent; border: none; font-size: 16px; cursor: pointer;
+}
+
+/* Контейнер для кнопок перемикання між входом та реєстрацією */
+.toggle-btns {
+  display: flex;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Самі кнопки (Вхід / Реєстрація) */
+.toggle-btns button {
+  flex: 1;                        /* <--- робить кнопки однакової ширини */
+  background: #e1ebed;
+  border: none;
+  padding: 12px 0;                /* висота кнопки */
+  border-radius: 8px;
+  cursor: pointer;
+
+  /* Додаємо шрифт і плавність */
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Активна кнопка */
+.toggle-btns button.active {
+  background: #97cddc;
+  color: #f3f6f8;
+  box-shadow: 0 4px 10px rgba(151, 205, 220, 0.2);
+}
+
+/* Неактивна кнопка при наведенні */
+.toggle-btns button:not(.active):hover {
+  background: #d4e0e4;
+}
+
+/* Контейнер реєстрації */
+.form-row {
+  display: flex;
+  gap: 15px; /* відстань між полями збоку */
+  width: 100%;
+}
+
+/* Змушує поля всередині рядка ділити місце порівну */
+.form-row .form-group {
+  flex: 1; /* займати рівну частину */
+  margin-bottom: 12px;
+}
+
+/* Стилізація під шрифт */
+/* Змушуємо поля і кнопки "бачити" шрифт */
+input, textarea, button, select {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Заголовок форми "Зв'яжіться з нами" */
+.contact-title {
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: #284d5b;
+  text-transform: uppercase; /* капс */
+  font-size: 24px;
+}
+
+/* Підписи полів у блоці "Зв'яжіться з нами" */
+.form-group label {
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #284d5b;
+  margin-bottom: 8px;
+}
+
+/* Поля вводу у блоці "Зв'яжіться з нами" */
+.form-group input,
+.form-group textarea {
+  background-color: #f5f6f8;
+  border: 2px solid transparent; /* рамка прозора, поки не клікнеш */
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 500;
+  color: #0b1820;
+  transition: all 0.3s ease;
+}
+
+/* Ефект коли клікаєш у поле */
+.form-group input:focus,
+.form-group textarea:focus {
+  background-color: #fff;
+  border-color: #60a7bd;
+  box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);
+  outline: none;
+}
+
+/* Кнопка "Надіслати" */
+.submit-btn {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px; /* широкі відступи */
+  border-radius: 50px;
+  padding: 15px;
+  background: linear-gradient(90deg, #60a7bd, #4c8698); /* градієнт */
+  box-shadow: 0 10px 20px rgba(98, 125, 152, 0.3); /* тінь */
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Ефект для кнопки "Надіслати" */
+.submit-btn:hover {
+  transform: translateY(-2px); /* легкий підйом при наведенні */
+  box-shadow: 0 15px 25px rgba(99, 122, 159, 0.4);
+}
+
+/* Стилізація випадаючого списку поля "Стать" */
+.form-group select {
+  /* Форма */
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 12px;
+
+  /* Колір (в неактивному стані) */
+  background-color: #f5f6f8;
+  color: #284d5b;
+  border: 2px solid transparent; /* прозора рамка */
+
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+
+  /* Прибираємо стандартний вигляд браузера, щоб стрілка була гарною) */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* Додаємо свою стрілку (галочку) */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23284d5b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px top 50%;
+  background-size: 12px auto;
+}
+
+/* Коли натискаєш на список (Активний стан) */
+.form-group select:focus {
+  outline: none;
+  background-color: #ffffff;
+  border-color: #60a7bd;
+  box-shadow: 0 5px 15px rgba(96, 167, 189, 0.2);
+}
+
+/* Фон списку */
+.form-group select option {
+  background-color: #ffffff; /* білий фон списку */
+  color: #284d5b;
+  padding: 10px;
+}
+/* Динамічне керування видимістю фонових елементів */
+body:has(#auth-section:not(.hidden)) > .bg-circle {
+  display: none;
+}

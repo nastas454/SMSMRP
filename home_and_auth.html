@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rehabilitation platform - medical help</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/home_and_auth.css">
+</head>
+<body>
+
+<!-- Бульбашки на фоні головної сторінки -->
+<div class="bg-circle c1"></div> <div class="bg-circle c2"></div>
+
+<!-- Логотип та назва продукту -->
+<div class="brand-overlay">
+  <div class="logo-container">
+    <img src="img/Лого.svg" alt="Логотип Rehabilitation platform" class="main-logo">
+  </div>
+  <h1 class="brand-name">Rehabilitation platform</h1>
+  <p class="brand-desc">Система медичної підтримки та відстеження динаміки відновлення пацієнтів після хірургічних втручань</p>
+</div>
+
+<!-- Кнопки для переходу до авторизації -->
+<div class="split-container" id="landing-page">
+  <div class="split-pane patient" onclick="openAuth('patient')">
+    <div class="pane-content">
+      <i class="fas fa-user-injured split-icon"></i>
+      <h2>Пацієнт</h2>
+      <p>Професійна реабілітація вдома під наглядом фахівців</p>
+    </div>
+  </div>
+  <div class="split-pane doctor" onclick="openAuth('doctor')">
+    <div class="pane-content">
+      <i class="fas fa-user-md split-icon"></i>
+      <h2>Лікар</h2>
+      <p>Моніторинг пацієнтів та створення власних реабілітаційних курсів</p>
+    </div>
+  </div>
+  <div class="split-pane admin" onclick="openAuth('admin')">
+    <div class="pane-content">
+      <i class="fas fa-user-cog split-icon"></i>
+      <h2>Адмін</h2>
+      <p>Керування доступом та налаштування системи</p>
+    </div>
+  </div>
+</div>
+
+<!-- Кнопка зворотнього зв'язку -->
+<button class="contact-fab" onclick="toggleContactModal(true)">
+  <i class="fas fa-envelope"></i> Зв'язатись з нами
+</button>
+
+<!-- Вміст контейнера зворотнього зв'язку -->
+<div id="contact-modal" class="modal-overlay hidden">
+  <div class="contact-form-container">
+    <span class="close-btn" onclick="toggleContactModal(false)">&times;</span>
+    <h2 class="contact-title">Зв'яжіться із нами</h2>
+
+    <form onsubmit="handleContactSubmit(event)">
+      <div class="form-group">
+        <label>Ім'я, Призвіще *</label>
+        <input type="text" required>
+      </div>
+
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" required>
+      </div>
+
+      <div class="form-group">
+        <label>Тема</label>
+        <input type="text">
+      </div>
+
+      <div class="form-group">
+        <label>Текст</label>
+        <textarea rows="4"></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">Надіслати</button>
+    </form>
+  </div>
+</div>
+
+<!-- Аунтифікація -->
+<div class="auth-container hidden" id="auth-section">
+
+  <div class="bg-circle c1"></div>
+  <div class="bg-circle c2"></div>
+  <div class="bg-circle c3 small-circle"></div>
+  <div class="bg-circle c4 medium-circle"></div>
+  <div class="bg-circle c5 small-circle"></div>
+
+  <!-- Лого та назва -->
+  <div class="brand-overlay page-header">
+    <div class="logo-container">
+      <img src="img/Лого.svg" alt="Rehabilitation platform Logo" class="main-logo">
+    </div>
+    <h1 class="brand-name">Rehabilitation platform</h1>
+  </div>
+
+  <!-- Кнопка назад -->
+  <button class="back-btn" onclick="goBack()">⬅️ Назад</button>
+
+  <!-- Блок входу для Адміністратора -->
+  <div id="admin-forms" class="form-wrapper hidden">
+    <h2>Вхід для Адміністратора</h2>
+    <form onsubmit="handleLogin(event, '/auth/admin/login')">
+      <div class="form-group">
+        <label>Логін</label>
+        <input type="text" name="username" required>
+      </div>
+      <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" name="password" required>
+      </div>
+      <div class="error-message" style="display: none;"></div>
+      <button type="submit" class="submit-btn">Увійти</button>
+    </form>
+  </div>
+
+  <!-- Блок входу для Лікаря -->
+  <div id="doctor-forms" class="form-wrapper hidden">
+    <h2>Вхід для Лікаря</h2>
+    <form onsubmit="handleLogin(event, '/auth/doctors/login')">
+      <div class="form-group">
+        <label>Логін</label>
+        <input type="text" name="username" required>
+      </div>
+      <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" name="password" required>
+      </div>
+      <div class="error-message" style="display: none;"></div>
+      <button type="submit" class="submit-btn">Увійти</button>
+    </form>
+  </div>
+
+  <!-- Кнопки вибору реєстрації чи входу -->
+  <div id="patient-forms" class="form-wrapper hidden">
+    <div class="toggle-btns">
+      <button class="active" onclick="togglePatientMode('login')">Вхід</button>
+      <button onclick="togglePatientMode('register')">Зареєструватись</button>
+    </div>
+
+    <!-- Блок входу для Пацієнта -->
+    <div id="patient-login-block">
+      <h2>Вхід для пацієнтів</h2>
+      <form onsubmit="handleLogin(event, '/auth/users/login')">
+        <div class="form-group">
+          <label>Логін</label>
+          <input type="text" name="username" required>
+        </div>
+        <div class="form-group">
+          <label>Пароль</label>
+          <input type="password" name="password" required>
+        </div>
+        <div class="error-message" style="display: none;"></div>
+        <button type="submit" class="submit-btn">Увійти</button>
+      </form>
+    </div>
+
+    <!-- Блок реєстрації Пацієнта -->
+    <div id="patient-register-block" class="hidden">
+      <h2>Реєстрація</h2>
+      <form onsubmit="handleRegister(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Ім'я</label>
+            <input type="text" name="first_name" required>
+          </div>
+          <div class="form-group">
+            <label>Прізвище</label>
+            <input type="text" name="last_name" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group small-col">
+            <label>Вік</label>
+            <input type="number" name="age" required>
+          </div>
+          <div class="form-group">
+            <label>Стать</label>
+            <select name="sex" required>
+              <option value="male">Чоловік</option>
+              <option value="female">Жінка</option>
+              <option value="other">Інше</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Логін</label>
+            <input type="text" name="login" required>
+          </div>
+          <div class="form-group">
+            <label>Пароль</label>
+            <input type="password" name="password" required>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn">Зареєструватись</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="js/home_and_auth.js"></script>
+
+<!-- Контактні дані -->
+<footer class="site-footer">
+  <div class="footer-content">
+    <p>&copy; 2026 Rehabilitation Platform. Всі права захищено.</p>
+    <div class="social-links">
+      <a href="https://www.instagram.com/yamamukushala/?hl=uk"><i class="fab fa-instagram"></i></a>
+      <a href="http://t.me/YaMamuKushala"><i class="fab fa-telegram"></i></a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

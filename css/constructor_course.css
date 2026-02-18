@@ -1,0 +1,26 @@
+/* (Вміст той самий, що і в попередньому варіанті) */
+body { margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; background-color: #e1ebed; color: #284d5b; }
+.main-wrapper { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px 20px; }
+.back-link { text-decoration: none; color: #60a7bd; font-weight: 600; display: inline-block; margin-bottom: 20px; }
+.constructor-header { text-align: center; margin-bottom: 30px; }
+.card-panel, .day-block { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 25px; }
+.card-panel h3 { margin-top: 0; border-bottom: 2px solid #e1ebed; padding-bottom: 15px; margin-bottom: 20px; font-size: 18px; }
+.form-group { margin-bottom: 15px; }
+.form-row { display: flex; gap: 20px; } /* Це ставить підходи і повтори в ряд */
+.form-row .form-group { flex: 1; }
+label { display: block; font-weight: 600; font-size: 13px; text-transform: uppercase; margin-bottom: 8px; color: #284d5b; }
+input, textarea, select { width: 100%; padding: 12px 15px; background-color: #f5f6f8; border: 2px solid transparent; border-radius: 12px; font-family: 'Montserrat', sans-serif; font-size: 14px; color: #284d5b; box-sizing: border-box; resize: none; }
+input:focus, textarea:focus, select:focus { background-color: #fff; border-color: #60a7bd; outline: none; }
+.day-block { border: 1px solid transparent; transition: border-color 0.3s; }
+.day-block:hover { border-color: #60a7bd; }
+.day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #f0f4f5; padding: 10px 20px; border-radius: 10px; }
+.day-header h4 { margin: 0; }
+.exercise-item { background: #f9fbfc; border-left: 5px solid #60a7bd; padding: 20px; border-radius: 8px; margin-top: 15px; }
+.delete-btn { color: #ff6b6b; background: none; border: none; cursor: pointer; font-weight: 600; }
+.add-day-btn { width: 100%; padding: 18px; border: 2px dashed #60a7bd; background: rgba(96, 167, 189, 0.05); color: #284d5b; font-weight: 600; border-radius: 16px; cursor: pointer; transition: all 0.3s; }
+.add-day-btn:hover { background: rgba(96, 167, 189, 0.15); }
+.add-ex-btn { width: 100%; margin-top: 15px; padding: 10px; background: #e1ebed; color: #284d5b; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.footer-actions { display: flex; justify-content: center; gap: 20px; margin-top: 40px; }
+.btn-save { background: linear-gradient(90deg, #60a7bd, #284d5b); color: white; padding: 15px 40px; border-radius: 50px; border: none; font-weight: 700; cursor: pointer; }
+.btn-cancel { background: transparent; border: 2px solid #beceda; color: #7f8c8d; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-weight: 600; }
+@media (max-width: 600px) { .form-row { flex-direction: column; gap: 0; } }

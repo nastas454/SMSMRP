@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Конструктор Курсу | Rehabilitation Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/constructor_course.css">
+</head>
+<body>
+
+<div class="main-wrapper">
+  <a href="main_page.html" class="back-link">⬅ Назад на головну</a>
+
+  <div class="constructor-header">
+    <h1>Конструктор реабілітації</h1>
+    <p>Створення нової програми відновлення</p>
+  </div>
+
+  <div class="card-panel">
+    <h3>📋 Інформація про курс</h3>
+
+    <div class="form-group">
+      <label>Назва курсу *</label>
+      <input type="text" id="course-title" placeholder="Наприклад: Реабілітація після розриву меніска">
+    </div>
+
+    <div class="form-group">
+      <label>Для яких травм *</label>
+      <input type="text" id="course-injuries" placeholder="Наприклад: Розрив меніска, артроскопія коліна">
+    </div>
+
+    <div class="form-group">
+      <label>Опис курсу</label>
+      <textarea id="course-desc" rows="3" placeholder="Загальний опис методики відновлення..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Кількість днів</label>
+      <input type="text" id="course-duration" value="0" required style="background-color: #f0f4f5; font-weight: bold;">
+    </div>
+  </div>
+
+  <div id="days-container">
+  </div>
+
+  <button class="add-day-btn" onclick="addDay()">
+    <i class="fas fa-plus-circle"></i> Додати день
+  </button>
+
+  <div class="divider"></div>
+
+  <div class="footer-actions">
+    <button class="btn-cancel" onclick="location.reload()">Скасувати</button>
+    <button class="btn-save" onclick="saveCourse()">💾 Зберегти курс</button>
+  </div>
+</div>
+
+<script src="js/constructor_course.js"></script>
+</body>
+</html>

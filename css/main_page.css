@@ -1,0 +1,217 @@
+/* --- ЗАГАЛЬНІ --- */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #e1ebed;
+  color: #284d5b;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- ШАПКА (HEADER) --- */
+.top-header {
+  height: 70px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  z-index: 10;
+  position: relative;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
+.platform-name {
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
+  color: #60a7bd; /* Блакитний акцент як на малюнку */
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Кнопка "Додати курс" */
+.add-course-btn {
+  text-decoration: none;
+  color: #60a7bd;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.add-course-btn:hover {
+  background-color: #f0f8fa;
+}
+
+/* Аватарка */
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  background-color: #e1ebed;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #284d5b;
+  font-size: 20px;
+  cursor: pointer;
+  border: 2px solid #60a7bd;
+}
+
+/* --- ГОЛОВНИЙ МАКЕТ (SIDEBAR + MAIN) --- */
+.layout-container {
+  display: flex;
+  flex: 1; /* Займає всю висоту, що залишилась */
+  overflow: hidden; /* Щоб скролилось всередині */
+}
+
+/* --- БОКОВА ПАНЕЛЬ --- */
+.sidebar {
+  width: 250px;
+  background-color: #ffffff;
+  border-right: 1px solid #dcebf0;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-title {
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #60a7bd; /* Стиль "LOGO" з макету */
+  font-weight: 300; /* Тонкий шрифт як на малюнку */
+  text-transform: uppercase;
+  border-bottom: 2px solid #e1ebed;
+  padding-bottom: 10px;
+}
+
+.course-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.course-list li {
+  padding: 15px 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 16px;
+  color: #7f8c8d;
+  transition: all 0.2s;
+  border-bottom: 1px solid #f0f4f5;
+}
+
+.course-list li:hover {
+  background-color: #f0f8fa;
+  color: #284d5b;
+  padding-left: 15px; /* Ефект зсуву */
+}
+
+/* --- ОСНОВНИЙ КОНТЕНТ --- */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto; /* Скрол тільки тут */
+}
+
+/* Сітка карток */
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Адаптивні колонки */
+  gap: 25px;
+}
+
+/* --- КАРТКА КУРСУ --- */
+.course-card {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  border-left: 6px solid #60a7bd; /* Синя лінія зліва */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 220px;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.card-header {
+  border-bottom: 1px solid #e1ebed;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+  color: #60a7bd; /* Заголовок як на малюнку */
+}
+
+.card-body p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.card-label {
+  color: #60a7bd; /* Блакитний колір підписів "травми:", "лікар:" */
+  font-weight: 600;
+  margin-right: 5px;
+}
+
+.card-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end; /* Лікар справа */
+  align-items: center;
+  font-size: 13px;
+  color: #7f8c8d;
+}
+
+/* Кнопка "три крапки" */
+.card-options {
+  position: absolute;
+  bottom: 15px;
+  right: 15px; /* Замість кнопки меню, як на малюнку, можна тут */
+  /* АБО в footer, як на малюнку */
+}
+
+.more-options-btn {
+  background: none;
+  border: none;
+  color: #60a7bd;
+  font-size: 18px;
+  cursor: pointer;
+}
