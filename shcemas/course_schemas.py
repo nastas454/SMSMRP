@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -10,9 +11,9 @@ class CoursesCreate(BaseModel):
     course_content : dict[str, Any]
 
 class CoursesResponse(BaseModel):
-    id: int
+    id: uuid.UUID
     course_name: str
     injuries: list[str]
-    doctor_id: int
+    doctor_id: uuid.UUID
 
     model_config = ConfigDict(from_attributes=True)

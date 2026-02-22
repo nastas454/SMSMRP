@@ -1,6 +1,6 @@
 from enum import Enum
 
 class Role(str, Enum):
-    USER = 'user'
+    PATIENT = 'patient'
     DOCTOR = 'doctor'
     ADMIN = 'admin'

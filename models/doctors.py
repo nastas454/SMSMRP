@@ -1,20 +1,14 @@
-from sqlalchemy import Integer, Column, String, Boolean
+from sqlalchemy import Column, ForeignKey, UUID
 from sqlalchemy.orm import relationship
+from models.user import Users
 
-from core.database import Base
-from models.enums.role_enum import Role
 
-class Doctors(Base):
+class Doctors(Users):
     __tablename__ = 'doctors'
 
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String,nullable=False, index=True)
-    last_name = Column(String,nullable=False, index=True)
-
-    login = Column(String,nullable=False, index=True, unique=True)
-    password = Column(String,nullable=False)
-
-    role = Column(String,nullable=False, index=True, default=Role.DOCTOR.value)
+    id = Column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
     courses = relationship("Courses", back_populates="doctor", cascade="all, delete")
 
-    is_active = Column(Boolean, nullable=False, index=True, default=True)
+    mapper_args = {
+        "polymorphic_identity": "doctors"
+    }

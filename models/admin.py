@@ -1,16 +1,15 @@
 from datetime import datetime
-from sqlalchemy import Integer, Column, String, Boolean, DateTime
-from core.database import Base
-from models.enums.role_enum import Role
+from sqlalchemy import Column, DateTime, ForeignKey, UUID
+from models.user import Users
 
-class Admins(Base):
-    __tablename__ = 'admin'
 
-    id = Column(Integer, primary_key=True)
+class Admins(Users):
+    __tablename__ = 'admins'
 
-    login = Column(String,nullable=False, index=True, unique=True)
-    password = Column(String,nullable=False)
+    id = Column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
 
-    role = Column(String,nullable=False, index=True, default=Role.ADMIN.value)
-    is_active = Column(Boolean,nullable=False, index=True, default=True)
     create_at = Column(DateTime,nullable=False, default=datetime.utcnow)
+
+    mapper_args = {
+        "polymorphic_identity": "admins"
+    }
