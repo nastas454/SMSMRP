@@ -3,37 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Конструктор Курсу | Rehabilitation Platform</title>
+  <title>Конструктор курсу | Rehabilitation Platform</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/constructor_course.css">
 </head>
 <body>
 
+<div class="bg-circle c1"></div>
+<div class="bg-circle c2"></div>
+<div class="bg-circle c3 small-circle"></div>
+<div class="bg-circle c4 medium-circle"></div>
+<div class="bg-circle c5 small-circle"></div>
+
 <div class="main-wrapper">
-  <a href="home_page.html" class="back-link">⬅ Назад на головну</a>
+  <a href="home_page.html" class="back-link">⬅️ Назад на головну</a>
 
   <div class="constructor-header">
-    <h1>Конструктор реабілітації</h1>
+    <h1>Створіть свій реабілітаційний курс</h1>
     <p>Створення нової програми відновлення</p>
   </div>
 
   <div class="card-panel">
-    <h3>📋 Інформація про курс</h3>
+    <h3>Інформація про курс</h3>
 
     <div class="form-group">
       <label>Назва курсу *</label>
-      <input type="text" id="course-title" placeholder="Наприклад: Реабілітація після розриву меніска">
+      <input type="text" id="course-title" placeholder="">
     </div>
 
     <div class="form-group">
-      <label>Для яких травм *</label>
-      <input type="text" id="course-injuries" placeholder="Наприклад: Розрив меніска, артроскопія коліна">
+      <label>Тип хірургічного втручання *</label>
+      <input type="text" id="course-injuries" placeholder="">
     </div>
 
     <div class="form-group">
       <label>Опис курсу</label>
-      <textarea id="course-desc" rows="3" placeholder="Загальний опис методики відновлення..."></textarea>
+      <textarea id="course-desc" rows="8" placeholder="Загальний опис курсу відновлення..."></textarea>
     </div>
 
   </div>
@@ -48,10 +54,49 @@
   <div class="divider"></div>
 
   <div class="footer-actions">
-    <button class="btn-cancel" onclick="location.reload()">Скасувати</button>
-    <button class="btn-save" onclick="saveCourse()">💾 Зберегти курс</button>
+    <button class="btn-save" onclick="saveCourse()">Зберегти курс</button>
   </div>
 </div>
+
+<template id="exercise-template">
+  <div class="exercise-item">
+    <div class="exercise-header">
+      <span class="exercise-badge">ВПРАВА</span>
+      <button type="button" class="delete-btn exercise-delete-btn">❌ Видалити вправу</button>
+    </div>
+
+    <div class="form-group">
+      <label>Назва вправи</label>
+      <input type="text" class="ex-name" placeholder="">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Повтори</label>
+        <input type="text" class="ex-reps" placeholder="">
+      </div>
+      <div class="form-group">
+        <label>Підходи</label>
+        <input type="text" class="ex-sets" placeholder="">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Опис виконання</label>
+      <textarea class="ex-desc" rows="2" placeholder=""></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Рекомендації</label>
+      <textarea class="ex-rec" rows="2" placeholder="Зверніть увагу на..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Посилання на відео</label>
+      <input type="text" class="ex-video" placeholder="https://youtube.com/...">
+    </div>
+  </div>
+</template>
 
 <script src="js/constructor_course.js"></script>
 </body>

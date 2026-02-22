@@ -1,0 +1,320 @@
+/* --- ЗАГАЛЬНІ --- */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #f0f8ff;
+  color: #284d5b;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- ШАПКА (HEADER) --- */
+.top-header {
+  height: 70px;
+  background: #4a8394;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  z-index: 10;
+  position: relative;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  filter: invert(1) brightness(100%);
+}
+
+.header-logo {
+  height: 50px;
+  width: auto;
+}
+
+.platform-name {
+  font-weight: 700;
+  font-size: 18px;
+  text-transform: uppercase;
+  color: #e1ebed;
+  filter: invert(1) brightness(100%);
+}
+
+/* --- ШАПКА АДМІНКИ (Заголовок сторінки) --- */
+.header {
+  background: linear-gradient(120deg, #ffffff 0%, #f8fbfd 100%);
+  padding: 25px 35px;
+  margin: 10px 40px -10px 40px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-left: 12px solid #4a8394; /* Фірмова акцентна лінія зліва */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1d3037;
+  letter-spacing: 0.5px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Аватарка */
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  background-color: #f0f8ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #225061;
+  font-size: 20px;
+  cursor: pointer;
+  border: 2px solid #abc2c7;
+}
+
+/* Кнопка виходу */
+.logout-btn {
+  color: #e1ebed;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  padding: 6px;
+  border-radius: 12px;
+}
+
+.logout-btn:hover {
+  color: #f0f8ff;
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.2);
+}
+
+/* --- ГОЛОВНИЙ МАКЕТ (SIDEBAR + MAIN) --- */
+.layout-container {
+  display: flex;
+  flex: 1; /* Займає всю висоту, що залишилась */
+  overflow: hidden; /* Щоб скролилось всередині */
+}
+
+/* --- БОКОВА ПАНЕЛЬ --- */
+.sidebar {
+  width: 300px;
+  background-color: #c9e2e8;
+  border-right: 1px solid #f0f8ff;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: calc(100vh - 70px);
+}
+
+/* Стилі підпису */
+.sidebar-footer {
+  margin-top: auto;
+  padding: 20px;
+  text-align: center;
+  color: #1d3037;
+  font-size: 16px;
+}
+
+.sidebar-footer p {
+  margin-bottom: 12px;
+}
+
+/* Іконки соцмереж */
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* Встановлює відстань 20px між усіма елементами всередині */
+}
+
+.social-icons a {
+  color: #225061; /* Колір іконок */
+  font-size: 20px;
+  text-decoration: none;
+  transition: transform 0.3s, color 0.3s;
+  display: inline-block;
+
+  margin: 0 10px; /* Додає по 10px зліва та справа від кожної іконки */
+}
+
+.social-icons a:hover {
+  color: #3691ae; /* Колір зміниться при наведенні */
+  transform: translateY(-3px); /* Іконка трохи підстрибне */
+}
+
+.social-icons a:hover {
+  opacity: 0.6;
+}
+
+.sidebar-title1 {
+  font-size: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  color: #1d3037;
+  font-weight: 500;
+  text-transform: uppercase;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #4a8394;
+  padding-left: 20px;
+  box-sizing: border-box;
+}
+
+.nav-btn {
+  border: none;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
+  color: #1d3037;
+  transition: all 0.2s;
+  background: linear-gradient(60deg, #92c3d6 10%, #e1ebed 100%);
+  border-bottom: 2px solid #4a8394;
+  position: relative;
+}
+
+.nav-btn:hover {
+  background-color: #e1ebed;
+  color: #284d5b;
+  padding-left: 30px; /* Ефект зсуву */
+}
+
+/* Маленька вертикальна лінія зліва при наведенні */
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background-color: #4a8394;
+  transition: width 0.2s;
+}
+
+.nav-btn:hover::before {
+  width: 6px;
+}
+
+/* --- ОСНОВНИЙ КОНТЕНТ --- */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto; /* Скрол тільки тут */
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+}
+
+/* Table Styling */
+.table-container {
+  overflow-y: auto;
+  margin: 40px 40px;
+
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.users-table th, .users-table td {
+  padding: 15px 20px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.users-table th {
+  border-bottom: 2px solid #1d3037;
+  font-weight: 600;
+}
+
+.users-table td {
+  border-right: 1px solid #ddd;
+}
+
+.users-table td:last-child {
+  border-right: none;
+}
+
+/* User Info Cell */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+.user-info i {
+  font-size: 20px;
+  color: #1d3037;
+}
+
+/* Status Text */
+.status-text {
+  font-weight: 500;
+}
+.status-text.active { color: #1d3037; }
+.status-text.inactive { color: #737477; }
+
+/* Buttons as per sketch */
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-action {
+  padding: 8px 15px;
+  background: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  flex:1;
+}
+
+.btn-unban {
+  border: 2px solid #27ae60;
+  color: #27ae60;
+}
+.btn-unban:hover:not(:disabled) {
+  background-color: #27ae60;
+  color: #fff;
+}
+
+.btn-ban {
+  border: 2px solid #d63031;
+  color: #d63031;
+}
+.btn-ban:hover:not(:disabled) {
+  background-color: #d63031;
+  color: #fff;
+}
+
+/* Відключені кнопки */
+.btn-action:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

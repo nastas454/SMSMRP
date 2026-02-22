@@ -243,3 +243,16 @@ function updateWelcomePanel(count) {
   const el = document.getElementById('active-courses-count');
   if (el) el.textContent = count;
 }
+
+// Функція для виходу з акаунту
+function logoutUser(event) {
+  event.preventDefault(); // Зупиняємо стандартний перехід за посиланням
+
+  // Видаляємо токен доступу та інші дані користувача
+  localStorage.removeItem('access_token');
+  // Якщо ви зберігаєте роль або ім'я, їх також варто видалити
+  localStorage.removeItem('user_role');
+
+  // Перенаправляємо на сторінку логіну
+  window.location.href = 'main_and_auth.html';
+}

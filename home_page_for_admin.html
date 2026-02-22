@@ -1,10 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Користувачі | Адмін-панель</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/home_page_for_admin.css">
 </head>
 <body>
 
+<header class="top-header">
+  <div class="logo-area">
+    <img src="img/Лого.svg" alt="Logo" class="header-logo"> <span class="platform-name">Rehabilitation Platform</span>
+  </div>
+
+  <div class="header-actions">
+    <div class="user-profile">
+      <div class="avatar-circle">
+        <i class="fas fa-user-md"></i>
+      </div>
+    </div>
+    <a href="main_and_auth.html" class="logout-btn" title="Вийти" onclick="logoutUser(event)">
+      <i class="fas fa-sign-out-alt"></i>
+    </a>
+  </div>
+</header>
+
+<div class="layout-container">
+
+  <aside class="sidebar">
+    <h3 class="sidebar-title1">Адміністрування</h3>
+      <nav class="nav-menu">
+        <button class="nav-btn" onclick="switchTab('patients', this)">
+          <i class="fas fa-user-injured"></i> Пацієнти
+        </button>
+        <button class="nav-btn" onclick="switchTab('doctors', this)">
+          <i class="fas fa-user-md"></i> Лікарі
+        </button>
+      </nav>
+
+    <footer class="sidebar-footer">
+      <p>© 2026 Rehabilitation Platform. Всі права захищено.</p>
+      <div class="social-icons">
+        <a href="https://www.instagram.com/yamamukushala/?hl=uk" target="_blank" title="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="http://t.me/YaMamuKushala" target="_blank" title="Telegram">
+          <i class="fab fa-telegram"></i>
+        </a>
+      </div>
+    </footer>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <h1 id="page-title">Користувачі: Пацієнти</h1>
+    </header>
+    <div class="table-container">
+      <table class="users-table">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Логін / Користувач</th>
+          <th>Дата створення</th>
+          <th>Стан</th>
+          <th>Статус (Дії)</th>
+        </tr>
+        </thead>
+        <tbody id="users-tbody">
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</div>
+
+<script src="js/home_page_for_admin.js"></script>
 </body>
 </html>

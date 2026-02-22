@@ -65,6 +65,7 @@ body {
 
 .add-course-btn:hover {
   background-color: #779ea9;
+  transform: scale(1.1);
 }
 
 /* Аватарка */
@@ -80,6 +81,25 @@ body {
   font-size: 20px;
   cursor: pointer;
   border: 2px solid #abc2c7;
+}
+
+/* Кнопка виходу */
+.logout-btn {
+  color: #e1ebed;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  padding: 6px;
+  border-radius: 12px;
+}
+
+.logout-btn:hover {
+  color: #f0f8ff;
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.2);
 }
 
 /* --- ГОЛОВНИЙ МАКЕТ (SIDEBAR + MAIN) --- */
@@ -414,7 +434,7 @@ body {
 
 /* Саме вікно */
 .modal-container {
-  background-color: #fff;
+  background-color: #e1ebed;
   padding: 25px;
   border-radius: 12px;
   width: 90%;
@@ -451,7 +471,7 @@ body {
 .modal-input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #e1ebed;
   border-radius: 6px;
   font-size: 16px;
   margin-top: 10px;
@@ -466,15 +486,15 @@ body {
 }
 
 .btn-primary {
-  background-color: #007bff; /* Ваш основний колір */
-  color: white;
+  background-color: #3691ae; /* Ваш основний колір */
+  color: #e1ebed;
   border: none;
   padding: 10px 20px;
   border-radius: 6px;
   cursor: pointer;
 }
 
-.btn-primary:hover { background-color: #0056b3; }
+.btn-primary:hover { background-color: #297891; }
 
 .error-text {
   color: #dc3545;

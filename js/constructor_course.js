@@ -7,7 +7,7 @@ function addDay() {
 
   dayBlock.innerHTML = `
     <div class="day-header">
-      <h4 class="day-title">📅 День X</h4>
+      <h4 class="day-title">День X</h4>
       <button class="delete-btn" onclick="deleteDay(this)">
         <i class="fas fa-trash-alt"></i> Видалити день
       </button>
@@ -35,55 +35,27 @@ function deleteDay(btn) {
 function renumberDays() {
   const allDays = document.querySelectorAll('.day-block');
   allDays.forEach((day, index) => {
-    day.querySelector('.day-title').innerText = `📅 День ${index + 1}`;
+    day.querySelector('.day-title').innerText = `День ${index + 1}`;
   });
   // Більше не шукаємо document.getElementById('course-duration')
 }
 
-// Функція 4: Додати вправу (ТЕПЕР З ПОВТОРАМИ І ПІДХОДАМИ)
 function addExercise(btn) {
+  // 1. Знаходимо контейнер для списку вправ у поточному дні
   const list = btn.closest('.day-block').querySelector('.exercises-list');
-  const exItem = document.createElement('div');
-  exItem.className = 'exercise-item';
 
-  exItem.innerHTML = `
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-      <span style="font-size:12px; font-weight:700; color:#60a7bd;">ВПРАВА</span>
-      <button class="delete-btn" onclick="this.closest('.exercise-item').remove()" style="font-size:12px;">✕ Видалити</button>
-    </div>
+  // 2. Отримуємо шаблон та клонуємо його вміст
+  const template = document.getElementById('exercise-template');
+  const exItem = template.content.cloneNode(true);
 
-    <div class="form-group">
-      <label>Назва вправи</label>
-      <input type="text" class="ex-name" placeholder="Напр: Згинання коліна">
-    </div>
+  // 3. Знаходимо кнопку видалення в клонованому елементі і додаємо обробник події
+  const deleteBtn = exItem.querySelector('.exercise-delete-btn');
+  deleteBtn.addEventListener('click', function(event) {
+    // Видаляємо найближчий батьківський елемент з класом .exercise-item
+    event.target.closest('.exercise-item').remove();
+  });
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Повтори</label>
-        <input type="text" class="ex-reps" placeholder="Напр: 10-15">
-      </div>
-      <div class="form-group">
-        <label>Підходи</label>
-        <input type="text" class="ex-sets" placeholder="Напр: 3">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Опис виконання</label>
-      <textarea class="ex-desc" rows="2" placeholder="Як правильно робити вправу..."></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>Рекомендації</label>
-      <textarea class="ex-rec" rows="2" placeholder="На що звернути увагу..."></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>Посилання на відео</label>
-      <input type="text" class="ex-video" placeholder="https://youtube.com/...">
-    </div>
-  `;
-
+  // 4. Додаємо готову вправу в список
   list.appendChild(exItem);
 }
 
@@ -141,7 +113,7 @@ async function saveCourse() {
 
   // 5. Відправка на сервер
   try {
-    saveBtn.innerText = "⏳ Збереження...";
+    saveBtn.innerText = "Збереження...";
     saveBtn.disabled = true;
 
     const token = localStorage.getItem('access_token');

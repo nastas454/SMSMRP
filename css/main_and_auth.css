@@ -421,8 +421,13 @@ body, html {
 
 /* Кнопка "Назад" */
 .back-btn {
-  position: absolute; top: 10px; left: 20px;
-  background: transparent; border: none; font-size: 16px; cursor: pointer;
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 /* Контейнер для кнопок перемикання між входом та реєстрацією */
@@ -582,6 +587,7 @@ input, textarea, button, select {
   color: #284d5b;
   padding: 10px;
 }
+
 /* Динамічне керування видимістю фонових елементів */
 body:has(#auth-section:not(.hidden)) > .bg-circle {
   display: none;
