@@ -1,10 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
-</head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Проходження курсу | Rehabilitation Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/course_completion.css"> </head>
 <body>
 
-</body>
+<header class="top-header">
+  <div class="logo-area" onclick="window.location.href='home_page.html'" style="cursor: pointer;">
+    <img src="img/Лого.svg" alt="Logo" class="header-logo">
+    <span class="platform-name">Rehabilitation Platform</span>
+  </div>
+
+  <div class="header-actions">
+    <a href="account_page.html" class="user-profile" title="Мій профіль">
+      <div class="avatar-circle-cp">
+        <i class="fas fa-user"></i>
+      </div>
+    </a>
+    <a href="#" class="logout-btn" title="Вийти" onclick="logoutUser(event)">
+      <i class="fas fa-sign-out-alt"></i>
+    </a>
+  </div>
+</header>
+
+<main class="execution-main">
+
+  <div class="nav-btn-container">
+    <button id="btn-prev" class="nav-btn" onclick="prevExercise()">
+      <i class="fas fa-arrow-left"></i> Назад
+    </button>
+  </div>
+
+  <div class="execution-card">
+    <div class="day-header" id="display-day">ДЕНЬ 1</div>
+
+    <div class="exercise-content">
+      <h3 class="exercise-number" id="display-exercise-title">Вправа 1: Тяга гумової стрічки до поясу</h3>
+
+      <div class="form-row">
+        <div class="input-group">
+          <label>ПОВТОРИ</label>
+          <div class="readonly-field" id="display-reps">15</div>
+        </div>
+        <div class="input-group">
+          <label>ПІДХОДИ</label>
+          <div class="readonly-field" id="display-sets">3</div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>ОПИС ВИКОНАННЯ</label>
+        <div class="readonly-field multiline" id="display-desc">Тримайте спину рівною...</div>
+      </div>
+
+      <div class="input-group">
+        <label>РЕКОМЕНДАЦІЇ</label>
+        <div class="readonly-field multiline" id="display-rec">Зверніть увагу на дихання...</div>
+      </div>
+
+      <div class="input-group">
+        <label>ПОСИЛАННЯ НА ВІДЕО</label>
+        <div class="readonly-field">
+          <a href="#" target="_blank" id="display-video" class="video-link">https://youtube.com/...</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btn-container">
+    <button id="btn-next" class="nav-btn" onclick="nextExercise()">
+      Далі <i class="fas fa-arrow-right"></i>
+    </button>
+  </div>
+
+</main>
+
+<script src="js/course_completion.js"></script> </body>
 </html>

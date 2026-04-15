@@ -12,10 +12,8 @@
 </head>
 <body>
 
-<!-- Бульбашки на фоні головної сторінки -->
 <div class="bg-circle c1"></div> <div class="bg-circle c2"></div>
 
-<!-- Логотип та назва продукту -->
 <div class="brand-overlay">
   <div class="logo-container">
     <img src="img/Лого.svg" alt="Логотип Rehabilitation platform" class="main-logo">
@@ -24,7 +22,6 @@
   <p class="brand-desc">Система медичної підтримки та відстеження динаміки відновлення пацієнтів після хірургічних втручань</p>
 </div>
 
-<!-- Кнопки для переходу до авторизації -->
 <div class="split-container" id="landing-page">
   <div class="split-pane patient" onclick="openAuth('patient')">
     <div class="pane-content">
@@ -49,44 +46,26 @@
   </div>
 </div>
 
-<!-- Кнопка зворотнього зв'язку -->
 <button class="contact-fab" onclick="toggleContactModal(true)">
   <i class="fas fa-envelope"></i> Зв'язатись з нами
 </button>
 
-<!-- Вміст контейнера зворотнього зв'язку -->
 <div id="contact-modal" class="modal-overlay hidden">
   <div class="contact-form-container">
     <span class="close-btn" onclick="toggleContactModal(false)">&times;</span>
-    <h2 class="contact-title">Зв'яжіться із нами</h2>
 
-    <form onsubmit="handleContactSubmit(event)">
-      <div class="form-group">
-        <label>Ім'я, Призвіще *</label>
-        <input type="text" required>
+    <div class="contact-details">
+      <h2 class="contact-title">Наша контактна інформація</h2>
+      <p class="contact-description">Для співпраці або отримання технічної допомоги зв'яжіться з нами:</p>
+
+      <div class="contact-items">
+        <p><strong>Email:</strong> rehab.platform@gmail.com</p>
+        <p><strong>Viber:</strong> +380-50-9584-959, +380-67-9231-043</p>
       </div>
-
-      <div class="form-group">
-        <label>Email *</label>
-        <input type="email" required>
-      </div>
-
-      <div class="form-group">
-        <label>Тема</label>
-        <input type="text">
-      </div>
-
-      <div class="form-group">
-        <label>Текст</label>
-        <textarea rows="4"></textarea>
-      </div>
-
-      <button type="submit" class="submit-btn">Надіслати</button>
-    </form>
+    </div>
   </div>
 </div>
 
-<!-- Аунтифікація -->
 <div class="auth-container hidden" id="auth-section">
 
   <div class="bg-circle c1"></div>
@@ -95,7 +74,6 @@
   <div class="bg-circle c4 medium-circle"></div>
   <div class="bg-circle c5 small-circle"></div>
 
-  <!-- Лого та назва -->
   <div class="brand-overlay page-header">
     <div class="logo-container">
       <img src="img/Лого.svg" alt="Rehabilitation platform Logo" class="main-logo">
@@ -103,13 +81,11 @@
     <h1 class="brand-name">Rehabilitation platform</h1>
   </div>
 
-  <!-- Кнопка назад -->
   <button class="back-btn" onclick="goBack()">⬅️ Назад</button>
 
-  <!-- Блок входу для Адміністратора -->
   <div id="admin-forms" class="form-wrapper hidden">
     <h2>Вхід для Адміністратора</h2>
-    <form onsubmit="handleLogin(event, '/auth/admin/login')">
+    <form onsubmit="handleLogin(event)">
       <div class="form-group">
         <label>Логін</label>
         <input type="text" name="username" required>
@@ -123,10 +99,9 @@
     </form>
   </div>
 
-  <!-- Блок входу для Лікаря -->
   <div id="doctor-forms" class="form-wrapper hidden">
     <h2>Вхід для Лікаря</h2>
-    <form onsubmit="handleLogin(event, '/auth/doctors/login')">
+    <form onsubmit="handleLogin(event)">
       <div class="form-group">
         <label>Логін</label>
         <input type="text" name="username" required>
@@ -140,17 +115,15 @@
     </form>
   </div>
 
-  <!-- Кнопки вибору реєстрації чи входу -->
   <div id="patient-forms" class="form-wrapper hidden">
     <div class="toggle-btns">
       <button class="active" onclick="togglePatientMode('login')">Вхід</button>
       <button onclick="togglePatientMode('register')">Зареєструватись</button>
     </div>
 
-    <!-- Блок входу для Пацієнта -->
     <div id="patient-login-block">
       <h2>Вхід для пацієнтів</h2>
-      <form onsubmit="handleLogin(event, '/auth/users/login')">
+      <form onsubmit="handleLogin(event)">
         <div class="form-group">
           <label>Логін</label>
           <input type="text" name="username" required>
@@ -164,7 +137,6 @@
       </form>
     </div>
 
-    <!-- Блок реєстрації Пацієнта -->
     <div id="patient-register-block" class="hidden">
       <h2>Реєстрація</h2>
       <form onsubmit="handleRegister(event)">
@@ -214,7 +186,6 @@
 
 <script src="js/main_and_auth.js"></script>
 
-<!-- Контактні дані -->
 <footer class="site-footer">
   <div class="footer-content">
     <p>&copy; 2026 Rehabilitation Platform. Всі права захищено.</p>

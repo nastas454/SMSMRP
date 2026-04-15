@@ -191,6 +191,10 @@ body {
   background: linear-gradient(60deg, #92c3d6 10%, #e1ebed 100%);
   border-bottom: 2px solid #4a8394;
   position: relative;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .course-list li:hover {
@@ -262,18 +266,30 @@ body {
   font-weight: 600;
   margin: 0;
   color: #1d3037; /* Заголовок як на малюнку */
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-body p {
   margin: 8px 0;
   font-size: 14px;
   color: #1c4a5a;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-label {
   color: #3691ae; /* Блакитний колір підписів "травми:", "лікар:" */
   font-weight: 600;
   margin-right: 5px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-footer {
@@ -285,6 +301,10 @@ body {
   color: #1c4a5a;
 }
 
+
+
+
+
 /* Кнопка "три крапки" */
 .card-options {
   position: absolute;
@@ -292,6 +312,60 @@ body {
   right: 15px; /* Замість кнопки меню, як на малюнку, можна тут */
   /* АБО в footer, як на малюнку */
 }
+
+
+
+
+
+
+/* Контейнер для кнопки меню */
+.options-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Випадаюче меню */
+.dropdown-menu {
+  position: absolute;
+  bottom: 100%; /* З'являється над кнопкою */
+  right: 0;
+  background-color: #ffffff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  min-width: 160px;
+  z-index: 100;
+  overflow: hidden;
+  margin-bottom: 5px;
+  border: 1px solid #e1ebed;
+}
+
+.dropdown-menu.hidden {
+  display: none;
+}
+
+/* Кнопка всередині меню */
+.dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 12px 15px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  color: #dc3545; /* Червоний колір для видалення/виходу */
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f8ff;
+}
+
+
+
+
+
 
 .more-options-btn {
   background: none;

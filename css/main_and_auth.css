@@ -257,7 +257,7 @@ body, html {
   text-align: left;
 }
 
-/* Лейбли у вікні зворотнього зв'язку */
+/* Лейбли */
 .form-group label {
   display: block;
   color: #284d5b;
@@ -265,7 +265,7 @@ body, html {
   font-weight: 500;
 }
 
-/* Форми у вікні зворотнього зв'язку */
+/* Форми */
 .form-group input,
 .form-group textarea {
   width: 100%;
@@ -285,7 +285,7 @@ body, html {
   background-color: #fff;
 }
 
-/* Кнопка "Надіслати" */
+/* Кнопка */
 .submit-btn {
   width: 100%;
   background-color: #284d5b;
@@ -300,7 +300,7 @@ body, html {
   transition: background 0.3s;
 }
 
-/* Ефект при наведенні на кнопку "Надіслати" */
+/* Ефект при наведенні на кнопку */
 .submit-btn:hover {
   background-color: #284d5b;
 }
@@ -486,7 +486,7 @@ input, textarea, button, select {
   font-family: 'Montserrat', sans-serif !important;
 }
 
-/* Заголовок форми "Зв'яжіться з нами" */
+/* Заголовок форми */
 .contact-title {
   font-weight: 600;
   letter-spacing: -0.5px;
@@ -495,7 +495,7 @@ input, textarea, button, select {
   font-size: 24px;
 }
 
-/* Підписи полів у блоці "Зв'яжіться з нами" */
+/* Підписи полів */
 .form-group label {
   font-weight: 600;
   font-size: 13px;
@@ -505,7 +505,7 @@ input, textarea, button, select {
   margin-bottom: 8px;
 }
 
-/* Поля вводу у блоці "Зв'яжіться з нами" */
+/* Поля вводу */
 .form-group input,
 .form-group textarea {
   background-color: #f5f6f8;
@@ -526,7 +526,7 @@ input, textarea, button, select {
   outline: none;
 }
 
-/* Кнопка "Надіслати" */
+/* Кнопка */
 .submit-btn {
   font-weight: 600;
   text-transform: uppercase;
@@ -538,7 +538,7 @@ input, textarea, button, select {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/* Ефект для кнопки "Надіслати" */
+/* Ефект для кнопки  */
 .submit-btn:hover {
   transform: translateY(-2px); /* легкий підйом при наведенні */
   box-shadow: 0 15px 25px rgba(99, 122, 159, 0.4);

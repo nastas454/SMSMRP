@@ -123,7 +123,7 @@ async function saveCourse() {
       return;
     }
 
-    const response = await fetch('http://localhost:8000/doctor/courses/create', {
+    const response = await fetch('http://localhost:8000/courses/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ async function saveCourse() {
     if (response.ok) {
       const result = await response.json();
       console.log("Server response:", result);
-      alert(`✅ Курс "${result.course_name}" успішно створено!`);
+      alert(`✅ Курс успішно створено!`);
     } else {
       const errorData = await response.json();
       console.error("Error details:", errorData);

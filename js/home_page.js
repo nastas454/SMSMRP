@@ -68,8 +68,8 @@ function setupAddButton(role) {
 
 async function loadCourses(role) {
   const endpoint = role === 'doctor'
-    ? `${API_BASE_URL}/doctor/courses`
-    : `${API_BASE_URL}/user/courses`;
+    ? `${API_BASE_URL}/doctors/courses`
+    : `${API_BASE_URL}/patients/courses`;
 
   try {
     const response = await fetch(endpoint, {
@@ -167,7 +167,7 @@ function setupModalListeners() {
 async function joinCourseAsUser(courseId) {
   try {
     const token = localStorage.getItem('access_token');
-    const response = await fetch(`${API_BASE_URL}/user/courses/${courseId}/join`, {
+    const response = await fetch(`${API_BASE_URL}/patients/${courseId}/join`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -195,14 +195,25 @@ function renderSidebar(courses) {
   const list = document.getElementById('sidebar-list');
   if (!list) return;
   list.innerHTML = "";
+
   courses.forEach(course => {
     const li = document.createElement('li');
-    li.textContent = course.title || `Курс #${course.id}`;
+    li.textContent = course.title || `${course.course_name}`;
+
+    // Додаємо обробник кліку для переходу на сторінку курсу
+    li.onclick = () => {
+      window.location.href = `course_page.html?id=${course.id}`;
+    };
+
     list.appendChild(li);
   });
 }
 
-function renderGrid(courses) {
+
+
+
+// Оновлена функція renderGrid (тепер приймає role)
+function renderGrid(courses, role) {
   const grid = document.getElementById('courses-grid');
   if (!grid) return;
   grid.innerHTML = "";
@@ -214,30 +225,82 @@ function renderGrid(courses) {
 
   courses.forEach(course => {
     const progress = course.progress ?? 0;
-    const doctor = course.doctor || course.doctor_name || "Не вказано";
+
+    const actionText = getUserRole() === 'doctor' ? 'Видалити курс' : 'Від\'єднатись';
+    const actionClass = getUserRole() === 'doctor' ? 'delete-course-btn' : 'leave-course-btn';
 
     const card = document.createElement('div');
     card.className = 'course-card';
+
+    // Додаємо обробник кліку на всю картку
+    card.onclick = (event) => {
+      // Якщо клік був по меню з трьома крапками, скасовуємо перехід
+      if (event.target.closest('.options-container')) {
+        return;
+      }
+      // Інакше переходимо на сторінку курсу
+      window.location.href = `course_page.html?id=${course.id}`;
+    };
+
     card.innerHTML = `
-            <div class="card-header"><h3 class="card-title">${course.title || 'Без назви'}</h3></div>
-            <div class="card-body">
-                <p><span class="card-label">Травми:</span> ${course.injuries || '-'}</p>
-                <p><span class="card-label">Опис:</span><br>${course.description || '-'}</p>
-                <div style="margin-top: 20px;">
-                    <span class="progress-text">Прогрес: ${progress}%</span>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: ${progress}%"></div>
-                    </div>
-                </div>
+      <div class="card-header"><h3 class="card-title">${course.course_name|| 'Без назви'}</h3></div>
+      <div class="card-body">
+          <p><span class="card-label">Травми:</span> ${course.injuries || '-'}</p>
+          <p><span class="card-label">Опис:</span><br>${course.description || '-'}</p>
+          <div style="margin-top: 20px;">
+              <span class="progress-text">Прогрес: ${progress}%</span>
+              <div class="progress-container">
+                  <div class="progress-bar" style="width: ${progress}%"></div>
+              </div>
+          </div>
+      </div>
+      <div class="card-footer">
+          <span class="doctor-name"><span class="card-label">Лікар:</span> ${course.doctor_name + " " + course.doctor_lastname}</span>
+
+          <div class="options-container">
+            <button class="more-options-btn" onclick="toggleDropdown(event)">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <div class="dropdown-menu hidden">
+              <button class="dropdown-item ${actionClass}" data-id="${course.id}">${actionText}</button>
             </div>
-            <div class="card-footer">
-                <span class="doctor-name"><span class="card-label">Лікар:</span> ${doctor}</span>
-                <button class="more-options-btn"><i class="fas fa-ellipsis-v"></i></button>
-            </div>
-        `;
+          </div>
+      </div>
+    `;
     grid.appendChild(card);
   });
 }
+
+
+
+
+
+
+
+// Функція для відкриття/закриття конкретного меню
+window.toggleDropdown = function(event) {
+  event.stopPropagation(); // Зупиняємо спливання, щоб меню не закрилося одразу
+
+  // Закриваємо всі інші відкриті меню перед відкриттям поточного
+  document.querySelectorAll('.dropdown-menu').forEach(menu => {
+    if (menu !== event.currentTarget.nextElementSibling) {
+      menu.classList.add('hidden');
+    }
+  });
+
+  // Перемикаємо видимість меню, що знаходиться поруч з натиснутою кнопкою
+  const menu = event.currentTarget.nextElementSibling;
+  if (menu) {
+    menu.classList.toggle('hidden');
+  }
+};
+
+// Глобальний слухач кліків для закриття меню при кліку будь-де на сторінці
+document.addEventListener('click', () => {
+  document.querySelectorAll('.dropdown-menu').forEach(menu => {
+    menu.classList.add('hidden');
+  });
+});
 
 function updateWelcomePanel(count) {
   const el = document.getElementById('active-courses-count');
