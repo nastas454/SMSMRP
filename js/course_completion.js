@@ -1,52 +1,96 @@
-// ДЕМОНСТРАЦІЙНІ ДАНІ: Масив вправ курсу для конкретного дня
-const courseExercises = [
-  {
-    day: "ДЕНЬ 1",
-    exerciseNum: "Вправа 1",
-    name: "Тяга гумової стрічки до поясу",
-    reps: "15",
-    sets: "3",
-    description: "Сядьте рівно, ноги витягніть вперед. Зачепіть стрічку за стопи і тягніть на себе до пояса, зводячи лопатки.",
-    recommendations: "Зверніть увагу на спину - вона має бути абсолютно рівною. Не робіть ривків.",
-    videoUrl: "https://youtube.com/watch?v=example1"
-  },
-  {
-    day: "ДЕНЬ 1",
-    exerciseNum: "Вправа 2",
-    name: "Махи руками в сторони",
-    reps: "12",
-    sets: "4",
-    description: "Стоячи прямо, піднімайте руки через сторони до рівня плечей. Повільно опускайте.",
-    recommendations: "Не піднімайте плечі до вух. Тримайте шию розслабленою.",
-    videoUrl: "https://youtube.com/watch?v=example2"
-  },
-  {
-    day: "ДЕНЬ 1",
-    exerciseNum: "Вправа 3",
-    name: "Розтяжка м'язів грудей",
-    reps: "30 сек",
-    sets: "2",
-    description: "Підійдіть до стіни, обіпріться передпліччям і злегка поверніть корпус в протилежну сторону.",
-    recommendations: "Ви маєте відчувати приємний натяг, без різкого болю.",
-    videoUrl: "https://youtube.com/watch?v=example3"
-  }
-];
+const API_BASE_URL = "http://localhost:8000";
 
+// Пустий масив, який буде заповнений реальними даними з БД/MinIO
+let courseExercises = [];
 let currentIndex = 0;
 
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. ПЕРЕВІРКА РОЛІ
-  // Якщо користувач не 'patient', перекидаємо його на головну сторінку або сторінку курсу
-  const userRole = localStorage.getItem('user_role');
-  if (userRole !== 'patient') {
-    alert("Доступ заборонено! Лише пацієнти можуть проходити курс.");
-    window.location.href = 'home_page.html'; // або course_page.html
+document.addEventListener('DOMContentLoaded', async () => {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    window.location.href = '/login.html';
     return;
   }
 
-  // 2. Ініціалізація першої вправи
-  renderExercise(currentIndex);
+  // 1. ПЕРЕВІРКА РОЛІ
+  const userRole = localStorage.getItem('user_role');
+  if (userRole !== 'patient') {
+    alert("Доступ заборонено! Лише пацієнти можуть проходити курс.");
+    window.location.href = 'home_page.html';
+    return;
+  }
+
+  // 2. Отримуємо ID курсу з URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const courseId = urlParams.get('id');
+
+  if (!courseId) {
+    alert("Курс не знайдено!");
+    window.location.href = 'home_page.html';
+    return;
+  }
+
+  // 3. Завантажуємо дані курсу
+  await loadCourseData(courseId);
 });
+
+async function loadCourseData(courseId) {
+  const token = localStorage.getItem('access_token');
+
+  try {
+    // РЕАЛЬНИЙ ЗАПИТ: Звертаємося до ендпоінту, який повертає вміст JSON з MinIO
+    const response = await fetch(`${API_BASE_URL}/courses/${courseId}/content`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Не вдалося завантажити контент курсу (JSON)");
+    }
+
+    const minioJson = await response.json();
+
+    // "Сплющуємо" складний JSON у зручний масив
+    courseExercises = [];
+
+    // Захист від помилок: перевіряємо чи існують "days"
+    if (minioJson.days && Array.isArray(minioJson.days)) {
+      minioJson.days.forEach(day => {
+        if (day.exercises && Array.isArray(day.exercises)) {
+          day.exercises.forEach((ex, index) => {
+            courseExercises.push({
+              day: `ДЕНЬ ${day.day_number}`,
+              exerciseNum: `Вправа ${index + 1}`,
+              name: ex.name || '-',
+              reps: ex.reps || '-',
+              sets: ex.sets || '-',
+              description: ex.description || '-',
+              recommendations: ex.recommendations || '-',
+              videoUrl: ex.video_url || '#'
+            });
+          });
+        }
+      });
+    }
+
+    // Якщо курс виявився пустим або парсинг не вдався
+    if (courseExercises.length === 0) {
+      alert("У цьому курсі ще немає вправ!");
+      window.location.href = `course_page.html?id=${courseId}`;
+      return;
+    }
+
+    // 4. Відображаємо першу вправу
+    renderExercise(0);
+
+  } catch (error) {
+    console.error("Помилка:", error);
+    alert("Помилка завантаження даних курсу. Спробуйте пізніше.");
+    window.location.href = `course_page.html?id=${courseId}`;
+  }
+}
 
 // Функція для відображення даних вправи
 function renderExercise(index) {
@@ -60,16 +104,27 @@ function renderExercise(index) {
   document.getElementById('display-desc').textContent = exercise.description;
   document.getElementById('display-rec').textContent = exercise.recommendations;
 
-  // Обробка посилання
+  // Обробка відео-посилання
   const videoElement = document.getElementById('display-video');
-  videoElement.textContent = exercise.videoUrl;
-  videoElement.href = exercise.videoUrl;
+  if (videoElement) {
+    videoElement.textContent = "Дивитись відео-інструкцію";
+    videoElement.href = exercise.videoUrl !== '#' ? exercise.videoUrl : '#';
+    // Якщо немає посилання, можна візуально "відключити" кнопку
+    if (exercise.videoUrl === '#') {
+      videoElement.style.pointerEvents = 'none';
+      videoElement.style.opacity = '0.5';
+      videoElement.textContent = "Відео відсутнє";
+    } else {
+      videoElement.style.pointerEvents = 'auto';
+      videoElement.style.opacity = '1';
+    }
+  }
 
-  // ЛОГІКА КНОПОК
+  // ЛОГІКА КНОПОК "Далі" / "Назад"
   const btnPrev = document.getElementById('btn-prev');
   const btnNext = document.getElementById('btn-next');
 
-  // Якщо перша вправа - ховаємо кнопку Назад (але зберігаємо місце через visibility: hidden)
+  // Якщо перша вправа - ховаємо кнопку Назад
   if (index === 0) {
     btnPrev.classList.add('invisible');
   } else {
@@ -91,8 +146,10 @@ function nextExercise() {
     renderExercise(currentIndex);
   } else {
     // Якщо це була остання вправа, перекидаємо назад на сторінку курсу
-    alert("Курс на сьогодні завершено! Чудова робота!");
-    window.location.href = 'course_page.html';
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseId = urlParams.get('id');
+    alert("Всі вправи курсу успішно пройдено! Чудова робота!");
+    window.location.href = `course_page.html?id=${courseId}`;
   }
 }
 
@@ -110,4 +167,12 @@ function logoutUser(event) {
   localStorage.removeItem('access_token');
   localStorage.removeItem('user_role');
   window.location.href = 'main_and_auth.html';
+}
+
+// Функція "Назад" (для шапки сайту)
+function goBack(event) {
+  if (event) event.preventDefault();
+  const urlParams = new URLSearchParams(window.location.search);
+  const courseId = urlParams.get('id');
+  window.location.href = `course_page.html?id=${courseId}`;
 }

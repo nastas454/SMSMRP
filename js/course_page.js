@@ -11,7 +11,8 @@ async function initCoursePage() {
     return;
   }
 
-  const role = getUserRole(); // Очікується з utils.js
+  // Очікується з utils.js, або можете використовувати localStorage.getItem('user_role')
+  const role = localStorage.getItem('user_role');
 
   // Отримуємо ID курсу з URL (наприклад, course_page.html?id=5)
   const urlParams = new URLSearchParams(window.location.search);
@@ -23,13 +24,18 @@ async function initCoursePage() {
     return;
   }
 
-  // --- ДОДАНА ЛОГІКА ДЛЯ КНОПКИ "ПОЧАТИ" ---
+  // --- ЛОГІКА ДЛЯ КНОПКИ "ПОЧАТИ" ---
   const startButton = document.getElementById('start-course-btn');
   if (startButton) {
-    startButton.addEventListener('click', () => {
-      // Перенаправляємо на сторінку course_completion і передаємо ID поточного курсу
-      window.location.href = `course_completion.html?id=${courseId}`;
-    });
+    if (role === 'doctor') {
+      // Якщо це лікар, повністю приховуємо кнопку
+      startButton.style.display = 'none';
+    } else {
+      // Якщо це пацієнт, кнопка залишається видимою і працює
+      startButton.addEventListener('click', () => {
+        window.location.href = `course_completion.html?id=${courseId}`;
+      });
+    }
   }
   // -----------------------------------------
 
@@ -47,64 +53,114 @@ async function initCoursePage() {
 }
 
 async function loadCourseDetails(courseId, role) {
-  // Тут має бути ваш реальний запит до API, наприклад:
-  // const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, { ... });
+  const token = localStorage.getItem('access_token');
 
-  // Для демонстрації створюємо фейкові дані
-  const courseData = {
-    title: "Відновлення колінного суглоба",
-    injuries: "Розрив меніска, операція на ПХЗ",
-    duration: "45 днів",
-    doctor_name: "Іван Петренко",
-    description: "Цей курс спрямований на поступове відновлення рухливості коліна після хірургічного втручання. Включає щоденні розтяжки та легкі силові навантаження."
-  };
+  try {
+    const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-  document.getElementById('cp-title').textContent = courseData.title;
-  document.getElementById('cp-injuries').textContent = courseData.injuries;
-  document.getElementById('cp-duration').textContent = courseData.duration;
-  document.getElementById('cp-doctor').textContent = courseData.doctor_name;
-  document.getElementById('cp-description').textContent = courseData.description;
+    if (!response.ok) {
+      throw new Error("Помилка отримання даних курсу");
+    }
+
+    const courseData = await response.json();
+
+    // Заповнюємо дані на сторінці згідно з моделлю CoursesResponse
+    document.getElementById('cp-title').textContent = courseData.course_name || '-';
+
+    // Обробка масиву травм (якщо це список, з'єднуємо через кому)
+    const injuriesText = Array.isArray(courseData.injuries)
+      ? courseData.injuries.join(", ")
+      : (courseData.injuries || '-');
+    document.getElementById('cp-injuries').textContent = injuriesText;
+
+    // У вашій Pydantic моделі немає поля "duration", тому залишаємо заглушку
+    const durationEl = document.getElementById('cp-duration');
+    if (durationEl) {
+      durationEl.textContent = "Не вказано";
+    }
+
+    // Об'єднуємо ім'я та прізвище лікаря
+    const docName = courseData.doctor_name || '';
+    const docLastName = courseData.doctor_lastname || '';
+    document.getElementById('cp-doctor').textContent = `${docName} ${docLastName}`.trim();
+
+    document.getElementById('cp-description').textContent = courseData.description || '-';
+
+  } catch (error) {
+    console.error("Помилка:", error);
+    alert("Не вдалося завантажити деталі курсу.");
+  }
 }
 
 async function loadCoursePatients(courseId) {
-  // Реальний запит до API за списком пацієнтів
-  // const response = await fetch(`${API_BASE_URL}/doctor/courses/${courseId}/patients`, { ... });
-
-  // Демо-дані для таблиці
-  const patients = [
-    { id: 101, firstName: "Олексій", lastName: "Коваленко", gender: "Ч", age: 34, email: "alex@test.com", stage: "Тиждень 2" },
-    { id: 102, firstName: "Марія", lastName: "Бойко", gender: "Ж", age: 28, email: "maria@test.com", stage: "Тиждень 4" }
-  ];
-
+  const token = localStorage.getItem('access_token');
   const tbody = document.getElementById('patients-table-body');
   if (!tbody) return;
 
-  tbody.innerHTML = "";
+  try {
+    const response = await fetch(`${API_BASE_URL}/courses/${courseId}/patients`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-  patients.forEach(p => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${p.id}</td>
-      <td>${p.firstName}</td>
-      <td>${p.lastName}</td>
-      <td>${p.gender}</td>
-      <td>${p.age}</td>
-      <td>${p.email}</td>
-      <td>${p.stage}</td>
-      <td><button class="action-btn" onclick="adjustPatient(${p.id})">кнопка</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
+    if (!response.ok) {
+      throw new Error("Помилка отримання списку пацієнтів");
+    }
+
+    const patients = await response.json();
+    tbody.innerHTML = ""; // Очищаємо таблицю
+
+    if (patients.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='8' style='text-align: center;'>Пацієнтів на цьому курсі немає</td></tr>";
+      return;
+    }
+
+    // Перебираємо реальні дані пацієнтів
+    patients.forEach(p => {
+      const tr = document.createElement('tr');
+      // ПРИМІТКА: перевірте, чи ключі p.first_name, p.sex, p.age збігаються з вашою моделлю пацієнта, яку повертає бекенд
+      tr.innerHTML = `
+        <td>${p.id ? p.id.substring(0, 8) + '...' : '-'}</td>
+        <td>${p.first_name || p.firstName || '-'}</td>
+        <td>${p.last_name || p.lastName || '-'}</td>
+        <td>${p.sex || p.gender || '-'}</td>
+        <td>${p.age || '-'}</td>
+        <td>${p.email || '-'}</td>
+        <td>${p.stage || 'В процесі'}</td>
+        <td><button class="action-btn" onclick="adjustPatient('${p.id}')">Редагувати</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  } catch (error) {
+    console.error("Помилка:", error);
+    tbody.innerHTML = "<tr><td colspan='8' style='text-align: center; color: red;'>Помилка завантаження даних</td></tr>";
+  }
 }
 
 function adjustPatient(patientId) {
   console.log("Редагування пацієнта:", patientId);
-  // Додайте логіку для відкриття модального вікна чи переходу
+  // Додайте логіку для відкриття модального вікна чи переходу на сторінку пацієнта
 }
 
 function logoutUser(event) {
-  event.preventDefault();
+  if(event) event.preventDefault();
   localStorage.removeItem('access_token');
   localStorage.removeItem('user_role');
   window.location.href = 'main_and_auth.html';
+}
+
+/**
+ * Розумна функція для кнопки "Назад".
+ */
+function goBack(event) {
+  if (event) event.preventDefault();
+  const referrer = document.referrer;
+  const currentHost = window.location.hostname;
+  if (referrer && referrer.includes(currentHost)) {
+    window.history.back();
+  } else {
+    window.location.href = 'home_page.html';
+  }
 }

@@ -11,7 +11,7 @@
 <body>
 
 <header class="top-header">
-  <div class="logo-area" onclick="window.location.href='home_page.html'" style="cursor: pointer;">
+  <div class="logo-area" onclick="goHome()" style="cursor: pointer;">
     <img src="img/Лого.svg" alt="Logo" class="header-logo">
     <span class="platform-name">Rehabilitation Platform</span>
   </div>
@@ -25,7 +25,7 @@
 
 <main class="account-main">
   <div class="top-navigation">
-    <a href="home_page.html" class="back-home-btn"> ⬅️ Назад </a>
+    <a href="#" class="back-home-btn" onclick="goBack(event)"> ⬅️ Назад </a>
   </div>
 
   <div class="account-container">
@@ -33,7 +33,7 @@
     <div class="profile-card">
       <div class="profile-header">
         <div class="avatar-large">
-          <i class="fas fa-user-md"></i>
+          <i class="fas fa-user"></i>
         </div>
         <h2 id="display-login" class="profile-login">логін</h2>
       </div>
@@ -44,7 +44,7 @@
             <span class="detail-label">ім'я</span>
             <span class="detail-value" id="display-name">-</span>
           </div>
-          <div class="detail-item">
+          <div class="detail-item" id="container-display-gender">
             <span class="detail-label">стать</span>
             <span class="detail-value" id="display-gender">-</span>
           </div>
@@ -55,7 +55,7 @@
             <span class="detail-label">прізвище</span>
             <span class="detail-value" id="display-surname">-</span>
           </div>
-          <div class="detail-item">
+          <div class="detail-item" id="container-display-age">
             <span class="detail-label">вік</span>
             <span class="detail-value" id="display-age">-</span>
           </div>
@@ -65,13 +65,6 @@
           <div class="detail-item">
             <span class="detail-label">email</span>
             <span class="detail-value" id="display-email">-</span>
-          </div>
-        </div>
-
-        <div class="detail-row full-width borderless">
-          <div class="detail-item">
-            <span class="detail-label">пароль</span>
-            <span class="detail-value">********</span>
           </div>
         </div>
       </div>
@@ -107,7 +100,7 @@
           </div>
         </div>
 
-        <div class="form-row">
+        <div class="form-row" id="container-input-age">
           <div class="input-group half-width">
             <label for="input-age">ВІК</label>
             <input type="number" id="input-age" placeholder="">

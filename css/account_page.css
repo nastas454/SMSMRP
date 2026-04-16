@@ -138,6 +138,7 @@ body {
 /* --- ЛІВА КАРТКА ПРОФІЛЮ --- */
 .profile-card {
   flex: 0 0 600px;
+  max-width: 600px;
   background-color: #b0d0db; /* Блакитний фон з макета */
   border-radius: 20px;
   padding: 40px;
@@ -156,23 +157,32 @@ body {
 }
 
 .avatar-large {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   background-color: #f0f8ff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #225061;
-  font-size: 45px;
+  font-size: 35px;
   border: 2px solid #abc2c7;
 }
 
 .profile-login {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 500;
   margin: 0;
   color: #112830;
+
+  flex: 1;           /* Займає залишок місця після аватарки */
+  min-width: 0;      /* Дозволяє стискатися */
+  display: block;
+
+  /* ДОДАНО: Обрізання тексту з крапками */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-details {
@@ -201,6 +211,8 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0; /* ДОДАНО: Дозволяє тексту скорочуватися у flex-контейнері */
+  max-width: 100%;   /* Жорстке обмеження ширини */
 }
 
 .detail-label {
@@ -213,10 +225,19 @@ body {
 .detail-value {
   font-size: 16px;
   color: #284d5b;
+
+  /* Обов'язково робимо span блоковим, щоб він міг обрізатися */
+  display: block;
+  width: 100%;       /* Займає не більше місця, ніж дає батько */
+
+  /* ДОДАНО: Обрізання тексту з крапками */
+  white-space: nowrap;         /* Забороняє перенесення на новий рядок */
+  overflow: hidden;            /* Ховає все, що вилазить за межі */
+  text-overflow: ellipsis;     /* Додає ... в кінці */
 }
 
 .delete-account-btn {
-  margin-top: 10px;
+  margin-top: 120px;
   background-color: #658a98;
   color: #f4f7f8;
   border: none;
