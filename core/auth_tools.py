@@ -20,7 +20,7 @@ def get_current_payload(token: str = Depends(oauth2_scheme)):
             detail="Недійсний токен або термін дії закінчився",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return payload.get("id")
+    return payload
 
 
 # --- 2. АВТОРИЗАЦІЯ ---
@@ -48,3 +48,4 @@ require_admin = RoleChecker([Role.ADMIN.value])
 
 # Залежність для спільного доступу
 require_doctor_or_admin = RoleChecker([Role.DOCTOR.value, Role.ADMIN.value])
+require_doctor_or_patient = RoleChecker([Role.DOCTOR.value, Role.PATIENT.value])

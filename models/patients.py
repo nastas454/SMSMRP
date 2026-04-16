@@ -8,7 +8,7 @@ from models.user import Users
 class Patients(Users):
     __tablename__ = 'patients'
 
-    id = Column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
+    id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
 
     age = Column(Integer,nullable=False, index=True)
     sex = Column(Enum(Sex),nullable=False, index=True)

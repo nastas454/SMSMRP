@@ -6,9 +6,7 @@ from models.user import Users
 class Admins(Users):
     __tablename__ = 'admins'
 
-    id = Column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
-
-    create_at = Column(DateTime,nullable=False, default=datetime.utcnow)
+    id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
 
     mapper_args = {
         "polymorphic_identity": "admins"

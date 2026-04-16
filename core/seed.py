@@ -14,6 +14,7 @@ async def create_admin():
         try:
             admin_login = "admin"
             admin_password = "123"
+            admin_email = "admin@gmail.com"
 
             admin_repo = AdminRepository(db)
             user_repo = UsersRepository(db)
@@ -25,7 +26,7 @@ async def create_admin():
             new_admin = Admins(
                 first_name=admin_login,
                 last_name=admin_login,
-                email=admin_login,
+                email=admin_email,
                 login=admin_login,
                 password=PasswordHasher.hash(admin_password),
                 role=Role.ADMIN.value

@@ -17,6 +17,13 @@ class PatientsService:
         self.patient_repo = PatientsRepository(db=self.db)
         self.course_repo = CoursesRepository(db=self.db)
 
+    async def get_patient(self, patient_id: UUID):
+        patient = await self.patient_repo.get_by_id(patient_id)
+        if patient is None:
+            return {"message": "Patient not found"}
+        return patient
+
+
     async def join_to_course(self, course_id: UUID, patient_id: UUID):
         course = await self.course_repo.get_by_id(course_id)
         if course is None:
@@ -24,8 +31,7 @@ class PatientsService:
         patient = await self.patient_repo.get_by_id(patient_id)
         if patient is None:
             return {"message": "Patient not found"}
-        course.patients.append(patient)
-        await self.course_repo.change_entity(course)
+        await self.course_repo.add_patient_to_course(course_id, patient_id)
         return {"message": "Patient added"}
 
     async def leave_course(self, course_id: UUID, patient_id: UUID):

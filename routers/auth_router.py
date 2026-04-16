@@ -17,3 +17,7 @@ async def login_user(auth_service: Service, login_dto: UsersLogin=Form()):
 async def register_user(auth_service: Service, register_user_dto: UsersCreate=Body, register_patient_dto: PatientCreate=Body):
     return await auth_service.register_patient(register_user_dto, register_patient_dto)
 
+@router.post("/refresh")
+async def register_user(auth_service: Service, refresh_token: str):
+    return await auth_service.refresh_tokens(refresh_token)
+

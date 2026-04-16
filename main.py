@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from core.database import init_db
 from core.seed import create_admin
-from routers import auth_router, admin_router, courses_router, doctors_router, patients_router
+from routers import auth_router, admin_router, courses_router, doctors_router, patients_router, users_router
 
 
 @asynccontextmanager
@@ -29,3 +29,4 @@ app.include_router(admin_router.router)
 app.include_router(doctors_router.router)
 app.include_router(patients_router.router)
 app.include_router(courses_router.router)
+app.include_router(users_router.router)

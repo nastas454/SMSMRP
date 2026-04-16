@@ -20,7 +20,7 @@ class AuthService:
         self.jwt = JwtUtility()
         self.patients_repo = PatientsRepository(self.db)
 
-    async def login_user(self, login_dto: UsersLogin)->dict:
+    async def login_user(self, login_dto: UsersLogin) -> dict:
         user = await self.repo.get_by_login(login_dto.username)
         if user is None:
             raise HTTPException(
@@ -32,12 +32,43 @@ class AuthService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Невірний пароль"
             )
+
+        access_token = self.jwt.create_access_token(str(user.id), user.role)
+        refresh_token = self.jwt.create_refresh_token(str(user.id), user.role)
+
         return {
-            "access_token": self.jwt.create_access_token(str(user.id), user.role),
-            "token_type": "Bearer"
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
         }
 
-    async def register_patient(self, register_user_dto: UsersCreate, register_patient_dto: PatientCreate)->dict:
+    async def refresh_tokens(self, refresh_token: str) -> dict:
+        payload = self.jwt.decode_token(refresh_token)
+        if not payload:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Невалідний або прострочений refresh токен"
+            )
+
+        user_id = payload.get("sub")
+        role = payload.get("role")
+
+        if not user_id or not role:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Некоректний формат токена"
+            )
+
+        new_access_token = self.jwt.create_access_token(user_id, role)
+        new_refresh_token = self.jwt.create_refresh_token(user_id, role)
+
+        return {
+            "access_token": new_access_token,
+            "refresh_token": new_refresh_token,
+            "token_type": "bearer"
+        }
+
+    async def register_patient(self, register_user_dto: UsersCreate, register_patient_dto: PatientCreate) -> dict:
         if await self.repo.if_email_exists(str(register_user_dto.email)):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -49,13 +80,13 @@ class AuthService:
                 detail="Цей логін вже зайнятий"
             )
         user = Patients(
-            age = register_patient_dto.age,
-            sex = register_patient_dto.sex,
-            first_name = register_user_dto.first_name,
-            last_name = register_user_dto.last_name,
-            email = str(register_user_dto.email),
-            login = register_user_dto.login,
-            password = self.hasher.hash(register_user_dto.password),
-            role = Role.PATIENT.value
+            age=register_patient_dto.age,
+            sex=register_patient_dto.sex,
+            first_name=register_user_dto.first_name,
+            last_name=register_user_dto.last_name,
+            email=str(register_user_dto.email),
+            login=register_user_dto.login,
+            password=self.hasher.hash(register_user_dto.password),
+            role=Role.PATIENT.value
         )
         return await self.patients_repo.create_entity(user)

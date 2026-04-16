@@ -12,29 +12,29 @@ router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(get_cu
 Service = Annotated[AdminService, Depends(AdminService)]
 
 @router.post("/create")
-async def create_admin(admin_service:Service, create_dto: UsersCreate=Form(), admin_id: UUID=Depends(get_current_payload)):
-    return await admin_service.create_admin(create_dto, admin_id)
+async def create_admin(admin_service:Service, create_dto: UsersCreate=Form(), admin_id: dict=Depends(get_current_payload)):
+    return await admin_service.create_admin(create_dto, admin_id.get("id"))
 
 @router.post("/doctor/create")
 async def create_doctor(admin_service:Service, create_dto: UsersCreate=Form()):
     return await admin_service.create_doctor(create_dto)
 
-@router.get("admins")
+@router.get("/admins")
 async def get_all_admins(admin_service:Service):
     return await admin_service.get_all_admins()
 
-@router.get("doctors")
+@router.get("/doctors")
 async def get_all_doctors(admin_service:Service):
     return await admin_service.get_all_doctors()
 
-@router.get("patients")
+@router.get("/patients")
 async def get_all_patients(admin_service:Service):
     return await admin_service.get_all_patients()
 
 @router.delete("/{user_id:uuid}/deactivate")
-async def deactivate_user(admin_service:Service, user_id:UUID, performer_id: UUID=Depends(get_current_payload)):
-    return await admin_service.change_activity_status(user_id, performer_id, False)
+async def deactivate_user(admin_service:Service, user_id:UUID, performer_id: dict=Depends(get_current_payload)):
+    return await admin_service.change_activity_status(user_id, performer_id.get("id"), False)
 
 @router.patch("/{user_id:uuid}/activate")
-async def activate_user(admin_service:Service, user_id:UUID, performer_id: UUID=Depends(get_current_payload)):
-    return await admin_service.change_activity_status(user_id, performer_id, True)
+async def activate_user(admin_service:Service, user_id:UUID, performer_id: dict=Depends(get_current_payload)):
+    return await admin_service.change_activity_status(user_id, performer_id.get("id"), True)

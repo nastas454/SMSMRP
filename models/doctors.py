@@ -6,9 +6,10 @@ from models.user import Users
 class Doctors(Users):
     __tablename__ = 'doctors'
 
-    id = Column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
+    id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+
     courses = relationship("Courses", back_populates="doctor", cascade="all, delete")
 
-    mapper_args = {
-        "polymorphic_identity": "doctors"
+    __mapper_args__ = {
+        "polymorphic_identity": "doctor"
     }

@@ -14,6 +14,10 @@ class CoursesResponse(BaseModel):
     id: uuid.UUID
     course_name: str
     injuries: list[str]
+    description: str
     doctor_id: uuid.UUID
+    course_s3_key: str
+    doctor_name: str
+    doctor_lastname: str
 
     model_config = ConfigDict(from_attributes=True)

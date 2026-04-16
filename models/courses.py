@@ -15,6 +15,8 @@ class Courses(Base):
     course_s3_key = Column(String,nullable=False, default=[])
 
     doctor_id = Column(UUID(as_uuid=True), ForeignKey('doctors.id'), nullable=False)
+    doctor_name = Column(String, nullable=False)
+    doctor_lastname = Column(String, nullable=False)
     doctor = relationship("Doctors", back_populates="courses")
     patients = relationship("Patients", secondary=course_patients, back_populates="courses")
 

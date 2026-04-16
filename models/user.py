@@ -1,5 +1,7 @@
 import uuid
-from sqlalchemy import Column, String, Boolean, UUID
+from datetime import datetime
+
+from sqlalchemy import Column, String, Boolean, UUID, DateTime
 from core.database import Base
 
 
@@ -17,6 +19,8 @@ class Users(Base):
 
     role = Column(String,nullable=False, index=True)
     is_active = Column(Boolean,nullable=False, index=True, default=True)
+
+    create_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     mapper_args = {
         "polymorphic_identity": "user",
