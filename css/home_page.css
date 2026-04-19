@@ -442,6 +442,16 @@ body {
   margin: 0;
   font-size: 28px;
   font-weight: 700;
+  /* ТРИ МАГІЧНІ РЯДКИ ДЛЯ ОБРІЗКИ ТЕКСТУ */
+  white-space: nowrap; /* Забороняємо перенесення на новий рядок */
+  overflow: hidden; /* Ховаємо все, що вилазить за межі */
+  text-overflow: ellipsis; /* Додаємо три крапки "..." в кінці */
+}
+
+.welcome-text {
+  flex: 1;
+  min-width: 0;
+  margin-right: 20px;
 }
 
 .welcome-text p {
@@ -457,6 +467,10 @@ body {
   padding: 15px 25px;
   border-radius: 15px;
   backdrop-filter: blur(5px);
+  /* ТРИ МАГІЧНІ РЯДКИ ДЛЯ ОБРІЗКИ ТЕКСТУ */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stat-item {

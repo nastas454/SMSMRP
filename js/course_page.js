@@ -11,10 +11,7 @@ async function initCoursePage() {
     return;
   }
 
-  // Очікується з utils.js, або можете використовувати localStorage.getItem('user_role')
   const role = localStorage.getItem('user_role');
-
-  // Отримуємо ID курсу з URL (наприклад, course_page.html?id=5)
   const urlParams = new URLSearchParams(window.location.search);
   const courseId = urlParams.get('id');
 
@@ -24,33 +21,84 @@ async function initCoursePage() {
     return;
   }
 
-  // --- ЛОГІКА ДЛЯ КНОПКИ "ПОЧАТИ" ---
+  // Завантажуємо загальні деталі курсу
+  await loadCourseDetails(courseId, role);
+
   const startButton = document.getElementById('start-course-btn');
-  if (startButton) {
-    if (role === 'doctor') {
-      // Якщо це лікар, повністю приховуємо кнопку
-      startButton.style.display = 'none';
-    } else {
-      // Якщо це пацієнт, кнопка залишається видимою і працює
+
+  // Розподіл логіки за ролями
+  if (role === 'doctor') {
+    // ЛІКАР
+    if (startButton) startButton.style.display = 'none';
+
+    const doctorSection = document.getElementById('doctor-patients-section');
+    if (doctorSection) doctorSection.classList.remove('hidden');
+
+    await loadCoursePatients(courseId);
+  } else {
+    // ПАЦІЄНТ
+    // Спочатку вішаємо стандартний перехід на кнопку
+    if (startButton) {
       startButton.addEventListener('click', () => {
         window.location.href = `course_completion.html?id=${courseId}`;
       });
     }
-  }
-  // -----------------------------------------
-
-  // Завантажуємо деталі курсу
-  await loadCourseDetails(courseId, role);
-
-  // Якщо лікар, показуємо нижню секцію і вантажимо пацієнтів
-  if (role === 'doctor') {
-    const doctorSection = document.getElementById('doctor-patients-section');
-    if (doctorSection) {
-      doctorSection.classList.remove('hidden');
-    }
-    await loadCoursePatients(courseId);
+    // Потім перевіряємо статус (може треба показати таймер і заблокувати кнопку)
+    await loadPatientCourseStatus(courseId);
   }
 }
+
+// === НОВА ФУНКЦІЯ ДЛЯ ПЕРЕВІРКИ ТАЙМЕРА ПАЦІЄНТА ===
+async function loadPatientCourseStatus(courseId) {
+  const token = localStorage.getItem('access_token');
+  try {
+    const response = await fetch(`${API_BASE_URL}/courses/${courseId}/patient-content`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) return;
+
+    const data = await response.json();
+    const timerSection = document.getElementById('patient-timer-section');
+    const timerDisplay = document.getElementById('course-timer-display');
+    const startBtn = document.getElementById('start-course-btn');
+
+    if (data.status === 'waiting') {
+      // Показуємо таймер
+      if (timerSection) timerSection.classList.remove('hidden');
+      if (timerDisplay) {
+        timerDisplay.textContent = `${data.time_left.hours} год. ${data.time_left.minutes} хв.`;
+      }
+
+      // Змінюємо вигляд кнопки "Почати", щоб було зрозуміло, що треба чекати
+      if (startBtn) {
+        startBtn.innerHTML = `Очікування <i class="fas fa-clock"></i>`;
+        startBtn.style.opacity = '0.6';
+        startBtn.style.backgroundColor = '#7aaebf'; // Робимо колір пасивним
+
+        // Перезаписуємо клік, щоб пацієнт не міг перейти на сторінку проходження
+        startBtn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          alert("Наступне заняття ще не відкрилося. Зачекайте закінчення таймера.");
+        };
+      }
+    } else if (data.status === 'completed') {
+      // Якщо курс повністю пройдено
+      if (startBtn) {
+        startBtn.innerHTML = `Пройдено <i class="fas fa-check-circle"></i>`;
+        startBtn.style.backgroundColor = '#28a745'; // Зелений колір
+        startBtn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        };
+      }
+    }
+  } catch (error) {
+    console.error("Помилка завантаження статусу пацієнта:", error);
+  }
+}
+// ====================================================
 
 async function loadCourseDetails(courseId, role) {
   const token = localStorage.getItem('access_token');
@@ -66,20 +114,24 @@ async function loadCourseDetails(courseId, role) {
 
     const courseData = await response.json();
 
-    // Заповнюємо дані на сторінці згідно з моделлю CoursesResponse
+    // Заповнюємо дані на сторінці згідно з моделлю
     document.getElementById('cp-title').textContent = courseData.course_name || '-';
 
-    // Обробка масиву травм (якщо це список, з'єднуємо через кому)
+    // Обробка масиву травм
     const injuriesText = Array.isArray(courseData.injuries)
       ? courseData.injuries.join(", ")
       : (courseData.injuries || '-');
     document.getElementById('cp-injuries').textContent = injuriesText;
 
-    // У вашій Pydantic моделі немає поля "duration", тому залишаємо заглушку
+    // === ОНОВЛЕНО: ТЕПЕР ВІДОБРАЖАЄМО ОБСЯГ КУРСУ ===
     const durationEl = document.getElementById('cp-duration');
     if (durationEl) {
-      durationEl.textContent = "Не вказано";
+      // Перевіряємо, чи є значення. Якщо є - додаємо слово "днів", якщо ні - "Не вказано"
+      durationEl.textContent = courseData.course_length
+        ? `${courseData.course_length} днів`
+        : "Не вказано";
     }
+    // ===============================================
 
     // Об'єднуємо ім'я та прізвище лікаря
     const docName = courseData.doctor_name || '';

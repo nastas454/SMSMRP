@@ -39,7 +39,7 @@
       <div class="card-divider"></div>
       <div class="card-details">
         <p><strong>Реабілітація після:</strong> <span id="cp-injuries">назви травм...</span></p>
-        <p><strong>Тривалість курсу:</strong> <span id="cp-duration">XX днів</span></p>
+        <p><strong>Обсяг курсу:</strong> <span id="cp-duration">XX занять</span></p>
       </div>
       <div class="card-doctor-info">
         <span class="doctor-label">Лікар:</span> <span id="cp-doctor">ім'я прізвище</span>
@@ -47,6 +47,15 @@
     </div>
 
     <div class="course-description-right">
+      <div id="patient-timer-section" class="patient-timer-section hidden">
+        <h4>
+          <i class="fas fa-hourglass-half"></i> Наступне заняття відкриється через:
+        </h4>
+        <div id="course-timer-display" class="course-timer-display">
+          -- год. -- хв.
+        </div>
+      </div>
+
       <h3>Інформація про курс:</h3>
       <p id="cp-description">опис курсу...</p>
     </div>

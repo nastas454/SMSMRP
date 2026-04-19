@@ -186,7 +186,7 @@ body {
 
 .course-description-right {
   flex: 1;
-  margin-top: 28px;
+  margin-top: 0;
 }
 
 .course-description-right h3 {
@@ -279,4 +279,35 @@ body {
 .social-icons a:hover {
   opacity: 0.6;
   color: #45b5d8;
+}
+
+/* --- ТАЙМЕР ПАЦІЄНТА --- */
+.patient-timer-section {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 15px 25px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  /* НОВІ ПРАВКИ: */
+  width: fit-content;   /* Блок буде за шириною тексту всередині */
+  min-width: 300px;     /* Мінімальна ширина, щоб виглядав солідно */
+}
+
+.patient-timer-section h4 {
+  margin: 0 0 5px 0;
+  color: #284d5b;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.patient-timer-section h4 i {
+  color: #3691ae;
+}
+
+.course-timer-display {
+  font-size: 22px;
+  font-weight: 700;
+  color: #3691ae;
 }

@@ -19,9 +19,14 @@ async function initApp() {
 
   // 2. Отримуємо роль (з utils.js)
   const role = getUserRole();
-  console.log("Поточна роль:", role); // Для перевірки в консолі
+  console.log("Поточна роль:", role);
 
-  // 3. Налаштовуємо кнопку (ВИПРАВЛЕНО)
+  // === ДОДАЄМО ВИКЛИК ТУТ ===
+  // Запитуємо ім'я користувача і виводимо на екран
+  await fetchAndDisplayUser();
+  // =========================
+
+  // 3. Налаштовуємо кнопку
   setupAddButton(role);
 
   // 4. Налаштовуємо модалку (тільки для пацієнта)
@@ -67,6 +72,7 @@ function setupAddButton(role) {
 // --- 2. ЗАВАНТАЖЕННЯ ДАНИХ (GET) ---
 
 async function loadCourses(role) {
+  // Визначаємо правильний ендпоінт залежно від ролі користувача
   const endpoint = role === 'doctor'
     ? `${API_BASE_URL}/doctors/courses`
     : `${API_BASE_URL}/patients/courses`;
@@ -80,6 +86,7 @@ async function loadCourses(role) {
       }
     });
 
+    // Якщо сесія закінчилась або токен невалідний
     if (response.status === 401) {
       alert("Сесія закінчилась. Будь ласка, увійдіть знову.");
       window.location.href = '/login.html';
@@ -90,14 +97,27 @@ async function loadCourses(role) {
 
     const courses = await response.json();
 
-    renderSidebar(courses);
-    renderGrid(courses);
-    updateWelcomePanel(courses.length);
+    // 1. Розподіляємо курси на активні та завершені
+    // (Для лікаря is_active може не передаватись, тому строго перевіряємо на false)
+    const activeCourses = courses.filter(c => c.is_active !== false);
+    const completedCourses = courses.filter(c => c.is_active === false);
+
+    // 2. Сортуємо масив: спочатку всі активні, потім всі неактивні (завершені)
+    const sortedCourses = [...activeCourses, ...completedCourses];
+
+    // 3. Відмальовуємо інтерфейс
+    renderSidebar(sortedCourses);
+    renderGrid(sortedCourses, role); // Передаємо role, щоб сховати прогрес у лікаря
+
+    // 4. Оновлюємо статистику у верхній панелі
+    updateWelcomePanel(activeCourses.length, completedCourses.length, role);
 
   } catch (error) {
     console.error("Помилка завантаження курсів:", error);
     const grid = document.getElementById('courses-grid');
-    if (grid) grid.innerHTML = `<p style="text-align: center; color: red;">Не вдалося завантажити курси.</p>`;
+    if (grid) {
+      grid.innerHTML = `<p style="text-align: center; color: red;">Не вдалося завантажити курси.</p>`;
+    }
   }
 }
 
@@ -212,7 +232,6 @@ function renderSidebar(courses) {
 
 
 
-// Оновлена функція renderGrid (тепер приймає role)
 function renderGrid(courses, role) {
   const grid = document.getElementById('courses-grid');
   if (!grid) return;
@@ -224,36 +243,43 @@ function renderGrid(courses, role) {
   }
 
   courses.forEach(course => {
+    const isDoctor = role === 'doctor'; // Перевіряємо чи це лікар
     const progress = course.progress ?? 0;
+    const isCompleted = course.is_active === false;
 
-    const actionText = getUserRole() === 'doctor' ? 'Видалити курс' : 'Від\'єднатись';
-    const actionClass = getUserRole() === 'doctor' ? 'delete-course-btn' : 'leave-course-btn';
+    const actionText = isDoctor ? 'Видалити курс' : 'Від\'єднатись';
+    const actionClass = isDoctor ? 'delete-course-btn' : 'leave-course-btn';
 
     const card = document.createElement('div');
-    card.className = 'course-card';
+    // Додаємо клас завершеного курсу ТІЛЬКИ для пацієнта
+    card.className = (!isDoctor && isCompleted) ? 'course-card completed-course' : 'course-card';
 
-    // Додаємо обробник кліку на всю картку
     card.onclick = (event) => {
-      // Якщо клік був по меню з трьома крапками, скасовуємо перехід
-      if (event.target.closest('.options-container')) {
-        return;
-      }
-      // Інакше переходимо на сторінку курсу
+      if (event.target.closest('.options-container')) return;
       window.location.href = `course_page.html?id=${course.id}`;
     };
 
+    // Візуальна позначка "(Завершено)" біля назви ТІЛЬКИ для пацієнта
+    const titleHtml = (!isDoctor && isCompleted)
+      ? `${course.course_name || 'Без назви'} <span style="font-size: 13px; color: #60a7bd; font-weight: normal;">(Завершено)</span>`
+      : `${course.course_name || 'Без назви'}`;
+
+    // Формуємо блок прогресу ТІЛЬКИ для пацієнта (для лікаря це буде пустий рядок)
+    const progressHtml = isDoctor ? '' : `
+      <div style="margin-top: 20px;">
+          <span class="progress-text">Прогрес: ${isCompleted ? '100' : progress}%</span>
+          <div class="progress-container">
+              <div class="progress-bar" style="width: ${isCompleted ? '100' : progress}%"></div>
+          </div>
+      </div>
+    `;
+
     card.innerHTML = `
-      <div class="card-header"><h3 class="card-title">${course.course_name|| 'Без назви'}</h3></div>
+      <div class="card-header"><h3 class="card-title">${titleHtml}</h3></div>
       <div class="card-body">
           <p><span class="card-label">Травми:</span> ${course.injuries || '-'}</p>
           <p><span class="card-label">Опис:</span><br>${course.description || '-'}</p>
-          <div style="margin-top: 20px;">
-              <span class="progress-text">Прогрес: ${progress}%</span>
-              <div class="progress-container">
-                  <div class="progress-bar" style="width: ${progress}%"></div>
-              </div>
-          </div>
-      </div>
+          ${progressHtml} </div>
       <div class="card-footer">
           <span class="doctor-name"><span class="card-label">Лікар:</span> ${course.doctor_name + " " + course.doctor_lastname}</span>
 
@@ -270,6 +296,41 @@ function renderGrid(courses, role) {
     grid.appendChild(card);
   });
 }
+
+// === НОВА ФУНКЦІЯ: Отримуємо дані користувача з бекенду ===
+async function fetchAndDisplayUser() {
+  const token = localStorage.getItem('access_token');
+  if (!token) return;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      const userData = await response.json();
+
+      // Знаходимо елемент на сторінці та вставляємо ім'я та прізвище
+      const nameElement = document.getElementById('user-name');
+      if (nameElement) {
+        nameElement.textContent = `${userData.first_name} ${userData.last_name}`;
+      }
+
+      // (Опціонально) Зберігаємо в пам'ять, щоб інші сторінки теж могли це швидко прочитати
+      localStorage.setItem('user_first_name', userData.first_name);
+      localStorage.setItem('user_last_name', userData.last_name);
+    } else {
+      console.warn("Не вдалося отримати дані користувача (Status:", response.status, ")");
+    }
+  } catch (error) {
+    console.error("Помилка при запиті /users/me:", error);
+  }
+}
+
 
 
 
@@ -302,9 +363,24 @@ document.addEventListener('click', () => {
   });
 });
 
-function updateWelcomePanel(count) {
-  const el = document.getElementById('active-courses-count');
-  if (el) el.textContent = count;
+// Оновлена функція updateWelcomePanel (тепер приймає role)
+function updateWelcomePanel(activeCount, completedCount, role) {
+  const statsContainer = document.querySelector('.welcome-stats');
+
+  // Якщо це лікар - повністю ховаємо блок статистики
+  if (role === 'doctor') {
+    if (statsContainer) statsContainer.style.display = 'none';
+    return;
+  }
+
+  // Для пацієнта показуємо блок і оновлюємо цифри
+  if (statsContainer) statsContainer.style.display = 'flex';
+
+  const activeEl = document.getElementById('active-courses-count');
+  const completedEl = document.getElementById('completed-courses-count');
+
+  if (activeEl) activeEl.textContent = activeCount;
+  if (completedEl) completedEl.textContent = completedCount;
 }
 
 // Функція для виходу з акаунту

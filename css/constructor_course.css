@@ -136,6 +136,31 @@ body {
 
 .day-header h4 { margin: 0; }
 
+/* --- НОВІ СТИЛІ ДЛЯ ЗАТРИМКИ ЧАСУ --- */
+.delay-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #3e788d;
+}
+
+.day-delay {
+  width: 60px;
+  padding: 6px;
+  border: 2px solid #c1d9f4;
+  border-radius: 6px;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  color: #284d5b;
+}
+
+.day-delay:focus {
+  border-color: #60a7bd;
+  outline: none;
+}
+/* ------------------------------------ */
 
 .exercise-item {
   background: #f7faff;
