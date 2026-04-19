@@ -20,8 +20,8 @@ async def create_doctor(admin_service:Service, create_dto: UsersCreate=Form()):
     return await admin_service.create_doctor(create_dto)
 
 @router.get("/admins")
-async def get_all_admins(admin_service:Service):
-    return await admin_service.get_all_admins()
+async def get_all_admins(admin_service:Service, admin_id: dict=Depends(get_current_payload)):
+    return await admin_service.get_all_admins(admin_id.get("id"))
 
 @router.get("/doctors")
 async def get_all_doctors(admin_service:Service):

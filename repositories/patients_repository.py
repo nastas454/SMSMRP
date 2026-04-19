@@ -1,7 +1,8 @@
-from sqlalchemy import select, exists
+from sqlalchemy import select, exists, UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
+from models.associations import PatientCourse
 from models.courses import Courses
 from models.patients import Patients
 from repositories.common_repository import CommonRepository
@@ -14,3 +15,11 @@ class PatientsRepository(CommonRepository[Patients]):
         stmt = select(Patients).where(Patients.courses.contains(course))
         result = await self.db.scalars(stmt)
         return result.all()
+
+    async def get_enrollment(self, patient_id: UUID, course_id: UUID):
+        stmt = select(PatientCourse).where(
+            PatientCourse.patient_id == patient_id,
+            PatientCourse.course_id == course_id
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()

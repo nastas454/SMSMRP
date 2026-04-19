@@ -30,10 +30,32 @@ async def get_patients_on_course(course_service: Service, course_id: UUID):
 async def delete_course(course_service: Service, course_id: UUID, doctor_id: dict = Depends(get_current_payload)):
     return await course_service.delete_course(course_id, doctor_id.get("id"))
 
-
 @router.get("/{course_id:uuid}/content", dependencies=[Depends(require_doctor_or_patient)])
 async def get_course_content(course_service: Service, course_id: UUID):
     content = await course_service.get_course_content(course_id)
     if isinstance(content, dict) and "message" in content and len(content) == 1:
         return JSONResponse(status_code=404, content=content)
     return content
+
+@router.get("/{course_id:uuid}/patient-content", dependencies=[Depends(require_doctor_or_patient)])
+async def get_patient_content(
+        course_id: UUID,
+        course_service: Service,
+        current_user: dict = Depends(get_current_payload)
+):
+    content = await course_service.get_patient_course_content(course_id, current_user.get("id"))
+    if isinstance(content, dict) and "message" in content and len(content) == 1:
+        return JSONResponse(status_code=403, content=content)
+    return content
+
+@router.post("/{course_id:uuid}/complete-day", dependencies=[Depends(require_doctor_or_patient)])
+async def complete_course_day(
+        course_id: UUID,
+        course_service: Service,
+        current_user: dict = Depends(get_current_payload)
+):
+    result = await course_service.complete_course_day(course_id, current_user.get("id"))
+    if result.get("message") != "День успішно завершено":
+        return JSONResponse(status_code=400, content=result)
+
+    return JSONResponse(status_code=200, content=result)

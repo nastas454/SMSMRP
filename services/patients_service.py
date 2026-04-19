@@ -23,7 +23,6 @@ class PatientsService:
             return {"message": "Patient not found"}
         return patient
 
-
     async def join_to_course(self, course_id: UUID, patient_id: UUID):
         course = await self.course_repo.get_by_id(course_id)
         if course is None:

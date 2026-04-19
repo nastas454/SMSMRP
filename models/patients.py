@@ -1,7 +1,6 @@
 from sqlalchemy import Integer, Column, String, Enum, ForeignKey, UUID
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
-from models.associations import course_patients
 from models.enums.sex_enum import Sex
 from models.user import Users
 
@@ -13,7 +12,7 @@ class Patients(Users):
     age = Column(Integer,nullable=False, index=True)
     sex = Column(Enum(Sex),nullable=False, index=True)
 
-    courses = relationship("Courses", secondary=course_patients, back_populates="patients")
+    course_enrollments = relationship("PatientCourse", back_populates="patient", cascade="all, delete-orphan")
 
     mapper_args = {
             "polymorphic_identity": "patients"

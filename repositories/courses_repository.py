@@ -5,7 +5,7 @@ from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, selectinload
 
-from models.associations import course_patients
+from models.associations import PatientCourse
 from models.courses import Courses
 from models.patients import Patients
 from repositories.common_repository import CommonRepository
@@ -23,15 +23,24 @@ class CoursesRepository(CommonRepository[Courses]):
         result = await self.db.scalars(stmt)
         return result.all()
 
-    async def get_patient_courses(self, patient: Patients ) -> List[Courses]:
-        stmt = select(Courses).where(Courses.patients.contains(patient))
-        result = await self.db.scalars(stmt)
-        return result.all()
+    async def get_patient_courses(self, patient: Patients) -> List[Courses]:
+        stmt = (
+            select(Courses, PatientCourse.is_active, PatientCourse.progress)
+            .join(PatientCourse, Courses.id == PatientCourse.course_id)
+            .where(PatientCourse.patient_id == patient.id)
+        )
+        result = await self.db.execute(stmt)
+        courses_with_status = []
+        for course_obj, is_active_status, progress_val in result.all():
+            course_obj.is_active = is_active_status
+            course_obj.progress = progress_val
+            courses_with_status.append(course_obj)
+        return courses_with_status
 
     async def add_patient_to_course(self, course_id: UUID, patient_id: UUID):
-        stmt = insert(course_patients).values(
+        new_enrollment = PatientCourse(
             course_id=course_id,
-            patients_id=patient_id
+            patient_id=patient_id
         )
-        await self.db.execute(stmt)
+        self.db.add(new_enrollment)
         await self.db.commit()

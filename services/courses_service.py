@@ -1,6 +1,6 @@
 from typing import Self
 from uuid import UUID
-
+from datetime import datetime, timedelta
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import SessionLocal, get_session_local
@@ -67,3 +67,85 @@ class CoursesService:
             return content
         except Exception as e:
             return {"message": f"Failed to fetch content from storage: {str(e)}"}
+
+    async def complete_course_day(self, course_id: UUID, patient_id: UUID):
+        enrollment = await self.patient_repo.get_enrollment(patient_id, course_id)
+        if not enrollment:
+            return {"message": "Ви не записані на цей курс"}
+        if not enrollment.is_active:
+            return {"message": "Цей курс вже повністю завершено"}
+        if enrollment.last_completed_at is not None:
+            return {"message": "Ви вже завершили цей день, очікуйте відкриття наступного"}
+
+        course = await self.course_repo.get_by_id(course_id)
+        content = self.s3.get_course_json(course.course_s3_key)
+        if "error" in content:
+            return content
+        total_days = content.get("total_days", 1)
+        current_day = enrollment.current_unlocked_day
+
+        calculated_progress = int((current_day / total_days) * 100)
+        enrollment.progress = min(calculated_progress, 100)
+
+        if current_day >= total_days:
+            enrollment.is_active = False
+            enrollment.progress = 100
+            enrollment.last_completed_at = datetime.utcnow()
+            message = "Вітаємо! Курс повністю завершено."
+        else:
+            enrollment.last_completed_at = datetime.utcnow()
+            message = "День успішно завершено"
+        await self.db.commit()
+        return {"message": message}
+
+    async def get_patient_course_content(self, course_id: UUID, patient_id: UUID):
+        course = await self.course_repo.get_by_id(course_id)
+        if not course:
+            return {"message": "Курс не знайдено"}
+        enrollment = await self.patient_repo.get_enrollment(patient_id, course_id)
+        if not enrollment:
+            return {"message": "Ви не записані на цей курс"}
+        content = self.s3.get_course_json(course.course_s3_key)
+        if "error" in content:
+            return content
+
+        current_day = enrollment.current_unlocked_day
+        total_days = content.get("total_days", 1)
+        days_data = content.get("days", [])
+
+        if enrollment.last_completed_at and current_day < total_days:
+            next_day_data = next((d for d in days_data if d["day_number"] == current_day + 1), None)
+            if next_day_data:
+                delay_hours = next_day_data.get("delay_hours_after_previous", 24)
+                unlock_time = enrollment.last_completed_at + timedelta(hours=delay_hours)
+                if datetime.utcnow() >= unlock_time:
+                    enrollment.current_unlocked_day += 1
+                    enrollment.last_completed_at = None
+                    await self.db.commit()
+                    current_day = enrollment.current_unlocked_day
+        response = {
+            "current_day": current_day,
+            "total_days": total_days,
+            "status": "in_progress",
+            "day_content": None,
+            "time_left": None
+        }
+
+        if enrollment.last_completed_at:
+            if current_day >= total_days:
+                response["status"] = "completed"
+                response["message"] = "Курс повністю пройдено!"
+            else:
+                next_day_data = next((d for d in days_data if d["day_number"] == current_day + 1), None)
+                delay_hours = next_day_data.get("delay_hours_after_previous", 24) if next_day_data else 24
+                unlock_time = enrollment.last_completed_at + timedelta(hours=delay_hours)
+                time_left = unlock_time - datetime.utcnow()
+                response["status"] = "waiting"
+                response["time_left"] = {
+                    "hours": int(time_left.total_seconds() // 3600),
+                    "minutes": int((time_left.total_seconds() % 3600) // 60)
+                }
+        else:
+            current_day_data = next((d for d in days_data if d["day_number"] == current_day), None)
+            response["day_content"] = current_day_data
+        return response

@@ -6,6 +6,7 @@ from sqlalchemy.testing.pickleable import User
 from core.database import get_session_local
 from core.password_hasher import PasswordHasher
 from repositories.users_repository import UsersRepository
+from services.admin_service import AdminService
 from shcemas.users_schemas import ChangeUser
 
 
@@ -14,6 +15,7 @@ class UsersService:
         self.db = db
         self.user_repo = UsersRepository(db=self.db)
         self.hash = PasswordHasher()
+        self.admin_service = AdminService(db=self.db)
 
     async def get_me(self, user_id: UUID):
         user = await self.user_repo.get_by_id(user_id)
@@ -64,6 +66,7 @@ class UsersService:
         user = await self.user_repo.get_by_id(user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
+        await self.admin_service.can_delete_admin(user)
         await self.user_repo.delete_entity(user)
         return {
             "massage": "successfully deleted user"

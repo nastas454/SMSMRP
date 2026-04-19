@@ -1,5 +1,5 @@
 from dns.e164 import query
-from sqlalchemy import select, exists
+from sqlalchemy import select, exists, UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.user import Users
 from repositories.common_repository import CommonRepository
@@ -9,8 +9,10 @@ class UsersRepository(CommonRepository[Users]):
     def __init__(self, db: AsyncSession):
         super().__init__(db, Users)
 
-    async def get_by_role(self, role: str):
+    async def get_by_role(self, role: str, executed_id: UUID = None):
         stmt = select(Users).where(Users.role == role)
+        if executed_id:
+            stmt = stmt.where(Users.id != executed_id)
         result = await self.db.scalars(stmt)
         return result.all()
 

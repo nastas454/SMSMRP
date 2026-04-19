@@ -3,12 +3,15 @@ from uuid import UUID
 from fastapi import Depends
 from sqlalchemy import Boolean
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.testing.pickleable import User
+
 from core.database import get_session_local
 from core.jwt_service import JwtUtility
 from core.password_hasher import PasswordHasher
 from models.admin import Admins
 from models.doctors import Doctors
 from models.enums.role_enum import Role
+from models.user import Users
 from repositories.admin_repository import AdminRepository
 from repositories.doctors_repository import DoctorsRepository
 from repositories.users_repository import UsersRepository
@@ -65,8 +68,8 @@ class AdminService:
             return {"message": "No doctors found"}
         return doctors
 
-    async def get_all_admins(self):
-        admins = await self.user_repo.get_by_role(Role.ADMIN.value)
+    async def get_all_admins(self, admin_id: UUID):
+        admins = await self.user_repo.get_by_role(Role.ADMIN.value, admin_id)
         if not admins:
             return {"message": "No admins found"}
         return admins
@@ -75,10 +78,15 @@ class AdminService:
         if not await self.admin_repo.has_permission(performer_id):
             raise Exception('Admin dont have permission')
         user = await self.user_repo.get_by_id(user_id)
-        if user.role == Role.ADMIN.value:
-            if await self.admin_repo.has_permission(user_id):
-                if await self.admin_repo.number_of_admin_with_permission() <= 3:
-                    raise Exception('There must be at least three administrators in the system')
-        user.is_active = status
+        if status:
+            user.is_active = status
+        else:
+            await self.can_delete_admin(user)
+            user.is_active = status
         return await self.user_repo.change_entity(user)
 
+    async def can_delete_admin(self, user: Users):
+        if user.role == Role.ADMIN.value:
+            if await self.admin_repo.has_permission(user.id):
+                if await self.admin_repo.number_of_admin_with_permission() <= 3:
+                    raise Exception('There must be at least three administrators in the system')
