@@ -19,6 +19,8 @@ class PatientCourse(Base):
 
     patient = relationship("Patients", back_populates="course_enrollments")
     course = relationship("Courses", back_populates="patient_enrollments")
+    feedbacks = relationship("CourseFeedback", back_populates="patient_course", cascade="all, delete-orphan")
 
     is_active = Column(Boolean, nullable=False, default=True)
     progress = Column(Integer, default=0, nullable=False)
+    difficulty = Column(Integer, default=2, nullable=False)

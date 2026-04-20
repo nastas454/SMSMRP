@@ -49,13 +49,22 @@ async def get_patient_content(
     return content
 
 @router.post("/{course_id:uuid}/complete-day", dependencies=[Depends(require_doctor_or_patient)])
-async def complete_course_day(
-        course_id: UUID,
-        course_service: Service,
-        current_user: dict = Depends(get_current_payload)
-):
+async def complete_course_day(course_id: UUID, course_service: Service, current_user: dict = Depends(get_current_payload)):
     result = await course_service.complete_course_day(course_id, current_user.get("id"))
     if result.get("message") != "День успішно завершено":
         return JSONResponse(status_code=400, content=result)
-
     return JSONResponse(status_code=200, content=result)
+
+@router.get("/{course_id:uuid}/number-of-difficulty", dependencies=[Depends(require_doctor_or_patient)])
+async def get_number_of_difficulty(course_service: Service, course_id: UUID):
+    result = await course_service.get_course_levels_of_difficulty(course_id)
+    return JSONResponse(status_code=200, content=result)
+
+@router.patch("/{course_id:uuid}/change-difficulty", dependencies=[Depends(require_doctor_or_patient)])
+async def change_difficulty(course_service: Service, course_id: UUID, patient_id: UUID, new_difficulty: int):
+    await course_service.change_difficulty(course_id, patient_id, new_difficulty)
+    return JSONResponse(status_code=200, content={"message": "Difficulty changed successfully", "status": "ok"})
+
+@router.get("/{course_id:uuid}/difficulty", dependencies=[Depends(require_doctor_or_patient)])
+async def get_current_difficulty(course_service: Service, course_id: UUID, patient_id: UUID):
+    return await course_service.get_current_difficulty(patient_id, course_id)

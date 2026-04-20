@@ -78,9 +78,10 @@ class CoursesService:
             return {"message": "Ви вже завершили цей день, очікуйте відкриття наступного"}
 
         course = await self.course_repo.get_by_id(course_id)
-        content = self.s3.get_course_json(course.course_s3_key)
+        content = self.extract_level_data(self.s3.get_course_json(course.course_s3_key), enrollment.difficulty)
         if "error" in content:
             return content
+
         total_days = content.get("total_days", 1)
         current_day = enrollment.current_unlocked_day
 
@@ -102,16 +103,32 @@ class CoursesService:
         course = await self.course_repo.get_by_id(course_id)
         if not course:
             return {"message": "Курс не знайдено"}
+
         enrollment = await self.patient_repo.get_enrollment(patient_id, course_id)
         if not enrollment:
             return {"message": "Ви не записані на цей курс"}
+
         content = self.s3.get_course_json(course.course_s3_key)
         if "error" in content:
             return content
 
+        patient_difficulty = getattr(enrollment, 'difficulty', 2)
+        levels = content.get("levels", [])
+        total_days = 0
+        days_data = []
+
+        if levels:
+            target_level = next((lvl for lvl in levels if lvl.get("difficulty") == patient_difficulty), None)
+            if target_level:
+                total_days = target_level.get("total_days", 0)
+                days_data = target_level.get("days", [])
+            else:
+                return {"message": f"Рівень складності {patient_difficulty} не знайдено у цьому курсі"}
+        else:
+            total_days = content.get("total_days", 1)
+            days_data = content.get("days", [])
+
         current_day = enrollment.current_unlocked_day
-        total_days = content.get("total_days", 1)
-        days_data = content.get("days", [])
 
         if enrollment.last_completed_at and current_day < total_days:
             next_day_data = next((d for d in days_data if d["day_number"] == current_day + 1), None)
@@ -123,9 +140,11 @@ class CoursesService:
                     enrollment.last_completed_at = None
                     await self.db.commit()
                     current_day = enrollment.current_unlocked_day
+
         response = {
             "current_day": current_day,
             "total_days": total_days,
+            "difficulty": patient_difficulty,
             "status": "in_progress",
             "day_content": None,
             "time_left": None
@@ -148,4 +167,41 @@ class CoursesService:
         else:
             current_day_data = next((d for d in days_data if d["day_number"] == current_day), None)
             response["day_content"] = current_day_data
+
         return response
+
+    def extract_level_data(self, course_data: dict, target_difficulty: int) -> dict:
+        levels = course_data.get("levels", [])
+        found_level = next((lvl for lvl in levels if lvl.get("difficulty") == target_difficulty), None)
+        if not found_level:
+            return {"error": f"Рівень складності {target_difficulty} не знайдено"}
+        return found_level
+
+    async def get_course_levels_of_difficulty(self, course_id: UUID):
+        course = await self.course_repo.get_by_id(course_id)
+        if not course:
+            raise Exception ("Course not found")
+        content = self.s3.get_course_json(course.course_s3_key)
+        levels_data = content.get("levels", [])
+        difficulties = [
+            item["difficulty"]
+            for item in levels_data
+            if isinstance(item, dict) and "difficulty" in item
+        ]
+        return difficulties
+
+    async def change_difficulty(self, course_id: UUID, patient_id: UUID, new_difficulty: int):
+        course_patient = await self.patient_repo.get_enrollment(patient_id, course_id)
+        if not course_patient:
+            raise Exception ("Course not found")
+        course_patient.difficulty = new_difficulty
+        self.db.add(course_patient)
+        await self.db.commit()
+        await self.db.refresh(course_patient)
+        return True
+
+    async def get_current_difficulty(self, patient_id: UUID, course_id: UUID):
+        course_patient = await self.patient_repo.get_enrollment(patient_id, course_id)
+        if not course_patient:
+            raise Exception ("Course not found")
+        return course_patient.difficulty

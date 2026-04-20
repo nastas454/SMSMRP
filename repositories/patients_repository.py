@@ -12,7 +12,11 @@ class PatientsRepository(CommonRepository[Patients]):
         super().__init__(db, Patients)
 
     async def  get_patients_on_course(self, course: Courses):
-        stmt = select(Patients).where(Patients.courses.contains(course))
+        stmt = (
+            select(Patients)
+            .join(PatientCourse, Patients.id == PatientCourse.patient_id)
+            .where(PatientCourse.course_id == course.id)
+        )
         result = await self.db.scalars(stmt)
         return result.all()
 
