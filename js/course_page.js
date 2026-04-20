@@ -191,9 +191,196 @@ async function loadCoursePatients(courseId) {
   }
 }
 
-function adjustPatient(patientId) {
-  console.log("Редагування пацієнта:", patientId);
-  // Додайте логіку для відкриття модального вікна чи переходу на сторінку пацієнта
+// Глобальні змінні для зберігання поточного стану модалки
+let currentModalPatientId = null;
+let currentModalCourseId = null;
+
+/**
+ * Отримує поточну складність курсу для конкретного пацієнта
+ */
+async function getCurrentPatientDifficulty(courseId, patientId) {
+  const token = localStorage.getItem('access_token');
+  try {
+    const response = await fetch(`${API_BASE_URL}/courses/${courseId}/difficulty?patient_id=${patientId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    // FastAPI може повертати просто число або об'єкт типу { "difficulty": 2 }.
+    // Підтримуємо обидва варіанти:
+    return data.difficulty !== undefined ? data.difficulty : data;
+  } catch (error) {
+    console.error("Помилка отримання поточної складності:", error);
+    return null; // Якщо сталася помилка, повернемо null, щоб спрацював fallback на 2
+  }
+}
+
+async function adjustPatient(patientId) {
+  currentModalPatientId = patientId;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  currentModalCourseId = urlParams.get('id');
+
+  const modal = document.getElementById('patient-modal');
+  modal.classList.remove('hidden');
+
+  // 1. Спочатку отримуємо поточну складність з нового ендпоінту
+  const currentDifficulty = await getCurrentPatientDifficulty(currentModalCourseId, currentModalPatientId);
+
+  // 2. Передаємо її у функцію завантаження select'а
+  // Якщо запит впаде, currentDifficulty буде null, і loadDifficultyOptions встановить 2 за замовчуванням
+  await loadDifficultyOptions(currentModalCourseId, currentDifficulty);
+
+  // 3. Завантажуємо відгуки
+  await loadPatientFeedbacks(currentModalCourseId, currentModalPatientId);
+}
+
+/**
+ * Закриває модальне вікно
+ */
+function closePatientModal() {
+  const modal = document.getElementById('patient-modal');
+  modal.classList.add('hidden');
+  currentModalPatientId = null;
+}
+
+/**
+ * Завантажує кількість рівнів складності та заповнює select
+ */
+/**
+ * Завантажує кількість рівнів складності та заповнює select текстовими назвами
+ */
+/**
+ * Завантажує кількість рівнів складності та заповнює select текстовими назвами
+ */
+/**
+ * Завантажує кількість рівнів складності та заповнює select
+ */
+/**
+ * Завантажує кількість рівнів складності та заповнює select
+ */
+async function loadDifficultyOptions(courseId, currentDifficulty) {
+  const token = localStorage.getItem('access_token');
+  const select = document.getElementById('course-difficulty-select');
+  select.innerHTML = "<option value=''>Завантаження...</option>";
+
+  const difficultyNames = {
+    1: "Легкий",
+    2: "Стандартний",
+    3: "Просунутий"
+  };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/courses/${courseId}/number-of-difficulty`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) throw new Error("Помилка завантаження складностей");
+
+    const data = await response.json();
+    const maxDifficulty = typeof data === 'object' ? (data.count || data.length) : data;
+
+    select.innerHTML = ""; // Очищаємо список
+
+    // Створюємо реальні рівні складності
+    for (let i = 1; i <= maxDifficulty; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = difficultyNames[i] || `Рівень ${i}`;
+
+      // Якщо поточний рівень збігається з тим, що прийшов з бекенду - РОБИМО ЙОГО ОБРАНИМ
+      if (currentDifficulty && Number(currentDifficulty) === i) {
+        option.selected = true;
+      }
+
+      select.appendChild(option);
+    }
+
+  } catch (error) {
+    console.error("Помилка:", error);
+    select.innerHTML = "<option value=''>Помилка завантаження</option>";
+  }
+}
+
+/**
+ * Відправляє запит на зміну складності
+ */
+async function changePatientDifficulty() {
+  if (!currentModalPatientId || !currentModalCourseId) return;
+
+  const select = document.getElementById('course-difficulty-select');
+  const newDifficulty = select.value;
+  const token = localStorage.getItem('access_token');
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/courses/${currentModalCourseId}/change-difficulty?patient_id=${currentModalPatientId}&new_difficulty=${newDifficulty}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) throw new Error("Не вдалося змінити складність");
+
+    alert("Складність успішно змінено!");
+  } catch (error) {
+    console.error("Помилка:", error);
+    alert("Помилка при зміні складності");
+  }
+}
+
+/**
+ * Завантажує та відображає відгуки пацієнта
+ */
+async function loadPatientFeedbacks(courseId, patientId) {
+  const token = localStorage.getItem('access_token');
+  const listContainer = document.getElementById('feedbacks-list');
+  listContainer.innerHTML = "<p>Завантаження відгуків...</p>";
+
+  try {
+    // Звертаємося до ендпоінту з префіксом /feedbacks (patient_id передається як query параметр)
+    const response = await fetch(`${API_BASE_URL}/feedbacks/${courseId}/feedback?patient_id=${patientId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) throw new Error("Помилка завантаження відгуків");
+
+    const feedbacks = await response.json();
+    listContainer.innerHTML = "";
+
+    if (feedbacks.length === 0) {
+      listContainer.innerHTML = "<p style='text-align:center; color:#7aaebf;'>Пацієнт ще не залишив жодного відгуку.</p>";
+      return;
+    }
+
+    // Сортуємо відгуки за номером заняття або датою (від найновіших)
+    feedbacks.sort((a, b) => b.session_number - a.session_number);
+
+    feedbacks.forEach(fb => {
+      // Підтримуємо обидва формати назв (залежно від того, як бекенд віддає дату)
+      const dateRaw = fb.create_at || fb.created_at;
+      const dateFormatted = dateRaw ? new Date(dateRaw).toLocaleDateString('uk-UA') : 'Невідома дата';
+
+      const fbEl = document.createElement('div');
+      fbEl.className = 'feedback-card';
+      fbEl.innerHTML = `
+        <div class="fb-header">
+          <span>Заняття #${fb.session_number}</span>
+          <span class="fb-date">${dateFormatted}</span>
+        </div>
+        <div class="fb-stats">
+          <span><i class="fas fa-heartbeat" style="color:#d9534f"></i> Біль: ${fb.pain_level}/10</span>
+          <span><i class="fas fa-dumbbell" style="color:#f0ad4e"></i> Складність: ${fb.difficulty_level}/10</span>
+        </div>
+        <div class="fb-note">${fb.note ? `"${fb.note}"` : '<i>Без коментарів</i>'}</div>
+      `;
+      listContainer.appendChild(fbEl);
+    });
+
+  } catch (error) {
+    console.error("Помилка:", error);
+    listContainer.innerHTML = "<p style='color:red;'>Не вдалося завантажити відгуки.</p>";
+  }
 }
 
 function logoutUser(event) {

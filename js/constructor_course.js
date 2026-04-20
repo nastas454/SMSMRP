@@ -1,56 +1,155 @@
+// --- 1. СТАН РІВНІВ СКЛАДНОСТІ ---
+let activeLevels = {
+  1: false,
+  2: true, // Стандартний завжди існує
+  3: false
+};
+let currentLevel = 2;
+let pendingLevelToAdd = null;
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Додаємо перше заняття автоматично при завантаженні сторінки
+  // Додаємо перше заняття для стандартного рівня
   addDay();
+  renderDifficultySelect();
 });
 
-// Функція 1: Додати заняття
+// --- 2. УПРАВЛІННЯ ВИПАДАЮЧИМ СПИСКОМ ТА КОНТЕЙНЕРАМИ ---
+function renderDifficultySelect() {
+  const select = document.getElementById('difficulty-select');
+  select.innerHTML = '';
+
+  if (activeLevels[1]) select.add(new Option('Легкий', '1'));
+  else select.add(new Option('Додати легкий', 'add_1'));
+
+  select.add(new Option('Стандартний', '2'));
+
+  if (activeLevels[3]) select.add(new Option('Просунутий', '3'));
+  else select.add(new Option('Додати просунутий', 'add_3'));
+
+  select.value = currentLevel;
+
+  const deleteBtn = document.getElementById('delete-difficulty-btn');
+  deleteBtn.style.display = (currentLevel === 2) ? 'none' : 'block';
+}
+
+function handleDifficultyChange(select) {
+  const value = select.value;
+
+  if (value.startsWith('add_')) {
+    pendingLevelToAdd = parseInt(value.replace('add_', ''));
+    const levelName = pendingLevelToAdd === 1 ? 'Легкий' : 'Просунутий';
+    document.getElementById('modal-level-name').innerText = levelName;
+    document.getElementById('difficulty-modal').style.display = 'flex';
+  } else {
+    switchLevel(parseInt(value));
+    renderDifficultySelect();
+  }
+}
+
+// Функція для перемикання видимості контейнерів
+function switchLevel(newLevel) {
+  document.getElementById('days-container-' + currentLevel).style.display = 'none';
+  currentLevel = newLevel;
+  document.getElementById('days-container-' + currentLevel).style.display = 'block';
+  renumberDays();
+}
+
+// --- 3. МОДАЛКИ: ДОДАВАННЯ ---
+function confirmAddDifficulty() {
+  if (pendingLevelToAdd) {
+    activeLevels[pendingLevelToAdd] = true;
+
+    // Очищаємо контейнер, щоб він був абсолютно пустим
+    const targetContainer = document.getElementById('days-container-' + pendingLevelToAdd);
+    targetContainer.innerHTML = '';
+
+    // Перемикаємось на новий рівень
+    switchLevel(pendingLevelToAdd);
+
+    // Автоматично додаємо перше пусте заняття для зручності
+    addDay();
+
+    pendingLevelToAdd = null;
+  }
+  document.getElementById('difficulty-modal').style.display = 'none';
+  renderDifficultySelect();
+}
+
+function cancelAddDifficulty() {
+  pendingLevelToAdd = null;
+  document.getElementById('difficulty-modal').style.display = 'none';
+  renderDifficultySelect(); // Повертаємо селект на поточний рівень
+}
+
+// --- 4. МОДАЛКИ: ВИДАЛЕННЯ ---
+function deleteCurrentDifficulty() {
+  const levelName = currentLevel === 1 ? 'Легкий' : 'Просунутий';
+  document.getElementById('delete-modal-level-name').innerText = levelName;
+  document.getElementById('delete-modal').style.display = 'flex';
+}
+
+function confirmDeleteDifficulty() {
+  if (currentLevel !== 2) {
+    activeLevels[currentLevel] = false;
+
+    // Очищаємо HTML видаленого рівня
+    document.getElementById('days-container-' + currentLevel).innerHTML = '';
+    document.getElementById('days-container-' + currentLevel).style.display = 'none';
+
+    // Повертаємось на Стандартний рівень
+    currentLevel = 2;
+    document.getElementById('days-container-2').style.display = 'block';
+
+    renderDifficultySelect();
+  }
+  document.getElementById('delete-modal').style.display = 'none';
+}
+
+function cancelDeleteDifficulty() {
+  document.getElementById('delete-modal').style.display = 'none';
+}
+
+// --- 5. ФУНКЦІЇ ДНІВ ТА ВПРАВ ---
 function addDay() {
-  const container = document.getElementById('days-container');
+  // Додаємо заняття тільки у ПОТОЧНИЙ активний контейнер
+  const container = document.getElementById('days-container-' + currentLevel);
   const dayBlock = document.createElement('div');
   dayBlock.className = 'day-block';
 
-  // HTML структура для дня з полем затримки
   dayBlock.innerHTML = `
     <div class="day-header">
       <h4 class="day-title">Заняття X</h4>
-
       <div class="delay-group">
         <i class="far fa-clock"></i> Відкрити через:
         <input type="number" class="day-delay" min="0" value="1" style="width: 60px;">
         днів
       </div>
-
       <button class="delete-btn" onclick="deleteDay(this)">
         <i class="fas fa-trash-alt"></i> Видалити
       </button>
     </div>
-
     <div class="exercises-list"></div>
-
     <button class="add-ex-btn" onclick="addExercise(this)">
       <i class="fas fa-dumbbell"></i> Додати вправу
     </button>
   `;
 
   container.appendChild(dayBlock);
-  // Додаємо першу порожню вправу автоматично
   addExercise(dayBlock.querySelector('.add-ex-btn'));
   renumberDays();
 }
 
-// Функція 2: Видалити заняття
 function deleteDay(btn) {
   btn.closest('.day-block').remove();
   renumberDays();
 }
 
-// Функція 3: Перерахунок днів та управління відображенням затримки
 function renumberDays() {
-  const allDays = document.querySelectorAll('.day-block');
+  const container = document.getElementById('days-container-' + currentLevel);
+  const allDays = container.querySelectorAll('.day-block');
+
   allDays.forEach((day, index) => {
     day.querySelector('.day-title').innerText = `Заняття ${index + 1}`;
-
-    // Якщо це заняття 1, приховуємо поле затримки, бо він доступний одразу
     const delayGroup = day.querySelector('.delay-group');
     if (delayGroup) {
       delayGroup.style.display = (index === 0) ? 'none' : 'flex';
@@ -58,89 +157,128 @@ function renumberDays() {
   });
 }
 
-// Функція 4: Додавання нової вправи
 function addExercise(btn) {
-  const list = btn.closest('.day-block').querySelector('.exercises-list');
+  const dayBlock = btn.closest('.day-block'); // Отримуємо блок поточного дня
+  const list = dayBlock.querySelector('.exercises-list');
   const template = document.getElementById('exercise-template');
   const exItem = template.content.cloneNode(true);
 
-  // Обробник для кнопки видалення вправи
   const deleteBtn = exItem.querySelector('.exercise-delete-btn');
   deleteBtn.addEventListener('click', function(event) {
-    event.target.closest('.exercise-item').remove();
+    const itemToRemove = event.target.closest('.exercise-item');
+    const currentDayBlock = itemToRemove.closest('.day-block'); // Зберігаємо посилання на блок дня
+
+    itemToRemove.remove(); // Видаляємо вправу
+
+    renumberExercises(currentDayBlock); // Перераховуємо залишені вправи
   });
 
   list.appendChild(exItem);
+
+  renumberExercises(dayBlock); // Перераховуємо вправи після додавання нової
 }
 
-// Функція 5: ЗБЕРЕЖЕННЯ ТА ВІДПРАВКА НА БЕКЕНД
+function renumberExercises(dayBlock) {
+  // Знаходимо всі вправи всередині конкретного заняття
+  const exercises = dayBlock.querySelectorAll('.exercise-item');
+
+  exercises.forEach((ex, index) => {
+    // Шукаємо елемент, де має відображатися номер (наприклад, <span> або <label>)
+    const numberElement = ex.querySelector('.exercise-number');
+    if (numberElement) {
+      numberElement.innerText = index + 1;
+    }
+
+    // Опціонально: оновлюємо плейсхолдер назви або інші атрибути
+    const nameInput = ex.querySelector('.ex-name');
+
+  });
+}
+
+
+
+// --- 6. ЗБЕРЕЖЕННЯ ТА ВІДПРАВКА ---
 async function saveCourse() {
   const saveBtn = document.querySelector('.btn-save');
   const originalBtnText = saveBtn.innerText;
 
-  // 1. Збір базових даних
   const title = document.getElementById('course-title').value;
   const injuriesInput = document.getElementById('course-injuries').value;
   const injuries = injuriesInput ? injuriesInput.split(',').map(item => item.trim()) : [];
   const desc = document.getElementById('course-desc').value;
 
-  // 2. Збір даних про дні та вправи
-  const daysData = [];
-  const dayBlocks = document.querySelectorAll('.day-block');
+  if (!title) { alert("❌ Введіть назву курсу!"); return; }
 
-  // Ми більше не рахуємо паузи для загальної тривалості
-  dayBlocks.forEach((block, index) => {
-    const exercisesData = [];
+  // Збираємо дані з УСІХ активних рівнів складності
+  const difficultiesData = [];
+  let standardLevelLength = 0; // Змінна для базової довжини курсу
 
-    block.querySelectorAll('.exercise-item').forEach(ex => {
-      exercisesData.push({
-        name: ex.querySelector('.ex-name')?.value || "",
-        reps: ex.querySelector('.ex-reps')?.value || "",
-        sets: ex.querySelector('.ex-sets')?.value || "",
-        description: ex.querySelector('.ex-desc')?.value || "",
-        recommendations: ex.querySelector('.ex-rec')?.value || "",
-        video_url: ex.querySelector('.ex-video')?.value || ""
+  // Проходимось по рівнях [1, 2, 3]
+  [1, 2, 3].forEach(level => {
+    if (activeLevels[level]) {
+      const container = document.getElementById('days-container-' + level);
+      const daysData = [];
+
+      container.querySelectorAll('.day-block').forEach((block, index) => {
+        const exercisesData = [];
+        block.querySelectorAll('.exercise-item').forEach(ex => {
+          exercisesData.push({
+            name: ex.querySelector('.ex-name')?.value || "",
+            reps: ex.querySelector('.ex-reps')?.value || "",
+            sets: ex.querySelector('.ex-sets')?.value || "",
+            description: ex.querySelector('.ex-desc')?.value || "",
+            recommendations: ex.querySelector('.ex-rec')?.value || "",
+            video_url: ex.querySelector('.ex-video')?.value || ""
+          });
+        });
+
+        const delayInput = block.querySelector('.day-delay');
+        const delayDays = (index === 0) ? 0 : (parseInt(delayInput.value) || 0);
+
+        daysData.push({
+          day_number: index + 1,
+          delay_hours_after_previous: delayDays * 24,
+          exercises: exercisesData
+        });
       });
-    });
 
-    // Отримуємо значення в днях ТІЛЬКИ для того, щоб передати в JSON
-    const delayInput = block.querySelector('.day-delay');
-    const delayDays = (index === 0) ? 0 : (parseInt(delayInput.value) || 0);
-    const delayHours = delayDays * 24;
+      // Запам'ятовуємо довжину стандартного курсу для головного поля
+      if (level === 2) {
+        standardLevelLength = daysData.length;
+      }
 
-    daysData.push({
-      day_number: index + 1,
-      delay_hours_after_previous: delayHours, // Затримка летить у JSON для плеєра
-      exercises: exercisesData
-    });
+      // Додаємо рівень у масив
+      difficultiesData.push({
+        difficulty: level,
+        total_days: daysData.length,
+        days: daysData
+      });
+    }
   });
 
-  // 3. Валідація
-  if (!title) { alert("❌ Введіть назву курсу!"); return; }
-  if (daysData.length === 0) { alert("❌ Додайте хоча б одне заняття!"); return; }
+  if (difficultiesData.length === 0 || standardLevelLength === 0) {
+    alert("❌ Додайте хоча б одне заняття у стандартний рівень!");
+    return;
+  }
 
-  // 4. Формування об'єкту
+  // СТРОГО за схемою бекенду
   const payload = {
     course_name: title,
-    injuries: injuries,
     description: desc,
-    // ЗМІНЕНО: Тепер обсяг курсу - це просто кількість створених блоків
-    course_length: daysData.length,
-    course_content: {
-      total_days: daysData.length,
-      days: daysData
+    injuries: injuries,
+    course_length: standardLevelLength, // Бекенд очікує int
+    course_content: {                   // Бекенд очікує dict
+      levels: difficultiesData          // Всі наші рівні тепер живуть тут
     }
   };
 
-  // 5. Відправка на сервер
   try {
     saveBtn.innerText = "Збереження...";
     saveBtn.disabled = true;
 
     const token = localStorage.getItem('access_token');
-
     if (!token) {
-      alert("⚠️ Ви не авторизовані. Будь ласка, увійдіть в систему.");
+      alert("⚠️ Ви не авторизовані.");
       window.location.href = "login.html";
       return;
     }
@@ -155,18 +293,15 @@ async function saveCourse() {
     });
 
     if (response.ok) {
-      // Оновлено текст повідомлення
-      alert(`✅ Курс успішно створено!\nЗагальна кількість занять: ${daysData.length}.`);
+      alert(`✅ Курс успішно створено! Збережено рівнів: ${difficultiesData.length}`);
       window.location.href = "home_page.html";
     } else {
       const errorData = await response.json();
-      console.error("Error details:", errorData);
-      alert(`❌ Помилка збереження: ${JSON.stringify(errorData.detail || errorData.message)}`);
+      alert(`❌ Помилка збереження: ${JSON.stringify(errorData)}`);
     }
 
   } catch (error) {
-    console.error("Network error:", error);
-    alert("❌ Помилка мережі. Перевірте з'єднання з бекендом.");
+    alert("❌ Помилка мережі. Перевірте з'єднання.");
   } finally {
     saveBtn.innerText = originalBtnText;
     saveBtn.disabled = false;

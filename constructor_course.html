@@ -25,7 +25,17 @@
   </div>
 
   <div class="card-panel">
-    <h3>Інформація про курс</h3>
+    <div class="card-header-flex">
+      <h3>Інформація про курс</h3>
+
+      <div class="difficulty-wrapper">
+        <label>Рівень складності:</label>
+        <select id="difficulty-select" onchange="handleDifficultyChange(this)"></select>
+        <button id="delete-difficulty-btn" class="delete-diff-btn" onclick="deleteCurrentDifficulty()" title="Видалити рівень" style="display: none;">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+    </div>
 
     <div class="form-group">
       <label>Назва курсу *</label>
@@ -44,7 +54,10 @@
 
   </div>
 
-  <div id="days-container">
+  <div id="levels-wrapper">
+    <div id="days-container-1" class="level-container" style="display: none;"></div>
+    <div id="days-container-2" class="level-container" style="display: block;"></div>
+    <div id="days-container-3" class="level-container" style="display: none;"></div>
   </div>
 
   <button class="add-day-btn" onclick="addDay()">
@@ -61,7 +74,7 @@
 <template id="exercise-template">
   <div class="exercise-item">
     <div class="exercise-header">
-      <span class="exercise-badge">ВПРАВА</span>
+      <span class="exercise-badge">ВПРАВА <span class="exercise-number"></span></span>
       <button type="button" class="delete-btn exercise-delete-btn">❌ Видалити вправу</button>
     </div>
 
@@ -97,6 +110,30 @@
     </div>
   </div>
 </template>
+
+<div id="difficulty-modal" class="modal-overlay" style="display: none;">
+  <div class="modal-content">
+    <h4>Додавання нового рівня</h4>
+    <p>Ви збираєтесь додати новий рівень складності: <strong id="modal-level-name"></strong>.</p>
+    <p class="modal-warning"><i class="fas fa-exclamation-triangle"></i> Увага: дані будуть остаточно збережені лише після натискання кнопки "Зберегти курс" внизу сторінки.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="cancelAddDifficulty()">Відмінити</button>
+      <button class="btn-confirm" onclick="confirmAddDifficulty()">Погодитись</button>
+    </div>
+  </div>
+</div>
+
+<div id="delete-modal" class="modal-overlay" style="display: none;">
+  <div class="modal-content">
+    <h4>Видалення рівня</h4>
+    <p>Ви точно хочете видалити складність: <strong id="delete-modal-level-name"></strong>?</p>
+    <p class="modal-warning"><i class="fas fa-trash"></i> Усі заняття та вправи для цього рівня будуть втрачені.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="cancelDeleteDifficulty()">Ні, скасувати</button>
+      <button class="btn-confirm" style="background: #d63031;" onclick="confirmDeleteDifficulty()">Так, видалити</button>
+    </div>
+  </div>
+</div>
 
 <script src="js/constructor_course.js"></script>
 </body>

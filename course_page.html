@@ -93,6 +93,28 @@
   </div>
 </footer>
 
+<div id="patient-modal" class="modal-overlay hidden">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2>Відгук пацієнта</h2>
+      <button class="close-modal-btn" onclick="closePatientModal()">&times;</button>
+    </div>
+
+    <div class="difficulty-section">
+      <label for="course-difficulty-select"><strong>Рівень складності:</strong></label>
+      <select id="course-difficulty-select" class="difficulty-select">
+      </select>
+      <button onclick="changePatientDifficulty()" class="action-btn save-diff-btn">Змінити</button>
+    </div>
+
+    <div class="feedbacks-container">
+      <h3>Відгуки по заняттях:</h3>
+      <div id="feedbacks-list" class="feedbacks-list">
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="js/utils.js"></script>
 <script src="js/course_page.js"></script>
 

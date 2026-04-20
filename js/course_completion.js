@@ -37,7 +37,7 @@ async function loadCourseData(courseId) {
   const token = localStorage.getItem('access_token');
 
   try {
-    // Звертаємося до НОВОГО ендпоінту для пацієнтів
+    // Звертаємося до ендпоінту для пацієнтів
     const response = await fetch(`${API_BASE_URL}/courses/${courseId}/patient-content`, {
       method: 'GET',
       headers: {
@@ -75,18 +75,21 @@ async function loadCourseData(courseId) {
       return;
     }
 
-    // Якщо статус "in_progress", значить ми отримали дані поточного дня
     if (data.status === "in_progress" && data.day_content) {
-      courseExercises = [];
 
-      // Перевіряємо, чи це останнє заняття всього курсу
+      // === ОСЬ ТУТ БЕРЕМО ТВОЮ ЗМІННУ З JSON І ЗБЕРІГАЄМО В КНОПКУ ===
+      document.getElementById('btn-next').dataset.session = data.current_day;
+
+      courseExercises = [];
       isLastDay = (data.current_day >= data.total_days);
 
       const dayData = data.day_content;
       if (dayData.exercises && Array.isArray(dayData.exercises)) {
         dayData.exercises.forEach((ex, index) => {
           courseExercises.push({
-            day: `ЗАНЯТТЯ ${dayData.day_number}`,
+            // === ОНОВЛЕНИЙ РЯДОК: ДОДАНО РІВЕНЬ ===
+            day: `ЗАНЯТТЯ ${data.current_day}`,
+            // =====================================
             exerciseNum: `Вправа ${index + 1}`,
             name: ex.name || '-',
             reps: ex.reps || '-',
@@ -141,8 +144,15 @@ function showStatusUI(iconClass, title, message, timerText) {
   }
 }
 
+let isFeedbackStep = false; // Нова змінна стану
+
 // Функція для відображення даних вправи
 function renderExercise(index) {
+  // Переконуємось, що форма відгуку прихована, а вправи показані
+  document.getElementById('exercise-container').style.display = 'flex';
+  document.getElementById('feedback-container').style.display = 'none';
+  isFeedbackStep = false;
+
   const exercise = courseExercises[index];
 
   document.getElementById('display-day').textContent = exercise.day;
@@ -175,67 +185,142 @@ function renderExercise(index) {
     btnPrev.classList.remove('invisible');
   }
 
-  // Якщо остання вправа у масиві ПОТОЧНОГО дня
-  if (index === courseExercises.length - 1) {
-    if (isLastDay) {
-      btnNext.innerHTML = `Завершити курс <i class="fas fa-trophy"></i>`;
-    } else {
-      btnNext.innerHTML = `Завершити заняття <i class="fas fa-check"></i>`;
-    }
+  // Навіть на останній вправі кнопка тепер просто каже "Далі" (щоб перейти до відгуку)
+  btnNext.innerHTML = `Далі <i class="fas fa-arrow-right"></i>`;
+  btnNext.disabled = false;
+}
+
+// Показуємо форму відгуку
+function showFeedbackForm() {
+  isFeedbackStep = true;
+  document.getElementById('exercise-container').style.display = 'none';
+  document.getElementById('feedback-container').style.display = 'flex';
+
+  const btnNext = document.getElementById('btn-next');
+  if (isLastDay) {
+    btnNext.innerHTML = `Завершити курс <i class="fas fa-trophy"></i>`;
   } else {
-    btnNext.innerHTML = `Далі <i class="fas fa-arrow-right"></i>`;
+    btnNext.innerHTML = `Завершити заняття <i class="fas fa-check"></i>`;
   }
 }
 
-// Функція для кнопки "Далі / Завершити"
+// Кнопка "Далі / Завершити"
 async function nextExercise() {
-  if (currentIndex < courseExercises.length - 1) {
-    currentIndex++;
-    renderExercise(currentIndex);
-  } else {
-    // Якщо це остання вправа - відправляємо запит на завершення дня
-    const urlParams = new URLSearchParams(window.location.search);
-    const courseId = urlParams.get('id');
-    const token = localStorage.getItem('access_token');
-    const btnNext = document.getElementById('btn-next');
-
-    try {
-      btnNext.disabled = true;
-      btnNext.innerHTML = "Збереження...";
-
-      const response = await fetch(`${API_BASE_URL}/courses/${courseId}/complete-day`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        // Перезавантажуємо сторінку. Бекенд сам вирішить, що показати:
-        // таймер до наступного дня чи повідомлення про фінал курсу.
-        window.location.reload();
-      } else {
-        const errData = await response.json();
-        alert(`Помилка: ${errData.message || 'Не вдалося завершити заняття'}`);
-        btnNext.disabled = false;
-        renderExercise(currentIndex);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Помилка мережі при спробі завершити заняття.");
-      btnNext.disabled = false;
+  if (!isFeedbackStep) {
+    // Ми зараз на екрані вправ
+    if (currentIndex < courseExercises.length - 1) {
+      // Є ще вправи - йдемо до наступної
+      currentIndex++;
       renderExercise(currentIndex);
+    } else {
+      // Це була остання вправа - переходимо до відгуку
+      showFeedbackForm();
     }
+  } else {
+    // Ми зараз на екрані відгуку - відправляємо дані на сервер
+    submitDayWithFeedback();
   }
 }
 
+// Кнопка "Назад"
 function prevExercise() {
-  if (currentIndex > 0) {
+  if (isFeedbackStep) {
+    // Якщо ми на формі відгуку, кнопка "Назад" повертає до останньої вправи
+    renderExercise(currentIndex);
+  } else if (currentIndex > 0) {
+    // Звичайна навігація між вправами
     currentIndex--;
     renderExercise(currentIndex);
   }
 }
+
+// ==========================================
+// 1. ГОЛОВНА ФУНКЦІЯ (Збирає дані та керує процесом)
+// ==========================================
+async function submitDayWithFeedback() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const courseId = urlParams.get('id');
+  const btnNext = document.getElementById('btn-next');
+
+  // Збираємо дані з форми
+  const painLevel = parseInt(document.getElementById('pain-range').value);
+  const diffLevel = parseInt(document.getElementById('difficulty-range').value);
+  const noteText = document.getElementById('feedback-notes').value.trim();
+
+  // Дістаємо номер заняття, який ми раніше зберегли в атрибуті кнопки
+  const sessionNum = parseInt(btnNext.dataset.session);
+
+  try {
+    btnNext.disabled = true;
+    btnNext.innerHTML = "Збереження...";
+
+    // КРОК 1: Надсилаємо відгук (викликаємо нову функцію)
+    await sendFeedbackToBackend(courseId, painLevel, diffLevel, sessionNum, noteText);
+
+    // КРОК 2: Завершуємо день
+    await completeDayOnBackend(courseId);
+
+    // КРОК 3: Успіх! Перезавантажуємо сторінку
+    window.location.reload();
+
+  } catch (err) {
+    console.error(err);
+    alert(`Помилка: ${err.message}`);
+    btnNext.disabled = false;
+    btnNext.innerHTML = "Спробувати ще раз";
+  }
+}
+
+// ==========================================
+// 2. ОКРЕМА ФУНКЦІЯ: Відправка відгуку
+// ==========================================
+async function sendFeedbackToBackend(courseId, pain, difficulty, session, note) {
+  const token = localStorage.getItem('access_token');
+
+  // Формуємо payload СУВОРО за моделлю CourseFeedbackCreate
+  const payload = {
+    pain_level: pain,
+    difficulty_level: difficulty,
+    session_number: session,
+    note: note || null
+  };
+
+  const response = await fetch(`${API_BASE_URL}/feedbacks/${courseId}/feedback`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errData = await response.json();
+    throw new Error(errData.detail || 'Не вдалося надіслати відгук');
+  }
+}
+
+// ==========================================
+// 3. ОКРЕМА ФУНКЦІЯ: Завершення заняття
+// ==========================================
+async function completeDayOnBackend(courseId) {
+  const token = localStorage.getItem('access_token');
+
+  const response = await fetch(`${API_BASE_URL}/courses/${courseId}/complete-day`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    const errData = await response.json();
+    throw new Error(errData.detail || errData.message || 'Не вдалося закрити заняття');
+  }
+}
+
+
 
 function logoutUser(event) {
   if (event) event.preventDefault();

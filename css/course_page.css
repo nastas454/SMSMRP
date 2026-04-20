@@ -281,6 +281,149 @@ body {
   color: #45b5d8;
 }
 
+/* --- МОДАЛЬНЕ ВІКНО --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(34, 80, 97, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+
+.modal-container {
+  background: #f0f8ff;
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid #abc2c7;
+}
+
+.modal-header {
+  background: #4a8394;
+  color: #e1ebed;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  color: #e1ebed;
+  font-size: 30px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.close-modal-btn:hover {
+  transform: scale(1.2);
+  color: #fff;
+}
+
+.difficulty-section {
+  padding: 20px 25px;
+  background: #cbe1ea;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 2px solid #94baca;
+}
+
+.difficulty-select {
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: 1px solid #94baca;
+  font-family: inherit;
+  font-size: 16px;
+  color: #284d5b;
+}
+
+.save-diff-btn {
+  padding: 8px 20px;
+  font-size: 14px;
+}
+
+.feedbacks-container {
+  padding: 20px 25px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.feedbacks-container h3 {
+  margin-top: 0;
+  color: #3e788d;
+}
+
+.feedbacks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.feedback-card {
+  background: #fff;
+  border: 1px solid #d1e3e8;
+  border-left: 5px solid #4a8394;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+}
+
+.fb-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #225061;
+}
+
+.fb-date {
+  font-size: 14px;
+  color: #7aaebf;
+  font-weight: 400;
+}
+
+.fb-stats {
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+.fb-stats span {
+  display: inline-block;
+  background: #eef5f7;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.fb-note {
+  font-style: italic;
+  color: #444;
+  background: #fcfcfc;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px dashed #d1e3e8;
+}
+
 /* --- ТАЙМЕР ПАЦІЄНТА --- */
 .patient-timer-section {
   background: rgba(255, 255, 255, 0.5);
