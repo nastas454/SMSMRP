@@ -15,9 +15,7 @@ class PatientsResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class ChangePatient(BaseModel):
-    first_name: Optional[str]|None = None
-    last_name: Optional[str]|None = None
-    age: Optional[str]|None = None
+    age: Optional[int]|None = None
 
 class ChangePatientPassword(BaseModel):
     password: str

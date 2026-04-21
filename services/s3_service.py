@@ -17,20 +17,17 @@ class S3Service:
         )
         self.bucket_name = "rehab-courses"
 
-    def upload_course_json(self, course_data: dict) -> str:
-
-        file_name = f"courses/{uuid.uuid4()}.json"
-
+    def upload_course_json(self, course_data: dict, key: str = None) -> str:
+        if key is None:
+            key = f"courses/{uuid.uuid4()}.json"
         json_body = json.dumps(course_data, ensure_ascii=False).encode('utf-8')
-
         self.s3_client.put_object(
             Bucket=self.bucket_name,
-            Key=file_name,
+            Key=key,
             Body=json_body,
             ContentType='application/json'
         )
-
-        return file_name
+        return key
 
     def get_course_json(self, s3_key: str) -> dict:
         try:

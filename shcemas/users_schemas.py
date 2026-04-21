@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, ConfigDict
 
@@ -14,6 +15,7 @@ class UsersCreate(BaseModel):
     password: str
 
 class UsersResponse(BaseModel):
+    id: UUID
     first_name: str
     last_name: str
     email: EmailStr

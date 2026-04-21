@@ -14,6 +14,7 @@ class DoctorsService:
 
     async def get_doctor_courses(self, doctor_id: UUID):
         courses = await self.course_repo.get_doctor_courses(doctor_id)
+        print(courses)
         if courses is None:
             return {"message": "Course not found"}
         return [CoursesResponse.model_validate(course) for course in courses]

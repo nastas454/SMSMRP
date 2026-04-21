@@ -1,9 +1,14 @@
+import os
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 
-DATABASE_URL = "postgresql+asyncpg://mirnast:123123@localhost:5432/dyplomna"
+# НОВИЙ ПІДХІД: Беремо URL з Докера, а якщо запускаємо локально - беремо localhost
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+asyncpg://mirnast:123123@localhost:5432/dyplomna"
+)
 
 class Base(DeclarativeBase):
     pass

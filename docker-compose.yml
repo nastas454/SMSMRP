@@ -1,6 +1,17 @@
 version: "3.9"
 
 services:
+
+  backend:
+    build: .
+    container_name: back-1
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mirnast:123123@db:5432/dyplomna
+
   db:
     image: postgres:15
     restart: always
@@ -14,14 +25,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   web:
-    build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    volumes:
-      - .:/app
+    build: ./frontend
+    container_name: web-1
     ports:
-      - "8000:8000"
+    - "80:80"
+    restart: unless-stopped
     depends_on:
-      - db
+    - backend
 
   minio:
     image: minio/minio

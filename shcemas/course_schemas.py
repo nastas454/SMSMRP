@@ -1,5 +1,5 @@
 import uuid
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -23,5 +23,15 @@ class CoursesResponse(BaseModel):
     is_active: bool = True
     progress: int = 0
     course_length: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+class CoursesUpdate(BaseModel):
+    course_name: Optional[str] = None
+    description: Optional[str] = None
+    injuries: Optional[list[str]] = None
+    course_length: Optional[int] = None
+    course_content: Optional[dict[str, Any]] = None
+    is_active: Optional[bool] = None
 
     model_config = ConfigDict(from_attributes=True)

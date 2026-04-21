@@ -19,6 +19,10 @@ async def get_patient(patients_service: Service, patient_id: dict= Depends(get_c
 async def get_patient_courses(patients_service: Service, patient_id: dict= Depends(get_current_payload)):
     return await patients_service.get_courses(patient_id.get("id"))
 
+@router.put("/me/age", response_model=PatientsResponse)
+async def change_age(patients_service: Service, new_age: int, patient_id: dict= Depends(get_current_payload)):
+    return await patients_service.change_age(patient_id.get("id"), new_age)
+
 @router.post("/{course_id:uuid}/join")
 async def join_to_course(patients_service: Service, course_id: UUID, patient_id: dict= Depends(get_current_payload)):
     return await patients_service.join_to_course(course_id, patient_id.get("id"))

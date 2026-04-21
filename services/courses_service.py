@@ -9,7 +9,7 @@ from repositories.courses_repository import CoursesRepository
 from repositories.doctors_repository import DoctorsRepository
 from repositories.patients_repository import PatientsRepository
 from services.s3_service import S3Service
-from shcemas.course_schemas import CoursesCreate, CoursesResponse
+from shcemas.course_schemas import CoursesCreate, CoursesResponse, CoursesUpdate
 from shcemas.patient_schemas import PatientsResponse
 
 
@@ -26,13 +26,22 @@ class CoursesService:
         course_for_db = Courses(**course_create_dto.model_dump(exclude={"course_content"}))
         course_for_db.doctor_id = doctor_id
         course_for_db.course_s3_key = s3_key
-        doctor = await self.doctor_repo.get_by_id(doctor_id)
-        course_for_db.doctor_name = doctor.first_name
-        course_for_db.doctor_lastname = doctor.last_name
         await self.course_repo.create_entity(course_for_db)
 
+    async def update_course(self, course_id: UUID, course_update_dto: CoursesUpdate):
+        existing_course = await self.course_repo.get_by_id(course_id)
+        if not existing_course:
+            raise ValueError("Курс не знайдено або доступ заборонено")
+        if course_update_dto.course_content is not None:
+            self.s3.upload_course_json(course_update_dto.course_content, key=existing_course.course_s3_key)
+        update_data = course_update_dto.model_dump(exclude={"course_content"}, exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(existing_course, key, value)
+        await self.course_repo.change_entity(existing_course)
+        return existing_course
+
     async def get_course(self, course_id: UUID):
-        course = await self.course_repo.get_by_id(course_id)
+        course = await self.course_repo.get_course(course_id)
         if course is None:
             return {"message": "Course not found"}
         return CoursesResponse.model_validate(course)
