@@ -119,7 +119,12 @@ function renderTable(data) {
     const shortId = user.id ? user.id.toString().substring(0,8) + '...' : 'Н/Д';
 
     tr.innerHTML = `
-      <td><span title="${user.id}">#${shortId}</span></td>
+      <td>
+        <div class="id-cell">
+          <span title="${user.id}">#${shortId}</span>
+          <i class="far fa-copy copy-icon" title="Скопіювати повний ID" onclick="copyIdToClipboard('${user.id}', this)"></i>
+        </div>
+      </td>
       <td>
         <div class="user-info">
           <i class="far fa-user-circle"></i> ${loginInfo}
@@ -206,4 +211,28 @@ function logoutUser(event) {
   event.preventDefault();
   localStorage.removeItem('access_token');
   window.location.href = event.currentTarget.href;
+}
+
+// --- ФУНКЦІЯ КОПІЮВАННЯ ID ---
+async function copyIdToClipboard(fullId, iconElement) {
+  try {
+    // Копіюємо текст у буфер обміну
+    await navigator.clipboard.writeText(fullId);
+
+    // Змінюємо іконку на галочку для візуального підтвердження
+    iconElement.classList.remove('fa-copy', 'far');
+    iconElement.classList.add('fa-check', 'fas', 'copied');
+    iconElement.title = "Скопійовано!";
+
+    // Повертаємо оригінальну іконку через 1.5 секунди
+    setTimeout(() => {
+      iconElement.classList.remove('fa-check', 'fas', 'copied');
+      iconElement.classList.add('fa-copy', 'far');
+      iconElement.title = "Скопіювати повний ID";
+    }, 1500);
+
+  } catch (err) {
+    console.error('Помилка копіювання: ', err);
+    alert('Не вдалося скопіювати ID. Ваш браузер може блокувати цю дію.');
+  }
 }

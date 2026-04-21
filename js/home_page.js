@@ -55,11 +55,17 @@ function setupAddButton(role) {
 
   // Додаємо нову подію
   newBtn.addEventListener('click', (event) => {
-    event.preventDefault(); // Зупиняє відправку форми або перехід за посиланням
+    event.preventDefault();
 
     if (role === 'doctor') {
       // ЛІКАР -> Перехід на сторінку створення
       console.log("Лікар: перехід на constructor_course.html");
+
+      // === ОЧИЩАЄМО ДАНІ РЕДАГУВАННЯ ПЕРЕД СТВОРЕННЯМ НОВОГО ===
+      sessionStorage.removeItem('course_edit_data');
+      sessionStorage.removeItem('course_edit_id');
+
+      // Відправляємо БЕЗ параметру edit_id
       window.location.href = "constructor_course.html";
     } else {
       // ПАЦІЄНТ -> Відкрити модальне вікно
@@ -126,27 +132,90 @@ async function loadCourses(role) {
 const modal = document.getElementById('join-modal');
 const modalInput = document.getElementById('modal-course-id');
 const errorText = document.getElementById('modal-error');
+const successText = document.getElementById('modal-success');
 
+// Змінні для контролю таймерів (щоб вони не збивалися при швидких кліках)
+let messageTimer;
+
+// 1. Покращена функція очищення повідомлень
+function hideAllMessages() {
+  const errorText = document.getElementById('modal-error');
+  const successText = document.getElementById('modal-success');
+
+  if (errorText) {
+    errorText.classList.add('hidden');
+    errorText.textContent = ''; // Примусово стираємо текст помилки з HTML
+  }
+  if (successText) {
+    successText.classList.add('hidden');
+    successText.textContent = ''; // Примусово стираємо текст успіху з HTML
+  }
+
+  // Зупиняємо таймери, якщо вони були запущені
+  if (typeof messageTimer !== 'undefined') {
+    clearTimeout(messageTimer);
+  }
+}
+
+// 3. Оновлена функція відкриття вікна
 function openJoinModal() {
+  const modal = document.getElementById('join-modal');
+  const modalInput = document.getElementById('modal-course-id');
+
   if (!modal) return;
   modal.classList.remove('hidden');
+
+  // Про всяк випадок перестраховуємось і стираємо тексти при відкритті
+  hideAllMessages();
+
   if (modalInput) {
     modalInput.value = '';
     modalInput.focus();
   }
-  if (errorText) errorText.classList.add('hidden');
 }
 
+// 2. Оновлена функція закриття вікна
 function closeJoinModal() {
+  const modal = document.getElementById('join-modal');
+  const modalInput = document.getElementById('modal-course-id');
+
   if (modal) modal.classList.add('hidden');
+
+  // Обов'язково стираємо всі тексти при закритті
+  hideAllMessages();
+
+  if (modalInput) modalInput.value = '';
 }
 
 function showModalError(msg) {
+  hideAllMessages(); // 1. Гарантовано ховаємо зелений текст успіху
+
   if (errorText) {
     errorText.textContent = msg;
-    errorText.classList.remove('hidden');
+    errorText.classList.remove('hidden'); // 2. Показуємо червону помилку
+
+    // 3. Таймер: ховаємо текст помилки через 2.5 секунди
+    messageTimer = setTimeout(() => {
+      errorText.classList.add('hidden');
+    }, 2500);
   } else {
     alert(msg);
+  }
+}
+
+function showModalSuccess(message) {
+  hideAllMessages(); // 1. Гарантовано ховаємо червону помилку
+
+  if (successText) {
+    successText.textContent = message;
+    successText.classList.remove('hidden'); // 2. Показуємо зелений успіх
+
+    // 3. Таймер: ховаємо текст успіху і закриваємо вікно через 1.2 секунди
+    messageTimer = setTimeout(() => {
+      successText.classList.add('hidden');
+      closeJoinModal();
+      loadCourses('user'); // Оновлюємо список курсів
+    }, 1200);
   }
 }
 
@@ -167,7 +236,6 @@ function setupModalListeners() {
   // Підтвердження
   const confirmBtn = document.getElementById('confirm-join-btn');
   if (confirmBtn) {
-    // Видаляємо старі обробники через клонування (на випадок подвійного виклику init)
     const newConfirmBtn = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
@@ -185,6 +253,8 @@ function setupModalListeners() {
 // --- 4. ЛОГІКА ПРИЄДНАННЯ (POST) ---
 
 async function joinCourseAsUser(courseId) {
+  hideAllMessages(); // Зачищаємо старі написи перед новим запитом
+
   try {
     const token = localStorage.getItem('access_token');
     const response = await fetch(`${API_BASE_URL}/patients/${courseId}/join`, {
@@ -196,12 +266,22 @@ async function joinCourseAsUser(courseId) {
     });
 
     if (response.ok) {
-      closeJoinModal();
-      alert("Успішно приєднано!");
-      loadCourses('user'); // Оновити список
+      if (modalInput) modalInput.value = ''; // Очищаємо поле вводу
+      // Викликаємо функцію успіху (вона сама покаже текст і через секунду закриє вікно)
+      showModalSuccess("Успішно приєднано!");
     } else {
       const err = await response.json();
-      showModalError(err.detail || 'Помилка приєднання');
+
+      // Базове повідомлення з бекенду
+      let errorMessage = err.detail || err.message || 'Помилка приєднання';
+
+      // === ПЕРЕХОПЛЮЄМО ПОМИЛКУ ДУБЛЮВАННЯ ===
+      // Якщо бекенд повертає текст про те, що пацієнт вже є, змінюємо його на зрозуміле українське
+      if (typeof errorMessage === 'string' && errorMessage.includes('already enrolled')) {
+        errorMessage = "Ви вже приєднані до цього курсу!";
+      }
+
+      showModalError(errorMessage);
     }
   } catch (error) {
     console.error(error);
@@ -229,7 +309,39 @@ function renderSidebar(courses) {
   });
 }
 
+// --- 6. ЛОГІКА ВИДАЛЕННЯ / ВІД'ЄДНАННЯ ---
+async function handleCourseAction(courseId, role) {
+  const isDoctor = role === 'doctor';
 
+  // Визначаємо правильний ендпоінт
+  const endpoint = isDoctor
+    ? `${API_BASE_URL}/courses/${courseId}`
+    : `${API_BASE_URL}/patients/${courseId}/leave`;
+
+  try {
+    const token = localStorage.getItem('access_token');
+    const response = await fetch(endpoint, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.ok) {
+      // Успішне видалення: просто тихо оновлюємо список курсів
+      // без жодних alert-віконець
+      loadCourses(role);
+    } else {
+      const err = await response.json();
+      console.error("Помилка видалення:", err);
+      // Залишаємо сповіщення лише для реальних помилок з бекенду
+      alert(`Помилка: ${err.detail || 'Не вдалося виконати дію'}`);
+    }
+  } catch (error) {
+    console.error("Помилка при видаленні/від'єднанні:", error);
+    alert("Помилка з'єднання з сервером.");
+  }
+}
 
 
 function renderGrid(courses, role) {
@@ -288,7 +400,7 @@ function renderGrid(courses, role) {
               <i class="fas fa-ellipsis-v"></i>
             </button>
             <div class="dropdown-menu hidden">
-              <button class="dropdown-item ${actionClass}" data-id="${course.id}">${actionText}</button>
+              <button class="dropdown-item ${actionClass}" data-id="${course.id}" onclick="handleCourseAction('${course.id}', '${role}')">${actionText}</button>
             </div>
           </div>
       </div>
@@ -395,3 +507,5 @@ function logoutUser(event) {
   // Перенаправляємо на сторінку логіну
   window.location.href = 'main_and_auth.html';
 }
+
+

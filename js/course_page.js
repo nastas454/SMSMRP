@@ -12,6 +12,15 @@ async function initCoursePage() {
   }
 
   const role = localStorage.getItem('user_role');
+  // --- НОВЕ: Динамічна зміна іконки профілю ---
+  const profileIcon = document.getElementById('dynamic-profile-icon');
+  if (profileIcon) {
+    if (role === 'doctor') {
+      profileIcon.className = 'fas fa-user-md'; // Іконка лікаря
+    } else {
+      profileIcon.className = 'fas fa-user'; // Іконка пацієнта
+    }
+  }
   const urlParams = new URLSearchParams(window.location.search);
   const courseId = urlParams.get('id');
 
@@ -34,17 +43,27 @@ async function initCoursePage() {
     const doctorSection = document.getElementById('doctor-patients-section');
     if (doctorSection) doctorSection.classList.remove('hidden');
 
+    // === ОНОВЛЕНО: Показуємо весь рядок (ID + кнопка) ===
+    const doctorActions = document.getElementById('doctor-actions-container');
+    const idDisplay = document.getElementById('display-course-id');
+    if (doctorActions && idDisplay) {
+      doctorActions.classList.remove('hidden');
+      idDisplay.textContent = courseId;
+    }
+
     await loadCoursePatients(courseId);
   } else {
     // ПАЦІЄНТ
-    // Спочатку вішаємо стандартний перехід на кнопку
     if (startButton) {
       startButton.addEventListener('click', () => {
         window.location.href = `course_completion.html?id=${courseId}`;
       });
     }
-    // Потім перевіряємо статус (може треба показати таймер і заблокувати кнопку)
+
     await loadPatientCourseStatus(courseId);
+
+    // === НОВИЙ ВИКЛИК: Відображаємо складність для пацієнта ===
+    await loadPatientDifficulty(courseId);
   }
 }
 
@@ -126,11 +145,16 @@ async function loadCourseDetails(courseId, role) {
     // === ОНОВЛЕНО: ТЕПЕР ВІДОБРАЖАЄМО ОБСЯГ КУРСУ ===
     const durationEl = document.getElementById('cp-duration');
     if (durationEl) {
-      // Перевіряємо, чи є значення. Якщо є - додаємо слово "днів", якщо ні - "Не вказано"
-      durationEl.textContent = courseData.course_length
-        ? `${courseData.course_length} днів`
-        : "Не вказано";
+      if (courseData.course_length) {
+        const length = courseData.course_length;
+        // Використовуємо нашу функцію для підбору правильного слова
+        const word = getDeclension(length, ['заняття', 'заняття', 'занять']);
+        durationEl.textContent = `${length} ${word}`;
+      } else {
+        durationEl.textContent = "Не вказано";
+      }
     }
+    // ===============================================
     // ===============================================
 
     // Об'єднуємо ім'я та прізвище лікаря
@@ -173,7 +197,6 @@ async function loadCoursePatients(courseId) {
       const tr = document.createElement('tr');
       // ПРИМІТКА: перевірте, чи ключі p.first_name, p.sex, p.age збігаються з вашою моделлю пацієнта, яку повертає бекенд
       tr.innerHTML = `
-        <td>${p.id ? p.id.substring(0, 8) + '...' : '-'}</td>
         <td>${p.first_name || p.firstName || '-'}</td>
         <td>${p.last_name || p.lastName || '-'}</td>
         <td>${p.sex || p.gender || '-'}</td>
@@ -187,7 +210,7 @@ async function loadCoursePatients(courseId) {
 
   } catch (error) {
     console.error("Помилка:", error);
-    tbody.innerHTML = "<tr><td colspan='8' style='text-align: center; color: red;'>Помилка завантаження даних</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='7' style='text-align: center; color: red;'>Помилка завантаження даних</td></tr>";
   }
 }
 
@@ -214,6 +237,49 @@ async function getCurrentPatientDifficulty(courseId, patientId) {
   } catch (error) {
     console.error("Помилка отримання поточної складності:", error);
     return null; // Якщо сталася помилка, повернемо null, щоб спрацював fallback на 2
+  }
+}
+
+/**
+ * Завантажує та відображає складність курсу для поточного пацієнта
+ */
+async function loadPatientDifficulty(courseId) {
+  const token = localStorage.getItem('access_token');
+  const diffRow = document.getElementById('patient-difficulty-row');
+  const diffSpan = document.getElementById('cp-patient-difficulty');
+
+  if (!diffRow || !diffSpan) return;
+
+  // Робимо рядок видимим, оскільки зараз зайшов пацієнт
+  diffRow.classList.remove('hidden');
+
+  try {
+    // 1. Отримуємо ID поточного користувача (пацієнта)
+    const meResp = await fetch(`${API_BASE_URL}/users/me`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!meResp.ok) throw new Error("Не вдалося отримати дані користувача");
+    const meData = await meResp.json();
+    // 2. Викликаємо твою функцію для отримання поточної складності
+    const diffNum = await getCurrentPatientDifficulty(courseId, meData.id);
+
+    // 3. Перетворюємо число на зрозумілий текст
+    const difficultyNames = {
+      1: "Легкий",
+      2: "Стандартний",
+      3: "Просунутий"
+    };
+
+    if (diffNum) {
+      diffSpan.textContent = difficultyNames[diffNum] || `Рівень ${diffNum}`;
+
+    } else {
+      diffSpan.textContent = "Не визначено";
+    }
+  } catch (error) {
+    console.error("Помилка відображення складності:", error);
+    diffSpan.textContent = "Помилка завантаження";
   }
 }
 
@@ -246,20 +312,9 @@ function closePatientModal() {
   currentModalPatientId = null;
 }
 
+
 /**
- * Завантажує кількість рівнів складності та заповнює select
- */
-/**
- * Завантажує кількість рівнів складності та заповнює select текстовими назвами
- */
-/**
- * Завантажує кількість рівнів складності та заповнює select текстовими назвами
- */
-/**
- * Завантажує кількість рівнів складності та заповнює select
- */
-/**
- * Завантажує кількість рівнів складності та заповнює select
+ * Завантажує реальні рівні складності курсу та заповнює select
  */
 async function loadDifficultyOptions(courseId, currentDifficulty) {
   const token = localStorage.getItem('access_token');
@@ -273,30 +328,41 @@ async function loadDifficultyOptions(courseId, currentDifficulty) {
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}/courses/${courseId}/number-of-difficulty`, {
+    // 1. Беремо розгортку курсу, щоб ТОЧНО знати, які рівні створив лікар
+    const response = await fetch(`${API_BASE_URL}/courses/${courseId}/content`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    if (!response.ok) throw new Error("Помилка завантаження складностей");
+    if (!response.ok) throw new Error("Помилка завантаження контенту курсу");
 
-    const data = await response.json();
-    const maxDifficulty = typeof data === 'object' ? (data.count || data.length) : data;
+    const courseData = await response.json();
+    const levels = courseData.levels || [];
 
     select.innerHTML = ""; // Очищаємо список
 
-    // Створюємо реальні рівні складності
-    for (let i = 1; i <= maxDifficulty; i++) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = difficultyNames[i] || `Рівень ${i}`;
+    if (levels.length === 0) {
+      select.innerHTML = "<option value=''>Немає рівнів</option>";
+      return;
+    }
 
-      // Якщо поточний рівень збігається з тим, що прийшов з бекенду - РОБИМО ЙОГО ОБРАНИМ
-      if (currentDifficulty && Number(currentDifficulty) === i) {
+    // 2. Безпечне значення (якщо бекенд ще не присвоїв рівень пацієнту, ставимо 2)
+    const safeDifficulty = currentDifficulty ? Number(currentDifficulty) : 2;
+
+    // 3. Створюємо опції ТІЛЬКИ для тих рівнів, які реально існують
+    levels.forEach(levelObj => {
+      const diffLevel = levelObj.difficulty; // Наприклад, 2
+      const option = document.createElement('option');
+
+      option.value = diffLevel;
+      option.textContent = difficultyNames[diffLevel] || `Рівень ${diffLevel}`;
+
+      // Якщо це поточний рівень пацієнта - робимо його обраним
+      if (safeDifficulty === diffLevel) {
         option.selected = true;
       }
 
       select.appendChild(option);
-    }
+    });
 
   } catch (error) {
     console.error("Помилка:", error);
@@ -313,8 +379,13 @@ async function changePatientDifficulty() {
   const select = document.getElementById('course-difficulty-select');
   const newDifficulty = select.value;
   const token = localStorage.getItem('access_token');
+  const btn = document.querySelector('.save-diff-btn'); // Знаходимо кнопку
 
   try {
+    // Робимо кнопку неактивною під час запиту
+    btn.disabled = true;
+    btn.textContent = "Збереження...";
+
     const response = await fetch(`${API_BASE_URL}/courses/${currentModalCourseId}/change-difficulty?patient_id=${currentModalPatientId}&new_difficulty=${newDifficulty}`, {
       method: 'PATCH',
       headers: { 'Authorization': `Bearer ${token}` }
@@ -322,11 +393,38 @@ async function changePatientDifficulty() {
 
     if (!response.ok) throw new Error("Не вдалося змінити складність");
 
-    alert("Складність успішно змінено!");
+    // Замість alert - показуємо зелений текст успіху
+    showDiffMessage("✅ Успішно збережено", true);
+
   } catch (error) {
     console.error("Помилка:", error);
-    alert("Помилка при зміні складності");
+    // Замість alert - показуємо червоний текст помилки
+    showDiffMessage("❌ Помилка збереження", false);
+  } finally {
+    // Повертаємо кнопку в нормальний стан
+    btn.disabled = false;
+    btn.textContent = "Змінити";
   }
+}
+
+/**
+ * Допоміжна функція для показу повідомлень у модалці
+ */
+function showDiffMessage(text, isSuccess) {
+  const msgEl = document.getElementById('diff-status-message');
+  if (!msgEl) return;
+
+  // Встановлюємо текст та колір
+  msgEl.textContent = text;
+  msgEl.style.color = isSuccess ? '#28a745' : '#dc3545';
+
+  // Робимо видимим (анімація через CSS transition)
+  msgEl.style.opacity = '1';
+
+  // Ховаємо через 2 секунди
+  setTimeout(() => {
+    msgEl.style.opacity = '0';
+  }, 2000);
 }
 
 /**
@@ -402,4 +500,60 @@ function goBack(event) {
   } else {
     window.location.href = 'home_page.html';
   }
+}
+
+/**
+ * Функція для копіювання ID курсу в буфер обміну
+ */
+async function copyCourseId() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const courseId = urlParams.get('id');
+  if (!courseId) return;
+
+  const icon = document.querySelector('.doctor-course-id .copy-icon');
+
+  try {
+    // Копіюємо текст у буфер обміну
+    await navigator.clipboard.writeText(courseId);
+
+    // Змінюємо іконку на зелену галочку
+    icon.classList.remove('fa-copy', 'far');
+    icon.classList.add('fa-check', 'fas', 'copied');
+    icon.title = "Скопійовано!";
+
+    // Повертаємо оригінальну іконку через 1.5 секунди
+    setTimeout(() => {
+      icon.classList.remove('fa-check', 'fas', 'copied');
+      icon.classList.add('fa-copy', 'far');
+      icon.title = "Скопіювати ID";
+    }, 1500);
+
+  } catch (err) {
+    console.error('Помилка копіювання: ', err);
+    alert('Не вдалося скопіювати ID. Можливо, ваш браузер блокує цю дію.');
+  }
+}
+
+/**
+ * Функція для переходу на сторінку редагування курсу
+ */
+function editCourse() {
+  // 1. Беремо ID поточного курсу з URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const courseId = urlParams.get('id');
+
+  if (!courseId) {
+    alert("Помилка: не знайдено ID курсу.");
+    return;
+  }
+
+  // 2. Показуємо анімацію на кнопці (опціонально)
+  const btn = document.querySelector('.edit-course-btn');
+  if (btn) {
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Перехід...`;
+    btn.disabled = true;
+  }
+
+  // 3. Переходимо на сторінку конструктора, передаючи ID у параметрі edit_id
+  window.location.href = `constructor_course.html?edit_id=${courseId}`;
 }

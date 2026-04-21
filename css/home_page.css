@@ -522,7 +522,7 @@ body {
 
 /* Саме вікно */
 .modal-container {
-  background-color: #e1ebed;
+  background-color: #f0f1f3;
   padding: 25px;
   border-radius: 12px;
   width: 90%;
@@ -574,18 +574,27 @@ body {
 }
 
 .btn-primary {
-  background-color: #3691ae; /* Ваш основний колір */
+  background-color: #5fa7be; /* Ваш основний колір */
   color: #e1ebed;
   border: none;
   padding: 10px 20px;
   border-radius: 6px;
   cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
 }
 
-.btn-primary:hover { background-color: #297891; }
+.btn-primary:hover { background-color: #3691ae; }
 
 .error-text {
   color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Додайте це до вашого CSS */
+.success-text {
+  color: #28a745; /* Приємний зелений колір для успіху */
   font-size: 14px;
   margin-top: 5px;
 }

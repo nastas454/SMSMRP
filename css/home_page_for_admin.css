@@ -421,3 +421,27 @@ body {
   border-color: #4a8394;
   box-shadow: 0 0 0 3px rgba(74, 131, 148, 0.2);
 }
+
+/* --- СТИЛІ ДЛЯ КОПІЮВАННЯ ID --- */
+.id-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-icon {
+  color: #92c3d6;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+.copy-icon:hover {
+  color: #4a8394;
+  transform: scale(1.1);
+}
+
+.copy-icon.copied {
+  color: #27ae60; /* Зелений колір при успішному копіюванні */
+  transform: scale(1.1);
+}

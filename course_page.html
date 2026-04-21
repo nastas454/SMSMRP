@@ -17,11 +17,12 @@
   </div>
 
   <div class="header-actions">
-    <div class="user-profile">
+    <a href="account_page.html" class="user-profile" title="Мій профіль" style="text-decoration: none;">
       <div class="avatar-circle-cp">
-        <i class="fas fa-user-md"></i>
+        <i id="dynamic-profile-icon" class="fas fa-user"></i>
       </div>
-    </div>
+    </a>
+
     <a href="#" class="logout-btn" title="Вийти" onclick="logoutUser(event)">
       <i class="fas fa-sign-out-alt"></i>
     </a>
@@ -32,6 +33,19 @@
 
   <section class="course-info-section">
     <div class="course-card-left">
+
+      <div id="doctor-actions-container" class="doctor-actions-row hidden">
+        <div class="doctor-course-id">
+          <span class="id-label">ID курсу:</span>
+          <span id="display-course-id" class="id-value"></span>
+          <i class="far fa-copy copy-icon" title="Скопіювати ID" onclick="copyCourseId()"></i>
+        </div>
+
+        <button class="edit-course-btn" onclick="editCourse()">
+          <i class="fas fa-edit"></i>
+        </button>
+      </div>
+
       <div class="card-header-top">
         <h2 id="cp-title" class="cp-title">Назва курсу</h2>
         <button id="start-course-btn" class="start-btn">Почати <i class="fas fa-play"></i></button>
@@ -40,6 +54,10 @@
       <div class="card-details">
         <p><strong>Реабілітація після:</strong> <span id="cp-injuries">назви травм...</span></p>
         <p><strong>Обсяг курсу:</strong> <span id="cp-duration">XX занять</span></p>
+
+        <p id="patient-difficulty-row" class="hidden">
+          <strong>Поточна складність курсу:</strong> <span id="cp-patient-difficulty">Завантаження...</span>
+        </p>
       </div>
       <div class="card-doctor-info">
         <span class="doctor-label">Лікар:</span> <span id="cp-doctor">ім'я прізвище</span>
@@ -62,12 +80,11 @@
   </section>
 
   <section id="doctor-patients-section" class="doctor-patients-section hidden">
-    <h2 class="section-title">ваші пацієнти</h2>
+    <h2 class="section-title">Ваші пацієнти</h2>
     <div class="table-responsive">
       <table class="patients-table">
         <thead>
         <tr>
-          <th>id</th>
           <th>ім'я</th>
           <th>прізвище</th>
           <th>стать</th>
@@ -105,6 +122,8 @@
       <select id="course-difficulty-select" class="difficulty-select">
       </select>
       <button onclick="changePatientDifficulty()" class="action-btn save-diff-btn">Змінити</button>
+
+      <span id="diff-status-message" style="margin-left: auto; font-size: 15px; font-weight: 600; opacity: 0; transition: opacity 0.3s;"></span>
     </div>
 
     <div class="feedbacks-container">

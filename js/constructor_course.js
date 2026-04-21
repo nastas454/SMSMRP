@@ -1,3 +1,5 @@
+const API_BASE_URL = "http://localhost:8000";
+
 // --- 1. СТАН РІВНІВ СКЛАДНОСТІ ---
 let activeLevels = {
   1: false,
@@ -7,11 +9,177 @@ let activeLevels = {
 let currentLevel = 2;
 let pendingLevelToAdd = null;
 
+// --- ГЛОБАЛЬНИЙ СТАН ---
+let isEditMode = false;
+let editingCourseId = null;
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Додаємо перше заняття для стандартного рівня
-  addDay();
-  renderDifficultySelect();
+  // Перевіряємо URL на наявність параметру edit_id
+  const urlParams = new URLSearchParams(window.location.search);
+  editingCourseId = urlParams.get('edit_id');
+
+  if (editingCourseId) {
+    // РЕЖИМ РЕДАГУВАННЯ
+    isEditMode = true;
+
+    // Міняємо заголовки та тексти кнопок
+    const headerTitle = document.querySelector('h1') || document.querySelector('.page-title'); // Адаптуй селектор до свого HTML
+    if (headerTitle) headerTitle.textContent = "Редагування курсу";
+
+    const saveBtn = document.querySelector('.btn-save');
+    if (saveBtn) saveBtn.innerHTML = '<i class="fas fa-save"></i> Оновити курс';
+
+    // Завантажуємо дані з sessionStorage та розставляємо по полях
+    loadCourseForEditing();
+  } else {
+    // РЕЖИМ СТВОРЕННЯ (Стандартний)
+    // Додаємо перше заняття для стандартного рівня з нуля
+    addDay();
+    renderDifficultySelect();
+  }
 });
+
+// --- ФУНКЦІЯ ЗАВАНТАЖЕННЯ ДАНИХ З БЕКЕНДУ ДЛЯ РЕДАГУВАННЯ ---
+async function loadCourseForEditing() {
+  if (!editingCourseId) return;
+
+  try {
+    const token = localStorage.getItem('access_token');
+
+    // 1. Завантажуємо загальні дані (назва, опис, травми)
+    const detailsResponse = await fetch(`${API_BASE_URL}/courses/${editingCourseId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!detailsResponse.ok) throw new Error("Не вдалося завантажити деталі курсу");
+    const courseDetails = await detailsResponse.json();
+
+    // 2. Завантажуємо розгортку (рівні та вправи)
+    const contentResponse = await fetch(`${API_BASE_URL}/courses/${editingCourseId}/content`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!contentResponse.ok) throw new Error("Не вдалося завантажити контент курсу");
+    const courseContent = await contentResponse.json();
+
+    // === РОЗСТАВЛЯЄМО ДАНІ ПО ПОЛЯХ ===
+
+    // 1. Базові поля
+    if (courseDetails.course_name) document.getElementById('course-title').value = courseDetails.course_name;
+    if (courseDetails.description) document.getElementById('course-desc').value = courseDetails.description;
+    if (courseDetails.injuries) {
+      document.getElementById('course-injuries').value = Array.isArray(courseDetails.injuries)
+        ? courseDetails.injuries.join(', ')
+        : courseDetails.injuries;
+    }
+
+    // 2. Очищаємо стандартний рівень перед заповненням
+    const standardContainer = document.getElementById('days-container-2');
+    if (standardContainer) standardContainer.innerHTML = '';
+
+    // 3. Розбираємо рівні складності
+    const levelsArr = courseContent.levels || [];
+
+    levelsArr.forEach(levelData => {
+      const difficulty = levelData.difficulty; // 1, 2, або 3
+
+      // Активуємо рівень
+      activeLevels[difficulty] = true;
+      currentLevel = difficulty;
+
+      const container = document.getElementById('days-container-' + difficulty);
+      if (container) container.innerHTML = ''; // Очищаємо перед додаванням
+
+      // Розбираємо дні всередині рівня
+      const daysArr = levelData.days || [];
+
+      daysArr.forEach((dayData, dayIndex) => {
+        // Програмно додаємо день
+        addDayToContainer(container);
+
+        const dayBlocks = container.querySelectorAll('.day-block');
+        const currentDayBlock = dayBlocks[dayBlocks.length - 1];
+
+        // Встановлюємо затримку
+        if (dayIndex > 0 && dayData.delay_hours_after_previous !== undefined) {
+          const delayInput = currentDayBlock.querySelector('.day-delay');
+          if (delayInput) {
+            delayInput.value = dayData.delay_hours_after_previous / 24;
+          }
+        }
+
+        // Розбираємо вправи
+        const exercisesArr = dayData.exercises || [];
+        const exercisesList = currentDayBlock.querySelector('.exercises-list');
+        exercisesList.innerHTML = ''; // Видаляємо пусту першу вправу
+
+        exercisesArr.forEach(exData => {
+          // Програмно додаємо вправу
+          addExerciseToBlock(currentDayBlock);
+
+          const exItems = currentDayBlock.querySelectorAll('.exercise-item');
+          const currentExItem = exItems[exItems.length - 1];
+
+          if (currentExItem) {
+            currentExItem.querySelector('.ex-name').value = exData.name || '';
+            currentExItem.querySelector('.ex-reps').value = exData.reps || '';
+            currentExItem.querySelector('.ex-sets').value = exData.sets || '';
+            currentExItem.querySelector('.ex-desc').value = exData.description || '';
+            currentExItem.querySelector('.ex-rec').value = exData.recommendations || '';
+            currentExItem.querySelector('.ex-video').value = exData.video_url || '';
+          }
+        });
+
+        renumberExercises(currentDayBlock);
+      });
+    });
+
+    // Перемикаємо вигляд на Стандартний рівень після завантаження
+    switchLevel(2);
+    renderDifficultySelect();
+
+  } catch (error) {
+    console.error("Помилка завантаження курсу для редагування:", error);
+    alert("Помилка завантаження даних. Спробуйте оновити сторінку.");
+  }
+}
+
+// ДОПОМІЖНІ ФУНКЦІЇ ДЛЯ РЕДАГУВАННЯ (Злегка модифіковані версії твоїх addDay та addExercise)
+// Вони потрібні, щоб мати змогу додавати елементи в конкретний контейнер, а не тільки в currentLevel
+function addDayToContainer(container) {
+  const dayBlock = document.createElement('div');
+  dayBlock.className = 'day-block';
+  dayBlock.innerHTML = `
+    <div class="day-header">
+      <h4 class="day-title">Заняття X</h4>
+      <div class="delay-group">
+        <i class="far fa-clock"></i> Відкрити через:
+        <input type="number" class="day-delay" min="0" value="1" style="width: 60px;">
+        днів
+      </div>
+      <button class="delete-btn" onclick="deleteDay(this)"><i class="fas fa-trash-alt"></i> Видалити</button>
+    </div>
+    <div class="exercises-list"></div>
+    <button class="add-ex-btn" onclick="addExercise(this)"><i class="fas fa-dumbbell"></i> Додати вправу</button>
+  `;
+  container.appendChild(dayBlock);
+  // Ми навмисно не викликаємо addExercise тут, бо ми самі наповнимо exercises-list
+}
+
+function addExerciseToBlock(dayBlock) {
+  const list = dayBlock.querySelector('.exercises-list');
+  const template = document.getElementById('exercise-template');
+  const exItem = template.content.cloneNode(true);
+
+  const deleteBtn = exItem.querySelector('.exercise-delete-btn');
+  deleteBtn.addEventListener('click', function(event) {
+    const itemToRemove = event.target.closest('.exercise-item');
+    const currentDayBlock = itemToRemove.closest('.day-block');
+    itemToRemove.remove();
+    renumberExercises(currentDayBlock);
+  });
+  list.appendChild(exItem);
+}
 
 // --- 2. УПРАВЛІННЯ ВИПАДАЮЧИМ СПИСКОМ ТА КОНТЕЙНЕРАМИ ---
 function renderDifficultySelect() {
@@ -195,23 +363,92 @@ function renumberExercises(dayBlock) {
   });
 }
 
+function showCourseMessage(text, className) {
+  const messageEl = document.getElementById('course-status-message');
+  if (!messageEl) return;
 
+  messageEl.textContent = text;
+  messageEl.className = className;
+
+  // Якщо це помилка (не success-text), прибираємо її через 3 секунди
+  if (className !== 'success-text') {
+    setTimeout(() => {
+      messageEl.textContent = "";
+      messageEl.className = "";
+    }, 3000);
+  }
+}
+
+// --- ФУНКЦІЇ ДЛЯ ВАЛІДАЦІЇ ПОЛІВ ---
+
+function showFieldError(inputElement, message) {
+  let errorDiv = inputElement.nextElementSibling;
+  if (!errorDiv || !errorDiv.classList.contains('field-error-text')) {
+    errorDiv = document.createElement('div');
+    errorDiv.className = 'field-error-text';
+    inputElement.after(errorDiv);
+  }
+
+  errorDiv.textContent = message;
+  inputElement.classList.add('input-error-highlight');
+
+  // Трохи затримки для скролу, якщо довелося перемикати рівні складності
+  setTimeout(() => {
+    inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    inputElement.focus();
+  }, 50);
+}
+
+function clearFieldError(inputElement) {
+  if (inputElement.classList.contains('input-error-highlight')) {
+    inputElement.classList.remove('input-error-highlight');
+    const errorDiv = inputElement.nextElementSibling;
+    if (errorDiv && errorDiv.classList.contains('field-error-text')) {
+      errorDiv.remove();
+    }
+  }
+}
+
+// Автоматичне очищення помилки при введенні тексту
+document.addEventListener('input', (event) => {
+  if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+    clearFieldError(event.target);
+  }
+});
 
 // --- 6. ЗБЕРЕЖЕННЯ ТА ВІДПРАВКА ---
 async function saveCourse() {
   const saveBtn = document.querySelector('.btn-save');
   const originalBtnText = saveBtn.innerText;
 
-  const title = document.getElementById('course-title').value;
-  const injuriesInput = document.getElementById('course-injuries').value;
-  const injuries = injuriesInput ? injuriesInput.split(',').map(item => item.trim()) : [];
-  const desc = document.getElementById('course-desc').value;
+  // Отримуємо самі елементи, щоб мати змогу їх підсвітити
+  const titleInput = document.getElementById('course-title');
+  const injuriesInput = document.getElementById('course-injuries');
+  const descInput = document.getElementById('course-desc');
 
-  if (!title) { alert("❌ Введіть назву курсу!"); return; }
+  // 1. ВАЛІДАЦІЯ ОСНОВНИХ ПОЛІВ
+  let hasErrors = false;
 
-  // Збираємо дані з УСІХ активних рівнів складності
+  if (!titleInput.value.trim()) {
+    showFieldError(titleInput, "Введіть назву курсу!");
+    hasErrors = true;
+  }
+
+  if (!injuriesInput.value.trim()) {
+    showFieldError(injuriesInput, "Вкажіть тип хірургічного втручання!");
+    hasErrors = true;
+  }
+
+  if (hasErrors) return; // Зупиняємо, якщо є помилки в шапці
+
+  const title = titleInput.value.trim();
+  const injuries = injuriesInput.value.split(',').map(item => item.trim()).filter(i => i);
+  const desc = descInput.value.trim();
+
+  // 2. ЗБІР ДАНИХ ТА ВАЛІДАЦІЯ ВПРАВ
   const difficultiesData = [];
-  let standardLevelLength = 0; // Змінна для базової довжини курсу
+  let standardLevelLength = 0;
+  let hasExerciseErrors = false;
 
   // Проходимось по рівнях [1, 2, 3]
   [1, 2, 3].forEach(level => {
@@ -221,9 +458,23 @@ async function saveCourse() {
 
       container.querySelectorAll('.day-block').forEach((block, index) => {
         const exercisesData = [];
+
         block.querySelectorAll('.exercise-item').forEach(ex => {
+          const exNameInput = ex.querySelector('.ex-name');
+
+          // ВАЛІДАЦІЯ НАЗВИ ВПРАВИ
+          if (!exNameInput.value.trim()) {
+            // Якщо помилка на прихованому рівні - перемикаємось на нього
+            if (currentLevel !== level) {
+              document.getElementById('difficulty-select').value = level;
+              switchLevel(level);
+            }
+            showFieldError(exNameInput, "Введіть назву вправи!");
+            hasExerciseErrors = true;
+          }
+
           exercisesData.push({
-            name: ex.querySelector('.ex-name')?.value || "",
+            name: exNameInput.value.trim(),
             reps: ex.querySelector('.ex-reps')?.value || "",
             sets: ex.querySelector('.ex-sets')?.value || "",
             description: ex.querySelector('.ex-desc')?.value || "",
@@ -242,12 +493,10 @@ async function saveCourse() {
         });
       });
 
-      // Запам'ятовуємо довжину стандартного курсу для головного поля
       if (level === 2) {
         standardLevelLength = daysData.length;
       }
 
-      // Додаємо рівень у масив
       difficultiesData.push({
         difficulty: level,
         total_days: daysData.length,
@@ -256,19 +505,23 @@ async function saveCourse() {
     }
   });
 
+  // Якщо знайшли пусті вправи - зупиняємо збереження
+  if (hasExerciseErrors) return;
+
   if (difficultiesData.length === 0 || standardLevelLength === 0) {
-    alert("❌ Додайте хоча б одне заняття у стандартний рівень!");
+    // ЗАМІСТЬ ALERT:
+    showCourseMessage("❌ Додайте хоча б одне заняття у стандартний рівень!", "field-error-text");
     return;
   }
 
-  // СТРОГО за схемою бекенду
+  // СТРОГО за схемою бекенду (цей код у тебе вже є)
   const payload = {
     course_name: title,
     description: desc,
     injuries: injuries,
-    course_length: standardLevelLength, // Бекенд очікує int
-    course_content: {                   // Бекенд очікує dict
-      levels: difficultiesData          // Всі наші рівні тепер живуть тут
+    course_length: standardLevelLength,
+    course_content: {
+      levels: difficultiesData
     }
   };
 
@@ -277,33 +530,62 @@ async function saveCourse() {
     saveBtn.disabled = true;
 
     const token = localStorage.getItem('access_token');
-    if (!token) {
-      alert("⚠️ Ви не авторизовані.");
-      window.location.href = "login.html";
-      return;
-    }
 
-    const response = await fetch('http://localhost:8000/courses/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
-    });
+    // === РОЗДІЛЕННЯ ЛОГІКИ: СТВОРЕННЯ чи РЕДАГУВАННЯ ===
+    if (isEditMode) {
 
-    if (response.ok) {
-      alert(`✅ Курс успішно створено! Збережено рівнів: ${difficultiesData.length}`);
-      window.location.href = "home_page.html";
+      // СТАН 2: ОНОВЛЕННЯ (Реальний запит на бекенд)
+      const response = await fetch(`${API_BASE_URL}/courses/${editingCourseId}/update`, {
+        method: 'PUT', // Використовуємо PUT, як вказали в роутері
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        showCourseMessage(`✅ Курс успішно оновлено!`, "success-text");
+
+        // ОЧИЩАЄМО ТИМЧАСОВІ ДАНІ (щоб наступного разу відкрився чистий конструктор)
+        sessionStorage.removeItem('course_edit_data');
+        sessionStorage.removeItem('course_edit_id');
+
+        // Повертаємо лікаря на головну сторінку через 1.5 сек
+        setTimeout(() => { window.location.href = "home_page.html"; }, 1500);
+      } else {
+        const errorData = await response.json();
+        showCourseMessage(`❌ Помилка оновлення: ${errorData.detail || 'Невідома помилка'}`, "field-error-text");
+      }
+
     } else {
-      const errorData = await response.json();
-      alert(`❌ Помилка збереження: ${JSON.stringify(errorData)}`);
+
+      // СТАН 1: СТВОРЕННЯ (Твій старий код)
+      const response = await fetch(`${API_BASE_URL}/courses/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        showCourseMessage(`✅ Курс успішно створено! Збережено рівнів: ${difficultiesData.length}`, "success-text");
+        setTimeout(() => { window.location.href = "home_page.html"; }, 1500);
+      } else {
+        const errorData = await response.json();
+        showCourseMessage(`❌ Помилка збереження: ${JSON.stringify(errorData)}`, "field-error-text");
+      }
     }
 
   } catch (error) {
-    alert("❌ Помилка мережі. Перевірте з'єднання.");
+    showCourseMessage("❌ Помилка мережі. Перевірте з'єднання.", "field-error-text");
   } finally {
-    saveBtn.innerText = originalBtnText;
-    saveBtn.disabled = false;
+    // Відновлюємо кнопку
+    setTimeout(() => {
+      saveBtn.innerHTML = isEditMode ? '<i class="fas fa-save"></i> Оновити курс' : '<i class="fas fa-save"></i> Створити курс';
+      saveBtn.disabled = false;
+    }, 500);
   }
 }

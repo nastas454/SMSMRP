@@ -30,3 +30,13 @@ function getUserRole() {
   // Змініть 'role' на те поле, яке реально використовує ваш бекенд (наприклад, 'sub' або 'user_role')
   return payload ? (payload.role || localStorage.getItem('user_role')) : null;
 }
+
+function getDeclension(number, words) {
+  const num100 = Math.abs(number) % 100;
+  const num10 = num100 % 10;
+
+  if (num100 > 10 && num100 < 20) return words[2]; // 11-19 занять
+  if (num10 > 1 && num10 < 5) return words[1];     // 2-4 заняття
+  if (num10 === 1) return words[0];                // 1 заняття
+  return words[2];                                 // 0, 5-9 занять
+}

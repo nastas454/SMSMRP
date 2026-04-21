@@ -115,7 +115,6 @@ async function updateUserData() {
     const updatePromises = [];
 
     // 1. Оновлення імені та прізвища (PATCH /users/change)
-    // Тіло запиту відповідає моделі ChangeUser
     updatePromises.push(
       fetch(`${API_BASE_URL}/users/change`, {
         method: 'PATCH',
@@ -156,27 +155,54 @@ async function updateUserData() {
     // 5. Оновлення даних пацієнта (якщо це пацієнт)
     if (userRole === 'patient') {
       const ageInput = parseInt(document.getElementById('input-age').value, 10);
+
+      // Формуємо URL згідно з твоїм ендпоінтом: PUT /{patient_id}/age
+      // Оскільки FastAPI бере ID з токена, замість patient_id можна передати 'me'
+      // (або реальний ID, якщо ти його зберіг раніше).
+      // Додаємо query параметр ?new_age=...
+      const ageUrl = new URL(`${API_BASE_URL}/patients/me/age`);
+      ageUrl.searchParams.append('new_age', ageInput);
+
       updatePromises.push(
-        // Залишив метод PUT, але якщо ви змінили ендпоінт пацієнта на PATCH, змініть метод тут
-        fetch(`${API_BASE_URL}/patients/me`, {
+        fetch(ageUrl, {
           method: 'PUT',
-          headers: headers,
-          body: JSON.stringify({ age: ageInput })
-        }).then(res => { if (!res.ok) throw new Error("Помилка оновлення даних пацієнта"); })
+          headers: headers
+        }).then(res => {
+          if (!res.ok) throw new Error("Помилка оновлення віку пацієнта");
+        })
       );
     }
 
     // Виконуємо всі сформовані запити паралельно
     await Promise.all(updatePromises);
 
-    alert("Дані успішно оновлено!");
+    // Відображаємо текст успіху замість alert
+    showStatusMessage("Дані успішно оновлено!", "success-text");
+
     document.getElementById('input-password').value = ''; // Очищаємо поле пароля після успішної зміни
     await loadUserData(); // Завантажуємо свіжі дані з сервера для оновлення UI лівої картки
 
   } catch (error) {
     console.error("Помилка:", error);
-    alert(error.message || "Сталася помилка при збереженні змін.");
+    // Відображаємо текст помилки замість alert
+    showStatusMessage(error.message || "Сталася помилка при збереженні змін.", "error-text");
   }
+}
+
+// Функція для керування повідомленнями
+function showStatusMessage(text, className) {
+  const messageEl = document.getElementById('status-message');
+  if (!messageEl) return;
+
+  // Встановлюємо текст та потрібний клас
+  messageEl.textContent = text;
+  messageEl.className = className;
+
+  // Прибираємо повідомлення через 1 секунду (1000 мс)
+  setTimeout(() => {
+    messageEl.textContent = "";
+    messageEl.className = "";
+  }, 2000);
 }
 
 async function deleteAccount() {

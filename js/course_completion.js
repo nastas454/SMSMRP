@@ -124,13 +124,14 @@ async function loadCourseData(courseId) {
   }
 }
 
-// Функція для приховування вправ і показу таймера/повідомлення
-// (Працює, якщо ви додали <div id="status-container"> у ваш HTML)
 function showStatusUI(iconClass, title, message, timerText) {
   const exerciseContainer = document.getElementById('exercise-container');
   const statusContainer = document.getElementById('status-container');
 
-  if (exerciseContainer) exerciseContainer.style.display = 'none';
+  // ПРИХОВУЄМО КНОПКИ ТА КАРТКУ ВПРАВ
+  document.querySelector('.execution-card').style.display = 'none';
+  document.querySelectorAll('.nav-btn-container').forEach(btn => btn.style.display = 'none');
+
   if (statusContainer) {
     statusContainer.style.display = 'block';
     document.getElementById('status-icon').className = iconClass;
