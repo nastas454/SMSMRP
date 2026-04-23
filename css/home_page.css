@@ -1,4 +1,4 @@
-/* --- ЗАГАЛЬНІ --- */
+/* Загальні налаштування */
 body {
   margin: 0;
   padding: 0;
@@ -10,7 +10,7 @@ body {
   flex-direction: column;
 }
 
-/* --- ШАПКА (HEADER) --- */
+/* Шапка */
 .top-header {
   height: 70px;
   background: #4a8394;
@@ -102,14 +102,14 @@ body {
   transform: scale(1.2);
 }
 
-/* --- ГОЛОВНИЙ МАКЕТ (SIDEBAR + MAIN) --- */
+/* Головний макет */
 .layout-container {
   display: flex;
-  flex: 1; /* Займає всю висоту, що залишилась */
-  overflow: hidden; /* Щоб скролилось всередині */
+  flex: 1;
+  overflow: hidden;
 }
 
-/* --- БОКОВА ПАНЕЛЬ --- */
+/* Бокова панель */
 .sidebar {
   width: 300px;
   background-color: #c9e2e8;
@@ -117,7 +117,6 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-
   justify-content: flex-start;
   height: calc(100vh - 70px); /* Висота екрана мінус висота шапки */
 }
@@ -136,32 +135,31 @@ body {
 }
 
 /* Іконки соцмереж */
-
 .social-icons {
   display: flex;
   justify-content: center;
-  gap: 10px; /* Встановлює відстань 20px між усіма елементами всередині */
+  gap: 10px;
 }
 
 .social-icons a {
-  color: #225061; /* Колір іконок */
+  color: #225061;
   font-size: 20px;
   text-decoration: none;
   transition: transform 0.3s, color 0.3s;
   display: inline-block;
-
-  margin: 0 10px; /* Додає по 10px зліва та справа від кожної іконки */
+  margin: 0 10px;
 }
 
 .social-icons a:hover {
-  color: #3691ae; /* Колір зміниться при наведенні */
-  transform: translateY(-3px); /* Іконка трохи підстрибне */
+  color: #3691ae;
+  transform: translateY(-3px);
 }
 
 .social-icons a:hover {
   opacity: 0.6;
 }
 
+/* Заголовок бокової панелі */
 .sidebar-title {
   font-size: 20px;
   margin-top: 20px;
@@ -171,10 +169,11 @@ body {
   text-transform: uppercase;
   padding-bottom: 10px;
   border-bottom: 2px solid #4a8394;
-  padding-left: 20px; /* 1. Відсуває текст вправо на 20px */
-  box-sizing: border-box; /* 2. Гарантує, що ці 20px не зроблять блок ширшим за 100% */
+  padding-left: 20px;
+  box-sizing: border-box;
 }
 
+/* Курси */
 .course-list {
   list-style: none;
   padding: 0;
@@ -191,7 +190,6 @@ body {
   background: linear-gradient(60deg, #92c3d6 10%, #e1ebed 100%);
   border-bottom: 2px solid #4a8394;
   position: relative;
-
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -200,10 +198,10 @@ body {
 .course-list li:hover {
   background-color: #e1ebed;
   color: #284d5b;
-  padding-left: 30px; /* Ефект зсуву */
+  padding-left: 30px;
 }
 
-/* Маленька вертикальна лінія зліва при наведенні */
+/* Маленька лінія при наведенні */
 .course-list li::before {
   content: '';
   position: absolute;
@@ -219,11 +217,11 @@ body {
   width: 6px;
 }
 
-/* --- ОСНОВНИЙ КОНТЕНТ --- */
+/* Основний контент */
 .main-content {
   flex: 1;
   padding: 30px;
-  overflow-y: auto; /* Скрол тільки тут */
+  overflow-y: auto;
 }
 
 /* Сітка карток */
@@ -233,7 +231,7 @@ body {
   gap: 25px;
 }
 
-/* --- КАРТКА КУРСУ --- */
+/* Картка курсу */
 .course-card {
   background: #cce0e5;
   border-radius: 16px;
@@ -265,8 +263,7 @@ body {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
-  color: #1d3037; /* Заголовок як на малюнку */
-
+  color: #1d3037;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -276,14 +273,13 @@ body {
   margin: 8px 0;
   font-size: 14px;
   color: #1c4a5a;
-
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .card-label {
-  color: #3691ae; /* Блакитний колір підписів "травми:", "лікар:" */
+  color: #3691ae;
   font-weight: 600;
   margin-right: 5px;
 
@@ -295,28 +291,18 @@ body {
 .card-footer {
   margin-top: 20px;
   display: flex;
-  justify-content: flex-end; /* Лікар справа */
+  justify-content: flex-end;
   align-items: center;
   font-size: 14px;
   color: #1c4a5a;
 }
 
-
-
-
-
 /* Кнопка "три крапки" */
 .card-options {
   position: absolute;
   bottom: 15px;
-  right: 15px; /* Замість кнопки меню, як на малюнку, можна тут */
-  /* АБО в footer, як на малюнку */
+  right: 15px;
 }
-
-
-
-
-
 
 /* Контейнер для кнопки меню */
 .options-container {
@@ -327,7 +313,7 @@ body {
 /* Випадаюче меню */
 .dropdown-menu {
   position: absolute;
-  bottom: 100%; /* З'являється над кнопкою */
+  bottom: 100%;
   right: 0;
   background-color: #ffffff;
   box-shadow: 0 4px 15px rgba(0,0,0,0.15);
@@ -353,7 +339,7 @@ body {
   cursor: pointer;
   font-family: inherit;
   font-size: 14px;
-  color: #dc3545; /* Червоний колір для видалення/виходу */
+  color: #dc3545;
   transition: background-color 0.2s;
   font-weight: 500;
 }
@@ -362,11 +348,7 @@ body {
   background-color: #f0f8ff;
 }
 
-
-
-
-
-
+/* Кнопка "три крапки" */
 .more-options-btn {
   background: none;
   border: none;
@@ -386,14 +368,14 @@ body {
   position: relative;
 }
 
-/* Сама лінія прогресу */
+/* Лінія прогресу */
 .progress-bar {
   height: 100%;
-  background-color: #3691ae; /* Колір як у ваших лейблів */
+  background-color: #3691ae;
   transition: width 0.5s ease-in-out;
 }
 
-/* Текст з відсотками (опціонально) */
+/* Текст з відсотками */
 .progress-text {
   font-size: 12px;
   color: #1c4a5a;
@@ -416,16 +398,16 @@ body {
 
 .course-card {
   animation: fadeInUp 0.5s ease forwards;
-  opacity: 0; /* Початковий стан перед анімацією */
+  opacity: 0;
 }
 
-/* Додаємо затримку для кожної наступної картки */
+/* Затримка для кожної наступної картки */
 .course-card:nth-child(1) { animation-delay: 0.1s; }
 .course-card:nth-child(2) { animation-delay: 0.2s; }
 .course-card:nth-child(3) { animation-delay: 0.3s; }
 .course-card:nth-child(4) { animation-delay: 0.4s; }
 
-
+/* Привітання */
 .welcome-banner {
   background: linear-gradient(260deg, #3691ae 10%, #e1ebed 100%);
   border-radius: 20px;
@@ -442,10 +424,9 @@ body {
   margin: 0;
   font-size: 28px;
   font-weight: 700;
-  /* ТРИ МАГІЧНІ РЯДКИ ДЛЯ ОБРІЗКИ ТЕКСТУ */
-  white-space: nowrap; /* Забороняємо перенесення на новий рядок */
-  overflow: hidden; /* Ховаємо все, що вилазить за межі */
-  text-overflow: ellipsis; /* Додаємо три крапки "..." в кінці */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .welcome-text {
@@ -467,7 +448,6 @@ body {
   padding: 15px 25px;
   border-radius: 15px;
   backdrop-filter: blur(5px);
-  /* ТРИ МАГІЧНІ РЯДКИ ДЛЯ ОБРІЗКИ ТЕКСТУ */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -497,14 +477,14 @@ body {
   height: 40px;
 }
 
-/* Затемнення фону */
+/* Модальне вікно приєднання до курсу */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Напівпрозорий чорний */
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -513,7 +493,7 @@ body {
   transition: opacity 0.3s ease;
 }
 
-/* Приховати модалку */
+/* Приховати */
 .modal-overlay.hidden {
   display: none;
   opacity: 0;
@@ -563,7 +543,7 @@ body {
   border-radius: 6px;
   font-size: 16px;
   margin-top: 10px;
-  box-sizing: border-box; /* Важливо для padding */
+  box-sizing: border-box;
 }
 
 .modal-footer {
@@ -573,8 +553,9 @@ body {
   gap: 10px;
 }
 
+/* Кнопка доєднатись */
 .btn-primary {
-  background-color: #5fa7be; /* Ваш основний колір */
+  background-color: #5fa7be;
   color: #e1ebed;
   border: none;
   padding: 10px 20px;
@@ -586,15 +567,15 @@ body {
 
 .btn-primary:hover { background-color: #3691ae; }
 
+/* Повідомлення успіху чи помилки */
 .error-text {
   color: #dc3545;
   font-size: 14px;
   margin-top: 5px;
 }
 
-/* Додайте це до вашого CSS */
 .success-text {
-  color: #28a745; /* Приємний зелений колір для успіху */
+  color: #28a745;
   font-size: 14px;
   margin-top: 5px;
 }

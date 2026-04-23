@@ -1,5 +1,6 @@
 const API_BASE_URL = 'http://localhost:8000';
 
+// Відкриває секцію авторизації та відображає форми відповідно до обраної ролі (адмін, лікар, пацієнт)
 function openAuth(role) {
   document.getElementById('landing-page').classList.add('hidden');
   document.querySelector('.brand-overlay').classList.add('hidden');
@@ -17,6 +18,7 @@ function openAuth(role) {
   }
 }
 
+// Приховує секцію авторизації та повертає користувача на головну сторінку
 function goBack() {
   document.getElementById('auth-section').classList.add('hidden');
   document.getElementById('landing-page').classList.remove('hidden');
@@ -24,6 +26,7 @@ function goBack() {
   document.querySelector('.contact-fab').classList.remove('hidden');
 }
 
+// Показує або приховує модальне вікно з контактами залежно від переданого параметра
 function toggleContactModal(show) {
   const modal = document.getElementById('contact-modal');
   if (show) {
@@ -33,6 +36,7 @@ function toggleContactModal(show) {
   }
 }
 
+// Перемикає видимість між формами входу та реєстрації у секції пацієнта
 function togglePatientMode(mode) {
   const loginBlock = document.getElementById('patient-login-block');
   const registerBlock = document.getElementById('patient-register-block');
@@ -51,6 +55,7 @@ function togglePatientMode(mode) {
   }
 }
 
+// Декодує JWT токен і повертає його дані (payload) у форматі JSON
 function parseJwt(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -64,6 +69,7 @@ function parseJwt(token) {
   }
 }
 
+// Обробляє форму входу (відправляє дані на сервер, зберігає токени, обробляє помилки та здійснює перенаправлення)
 async function handleLogin(event) {
   event.preventDefault();
   const form = event.target;
@@ -72,6 +78,10 @@ async function handleLogin(event) {
   if (errorBox) {
     errorBox.style.display = 'none';
     errorBox.innerText = '';
+    errorBox.style.backgroundColor = '';
+    errorBox.style.color = '';
+    errorBox.style.border = '';
+    errorBox.style.padding = '';
   }
 
   const username = form.elements['username'].value;
@@ -92,7 +102,20 @@ async function handleLogin(event) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      const errorMessage = errorData.detail || 'Сталася помилка входу';
+      let errorMessage = errorData.detail || 'Сталася помилка входу';
+
+      if (errorMessage === "Ваш акаунт було заблоковано") {
+        errorMessage = "Ваш акаунт було заблоковано. Зверніться до адміністратора";
+        if (errorBox) {
+          errorBox.style.backgroundColor = '#ffebee';
+          errorBox.style.color = '#c62828';
+          errorBox.style.border = '1px solid #ef5350';
+          errorBox.style.padding = '10px';
+          errorBox.style.borderRadius = '5px';
+          errorBox.style.marginBottom = '15px';
+        }
+      }
+
       if (errorBox) {
         errorBox.innerText = errorMessage;
         errorBox.style.display = 'block';
@@ -114,7 +137,6 @@ async function handleLogin(event) {
     const userRole = decodedToken ? decodedToken.role : null;
 
     if (userRole) localStorage.setItem('user_role', userRole);
-
     if (userRole === 'admin') {
       window.location.href = 'home_page_for_admin.html';
     } else {
@@ -130,6 +152,7 @@ async function handleLogin(event) {
   }
 }
 
+// Обробляє форму реєстрації (проводить строгу валідацію полів, відправляє запит на сервер та відображає повідомлення про успіх або помилку)
 async function handleRegister(event) {
   event.preventDefault();
   const form = event.target;
@@ -177,21 +200,46 @@ async function handleRegister(event) {
   const email = formData.get('email')?.trim();
   const login = formData.get('login')?.trim();
   const password = formData.get('password');
-
   const ageStr = formData.get('age');
   const sexRaw = formData.get('sex');
 
-  const nameRegex = /^[a-zA-Zа-яА-ЯґҐєЄіІїЇ\-\']+$/;
+  const nameRegex = /^[\p{L}\-]{2,30}$/u;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const loginRegex = /^[a-zA-Z0-9_]{8,}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
-  if (!firstName || firstName.length < 2) { showError("❌ Ім'я має бути не коротше 2 символів."); return; }
-  if (!nameRegex.test(firstName)) { showError("❌ Ім'я містить недопустимі символи."); return; }
-  if (!lastName || lastName.length < 2) { showError("❌ Прізвище має бути не коротше 2 символів."); return; }
-  if (!nameRegex.test(lastName)) { showError("❌ Прізвище містить недопустимі символи."); return; }
-
-  const age = Number(ageStr);
-  if (!ageStr || isNaN(age) || age < 1 || age > 130) { showError("❌ Вкажіть коректний вік."); return; }
-  if (!login || login.length < 8) { showError("❌ Логін має бути не менше 8 символів."); return; }
-  if (!password || password.length < 8) { showError("❌ Пароль має бути не менше 8 символів."); return; }
+  if (!firstName || !nameRegex.test(firstName)) {
+    showError("Ім'я: від 2 до 30 символів, дозволені лише букви та '-'");
+    return;
+  }
+  if (!lastName || !nameRegex.test(lastName)) {
+    showError("Прізвище: від 2 до 30 символів, дозволені лише букви та '-'");
+    return;
+  }
+  if (!ageStr || !/^\d+$/.test(ageStr)) {
+    showError("Вік: дозволені лише цілі цифри");
+    return;
+  }
+  const age = parseInt(ageStr, 10);
+  if (age < 1 || age > 130) {
+    showError("Вік: введіть значення від 1 до 130");
+    return;
+  }
+  if (/[A-Z]/.test(email)) {
+    return "Email: використання великих літер заборонено.";
+  }
+  if (!email || !emailRegex.test(email)) {
+    showError("Email: введіть коректну адресу (наприклад, name@example.com)");
+    return;
+  }
+  if (!login || !loginRegex.test(login)) {
+    showError("Логін: мін. 8 символів, без пробілів та спецсимволів (лише латиниця, цифри, '_')");
+    return;
+  }
+  if (!password || !passwordRegex.test(password)) {
+    showError("Пароль: мін. 8 символів, обов'язково великі та малі літери, цифри та спецсимволи");
+    return;
+  }
 
   let parsedSex = 'other';
   if (sexRaw === 'male' || sexRaw === 'Чоловік') parsedSex = 'male';
@@ -212,6 +260,8 @@ async function handleRegister(event) {
   };
 
   try {
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Завантаження...';
     const response = await fetch(`${API_BASE_URL}/auth/users/register`, {
       method: 'POST',
       headers: {
@@ -231,10 +281,24 @@ async function handleRegister(event) {
 
     } else {
       const errorData = await response.json();
-      showError(errorData.detail || errorData);
+      let displayMessage = errorData.detail || errorData;
+
+      if (typeof displayMessage === 'string') {
+        const lowerMsg = displayMessage.toLowerCase();
+        if (lowerMsg.includes("email already registered") || lowerMsg.includes("email already exists")) {
+          displayMessage = "Користувач з таким Email вже існує";
+        } else if (lowerMsg.includes("login already") || lowerMsg.includes("username already")) {
+          displayMessage = "Цей логін вже зайнятий";
+        }
+      }
+
+      showError(displayMessage);
     }
   } catch (error) {
     console.error(error);
     showError('⚠️ Немає з\'єднання з сервером.');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerText = 'Зареєструватися';
   }
 }

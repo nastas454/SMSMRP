@@ -2,7 +2,7 @@ const API_BASE_URL = "http://localhost:8000";
 
 let courseExercises = [];
 let currentIndex = 0;
-let isLastDay = false; // Змінна, щоб знати, чи це фінал курсу
+let isLastDay = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const token = localStorage.getItem('access_token');
@@ -10,34 +10,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = 'login.html';
     return;
   }
-
-  // 1. ПЕРЕВІРКА РОЛІ
   const userRole = localStorage.getItem('user_role');
   if (userRole !== 'patient') {
     alert("Доступ заборонено! Лише пацієнти можуть проходити курс.");
     window.location.href = 'home_page.html';
     return;
   }
-
-  // 2. Отримуємо ID курсу з URL
   const urlParams = new URLSearchParams(window.location.search);
   const courseId = urlParams.get('id');
-
   if (!courseId) {
     alert("Курс не знайдено!");
     window.location.href = 'home_page.html';
     return;
   }
-
-  // 3. Завантажуємо дані курсу
   await loadCourseData(courseId);
 });
 
+// Завантажує статус проходження курсу та перелік вправ для поточного заняття. Обробляє стани очікування, завершення курсу або готовності до виконання вправ
 async function loadCourseData(courseId) {
   const token = localStorage.getItem('access_token');
-
   try {
-    // Звертаємося до ендпоінту для пацієнтів
     const response = await fetch(`${API_BASE_URL}/courses/${courseId}/patient-content`, {
       method: 'GET',
       headers: {
@@ -45,14 +37,10 @@ async function loadCourseData(courseId) {
         'Content-Type': 'application/json'
       }
     });
-
     if (!response.ok) {
       throw new Error("Не вдалося завантажити контент курсу");
     }
-
     const data = await response.json();
-
-    // РОЗПОДІЛ ЛОГІКИ ЗАЛЕЖНО ВІД СТАТУСУ БЕКЕНДУ
     if (data.status === "completed") {
       showStatusUI(
         "fas fa-trophy",
@@ -62,7 +50,6 @@ async function loadCourseData(courseId) {
       );
       return;
     }
-
     if (data.status === "waiting") {
       const hours = data.time_left.hours;
       const minutes = data.time_left.minutes;
@@ -74,20 +61,14 @@ async function loadCourseData(courseId) {
       );
       return;
     }
-
     if (data.status === "in_progress" && data.day_content) {
-
-      // === ОСЬ ТУТ БЕРЕМО ТВОЮ ЗМІННУ З JSON І ЗБЕРІГАЄМО В КНОПКУ ===
       document.getElementById('btn-next').dataset.session = data.current_day;
-
       courseExercises = [];
       isLastDay = (data.current_day >= data.total_days);
-
       const dayData = data.day_content;
       if (dayData.exercises && Array.isArray(dayData.exercises)) {
         dayData.exercises.forEach((ex, index) => {
           courseExercises.push({
-            // === ОНОВЛЕНИЙ РЯДОК: ДОДАНО РІВЕНЬ ===
             day: `ЗАНЯТТЯ ${data.current_day}`,
             // =====================================
             exerciseNum: `Вправа ${index + 1}`,
@@ -100,23 +81,17 @@ async function loadCourseData(courseId) {
           });
         });
       }
-
       if (courseExercises.length === 0) {
         alert("У цьому дні немає вправ!");
         goBack();
         return;
       }
-
-      // Показуємо блок з вправами (якщо він був прихований)
       const statusContainer = document.getElementById('status-container');
       const exerciseContainer = document.getElementById('exercise-container');
       if (statusContainer) statusContainer.style.display = 'none';
       if (exerciseContainer) exerciseContainer.style.display = 'block';
-
-      // Відображаємо першу вправу
       renderExercise(0);
     }
-
   } catch (error) {
     console.error("Помилка:", error);
     alert("Помилка завантаження даних курсу. Перевірте консоль.");
@@ -124,11 +99,10 @@ async function loadCourseData(courseId) {
   }
 }
 
+// Приховує інтерфейс виконання вправ та відображає спеціальний екран стану
 function showStatusUI(iconClass, title, message, timerText) {
   const exerciseContainer = document.getElementById('exercise-container');
   const statusContainer = document.getElementById('status-container');
-
-  // ПРИХОВУЄМО КНОПКИ ТА КАРТКУ ВПРАВ
   document.querySelector('.execution-card').style.display = 'none';
   document.querySelectorAll('.nav-btn-container').forEach(btn => btn.style.display = 'none');
 
@@ -139,21 +113,18 @@ function showStatusUI(iconClass, title, message, timerText) {
     document.getElementById('status-message').textContent = message;
     document.getElementById('timer-display').textContent = timerText;
   } else {
-    // Резервний варіант, якщо ви забули оновити HTML
     alert(`${title}\n${message} ${timerText}`);
     goBack();
   }
 }
 
-let isFeedbackStep = false; // Нова змінна стану
+let isFeedbackStep = false;
 
-// Функція для відображення даних вправи
+// Відображає дані конкретної вправи на екрані, оновлює стан кнопок навігації та приховує форму відгуку
 function renderExercise(index) {
-  // Переконуємось, що форма відгуку прихована, а вправи показані
   document.getElementById('exercise-container').style.display = 'flex';
   document.getElementById('feedback-container').style.display = 'none';
   isFeedbackStep = false;
-
   const exercise = courseExercises[index];
 
   document.getElementById('display-day').textContent = exercise.day;
@@ -185,18 +156,15 @@ function renderExercise(index) {
   } else {
     btnPrev.classList.remove('invisible');
   }
-
-  // Навіть на останній вправі кнопка тепер просто каже "Далі" (щоб перейти до відгуку)
   btnNext.innerHTML = `Далі <i class="fas fa-arrow-right"></i>`;
   btnNext.disabled = false;
 }
 
-// Показуємо форму відгуку
+// Приховує екран із поточною вправою та відкриває форму для залишення відгуку після завершення заняття. Оновлює текст фінальної кнопки
 function showFeedbackForm() {
   isFeedbackStep = true;
   document.getElementById('exercise-container').style.display = 'none';
   document.getElementById('feedback-container').style.display = 'flex';
-
   const btnNext = document.getElementById('btn-next');
   if (isLastDay) {
     btnNext.innerHTML = `Завершити курс <i class="fas fa-trophy"></i>`;
@@ -208,17 +176,13 @@ function showFeedbackForm() {
 // Кнопка "Далі / Завершити"
 async function nextExercise() {
   if (!isFeedbackStep) {
-    // Ми зараз на екрані вправ
     if (currentIndex < courseExercises.length - 1) {
-      // Є ще вправи - йдемо до наступної
       currentIndex++;
       renderExercise(currentIndex);
     } else {
-      // Це була остання вправа - переходимо до відгуку
       showFeedbackForm();
     }
   } else {
-    // Ми зараз на екрані відгуку - відправляємо дані на сервер
     submitDayWithFeedback();
   }
 }
@@ -226,44 +190,29 @@ async function nextExercise() {
 // Кнопка "Назад"
 function prevExercise() {
   if (isFeedbackStep) {
-    // Якщо ми на формі відгуку, кнопка "Назад" повертає до останньої вправи
     renderExercise(currentIndex);
   } else if (currentIndex > 0) {
-    // Звичайна навігація між вправами
     currentIndex--;
     renderExercise(currentIndex);
   }
 }
 
-// ==========================================
-// 1. ГОЛОВНА ФУНКЦІЯ (Збирає дані та керує процесом)
-// ==========================================
+// Збирає дані з форми відгуку, відправляє їх на сервер, завершує поточне заняття та перезавантажує сторінку для оновлення статусу
 async function submitDayWithFeedback() {
   const urlParams = new URLSearchParams(window.location.search);
   const courseId = urlParams.get('id');
   const btnNext = document.getElementById('btn-next');
 
-  // Збираємо дані з форми
   const painLevel = parseInt(document.getElementById('pain-range').value);
   const diffLevel = parseInt(document.getElementById('difficulty-range').value);
   const noteText = document.getElementById('feedback-notes').value.trim();
-
-  // Дістаємо номер заняття, який ми раніше зберегли в атрибуті кнопки
   const sessionNum = parseInt(btnNext.dataset.session);
-
   try {
     btnNext.disabled = true;
     btnNext.innerHTML = "Збереження...";
-
-    // КРОК 1: Надсилаємо відгук (викликаємо нову функцію)
     await sendFeedbackToBackend(courseId, painLevel, diffLevel, sessionNum, noteText);
-
-    // КРОК 2: Завершуємо день
     await completeDayOnBackend(courseId);
-
-    // КРОК 3: Успіх! Перезавантажуємо сторінку
     window.location.reload();
-
   } catch (err) {
     console.error(err);
     alert(`Помилка: ${err.message}`);
@@ -272,13 +221,9 @@ async function submitDayWithFeedback() {
   }
 }
 
-// ==========================================
-// 2. ОКРЕМА ФУНКЦІЯ: Відправка відгуку
-// ==========================================
+// Відправляє POST-запит на бекенд для збереження відгуку пацієнта про пройдене заняття
 async function sendFeedbackToBackend(courseId, pain, difficulty, session, note) {
   const token = localStorage.getItem('access_token');
-
-  // Формуємо payload СУВОРО за моделлю CourseFeedbackCreate
   const payload = {
     pain_level: pain,
     difficulty_level: difficulty,
@@ -294,19 +239,15 @@ async function sendFeedbackToBackend(courseId, pain, difficulty, session, note) 
     },
     body: JSON.stringify(payload)
   });
-
   if (!response.ok) {
     const errData = await response.json();
     throw new Error(errData.detail || 'Не вдалося надіслати відгук');
   }
 }
 
-// ==========================================
-// 3. ОКРЕМА ФУНКЦІЯ: Завершення заняття
-// ==========================================
+// Відправляє POST-запит на бекенд для позначення поточного заняття курсу як успішно пройденого
 async function completeDayOnBackend(courseId) {
   const token = localStorage.getItem('access_token');
-
   const response = await fetch(`${API_BASE_URL}/courses/${courseId}/complete-day`, {
     method: 'POST',
     headers: {
@@ -314,15 +255,13 @@ async function completeDayOnBackend(courseId) {
       'Content-Type': 'application/json'
     }
   });
-
   if (!response.ok) {
     const errData = await response.json();
     throw new Error(errData.detail || errData.message || 'Не вдалося закрити заняття');
   }
 }
 
-
-
+// Видаляє дані користувача з локального сховища та перенаправляє на сторінку входу
 function logoutUser(event) {
   if (event) event.preventDefault();
   localStorage.removeItem('access_token');
@@ -330,6 +269,7 @@ function logoutUser(event) {
   window.location.href = 'main_and_auth.html';
 }
 
+// Перенаправляє користувача назад на головну сторінку курсу із відповідним ID
 function goBack(event) {
   if (event) event.preventDefault();
   const urlParams = new URLSearchParams(window.location.search);

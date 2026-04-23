@@ -1,84 +1,51 @@
-// --- КОНФІГУРАЦІЯ ---
 const API_BASE_URL = "http://localhost:8000"; // Ваша адреса бекенду
 
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
 });
 
-// --- ІНІЦІАЛІЗАЦІЯ ---
-
+// Ініціалізує застосунок (перевіряє токен, завантажує дані користувача та список курсів, налаштовує кнопки залежно від ролі)
 async function initApp() {
-  // 1. Перевіряємо токен
   const token = localStorage.getItem('access_token');
-
   if (!token) {
     console.warn("Токен відсутній. Перенаправлення на вхід.");
     window.location.href = '/login.html';
     return;
   }
-
-  // 2. Отримуємо роль (з utils.js)
   const role = getUserRole();
   console.log("Поточна роль:", role);
-
-  // === ДОДАЄМО ВИКЛИК ТУТ ===
-  // Запитуємо ім'я користувача і виводимо на екран
   await fetchAndDisplayUser();
-  // =========================
-
-  // 3. Налаштовуємо кнопку
   setupAddButton(role);
-
-  // 4. Налаштовуємо модалку (тільки для пацієнта)
   if (role !== 'doctor') {
     setupModalListeners();
   }
-
-  // 5. Завантажуємо курси
   await loadCourses(role);
 }
 
-// --- 1. ВИПРАВЛЕНА КНОПКА "ДОДАТИ" ---
-
+// Налаштовує логіку кнопки "Додати" (перехід на сторінку створення курсу для лікаря або відкриття модального вікна для пацієнта)
 function setupAddButton(role) {
   const btn = document.getElementById('add-course-btn');
   if (!btn) return;
-
-  // Клонуємо кнопку, щоб зняти всі слухачі подій (addEventListener)
   const newBtn = btn.cloneNode(true);
-
-  // ВАЖЛИВО: Знімаємо inline-обробники (якщо в HTML було onclick="...")
   newBtn.onclick = null;
-
-  // Замінюємо кнопку в DOM
   btn.parentNode.replaceChild(newBtn, btn);
 
-  // Додаємо нову подію
   newBtn.addEventListener('click', (event) => {
     event.preventDefault();
-
     if (role === 'doctor') {
-      // ЛІКАР -> Перехід на сторінку створення
       console.log("Лікар: перехід на constructor_course.html");
-
-      // === ОЧИЩАЄМО ДАНІ РЕДАГУВАННЯ ПЕРЕД СТВОРЕННЯМ НОВОГО ===
       sessionStorage.removeItem('course_edit_data');
       sessionStorage.removeItem('course_edit_id');
-
-      // Відправляємо БЕЗ параметру edit_id
       window.location.href = "constructor_course.html";
     } else {
-      // ПАЦІЄНТ -> Відкрити модальне вікно
       console.log("Пацієнт: відкриття модального вікна");
       openJoinModal();
     }
   });
 }
 
-// --- 2. ЗАВАНТАЖЕННЯ ДАНИХ (GET) ---
-
+// Завантажує список курсів з сервера (залежно від ролі), сортує їх та викликає функції для відображення інтерфейсу
 async function loadCourses(role) {
-  // Визначаємо правильний ендпоінт залежно від ролі користувача
   const endpoint = role === 'doctor'
     ? `${API_BASE_URL}/doctors/courses`
     : `${API_BASE_URL}/patients/courses`;
@@ -92,7 +59,6 @@ async function loadCourses(role) {
       }
     });
 
-    // Якщо сесія закінчилась або токен невалідний
     if (response.status === 401) {
       alert("Сесія закінчилась. Будь ласка, увійдіть знову.");
       window.location.href = '/login.html';
@@ -100,34 +66,22 @@ async function loadCourses(role) {
     }
 
     if (!response.ok) throw new Error(`Status: ${response.status}`);
-
     const courses = await response.json();
-
-    // 1. Розподіляємо курси на активні та завершені
-    // (Для лікаря is_active може не передаватись, тому строго перевіряємо на false)
     const activeCourses = courses.filter(c => c.is_active !== false);
     const completedCourses = courses.filter(c => c.is_active === false);
-
-    // 2. Сортуємо масив: спочатку всі активні, потім всі неактивні (завершені)
     const sortedCourses = [...activeCourses, ...completedCourses];
-
-    // 3. Відмальовуємо інтерфейс
     renderSidebar(sortedCourses);
-    renderGrid(sortedCourses, role); // Передаємо role, щоб сховати прогрес у лікаря
-
-    // 4. Оновлюємо статистику у верхній панелі
+    renderGrid(sortedCourses, role);
     updateWelcomePanel(activeCourses.length, completedCourses.length, role);
 
   } catch (error) {
     console.error("Помилка завантаження курсів:", error);
     const grid = document.getElementById('courses-grid');
     if (grid) {
-      grid.innerHTML = `<p style="text-align: center; color: red;">Не вдалося завантажити курси.</p>`;
+      grid.innerHTML = `<p style="text-align: center; color: red;">Не вдалося завантажити курси</p>`;
     }
   }
 }
-
-// --- 3. МОДАЛЬНЕ ВІКНО (Тільки Пацієнт) ---
 
 const modal = document.getElementById('join-modal');
 const modalInput = document.getElementById('modal-course-id');
@@ -137,35 +91,30 @@ const successText = document.getElementById('modal-success');
 // Змінні для контролю таймерів (щоб вони не збивалися при швидких кліках)
 let messageTimer;
 
-// 1. Покращена функція очищення повідомлень
+// Приховує та очищає всі повідомлення про помилку або успіх у модальному вікні
 function hideAllMessages() {
   const errorText = document.getElementById('modal-error');
   const successText = document.getElementById('modal-success');
 
   if (errorText) {
     errorText.classList.add('hidden');
-    errorText.textContent = ''; // Примусово стираємо текст помилки з HTML
+    errorText.textContent = '';
   }
   if (successText) {
     successText.classList.add('hidden');
-    successText.textContent = ''; // Примусово стираємо текст успіху з HTML
+    successText.textContent = '';
   }
-
-  // Зупиняємо таймери, якщо вони були запущені
   if (typeof messageTimer !== 'undefined') {
     clearTimeout(messageTimer);
   }
 }
 
-// 3. Оновлена функція відкриття вікна
+// Відкриває модальне вікно для приєднання до курсу та фокусує поле вводу
 function openJoinModal() {
   const modal = document.getElementById('join-modal');
   const modalInput = document.getElementById('modal-course-id');
-
   if (!modal) return;
   modal.classList.remove('hidden');
-
-  // Про всяк випадок перестраховуємось і стираємо тексти при відкритті
   hideAllMessages();
 
   if (modalInput) {
@@ -174,27 +123,22 @@ function openJoinModal() {
   }
 }
 
-// 2. Оновлена функція закриття вікна
+// Закриває модальне вікно та очищає введені дані
 function closeJoinModal() {
   const modal = document.getElementById('join-modal');
   const modalInput = document.getElementById('modal-course-id');
-
   if (modal) modal.classList.add('hidden');
-
-  // Обов'язково стираємо всі тексти при закритті
   hideAllMessages();
 
   if (modalInput) modalInput.value = '';
 }
 
+// Відображає повідомлення про помилку в модальному вікні та автоматично приховує його через 2.5 секунди
 function showModalError(msg) {
-  hideAllMessages(); // 1. Гарантовано ховаємо зелений текст успіху
-
+  hideAllMessages();
   if (errorText) {
     errorText.textContent = msg;
-    errorText.classList.remove('hidden'); // 2. Показуємо червону помилку
-
-    // 3. Таймер: ховаємо текст помилки через 2.5 секунди
+    errorText.classList.remove('hidden');
     messageTimer = setTimeout(() => {
       errorText.classList.add('hidden');
     }, 2500);
@@ -203,37 +147,30 @@ function showModalError(msg) {
   }
 }
 
+// Показує повідомлення про успішне приєднання, а потім автоматично закриває вікно та оновлює список курсів
 function showModalSuccess(message) {
-  hideAllMessages(); // 1. Гарантовано ховаємо червону помилку
-
+  hideAllMessages();
   if (successText) {
     successText.textContent = message;
-    successText.classList.remove('hidden'); // 2. Показуємо зелений успіх
-
-    // 3. Таймер: ховаємо текст успіху і закриваємо вікно через 1.2 секунди
+    successText.classList.remove('hidden');
     messageTimer = setTimeout(() => {
       successText.classList.add('hidden');
       closeJoinModal();
-      loadCourses('user'); // Оновлюємо список курсів
+      loadCourses('user');
     }, 1200);
   }
 }
 
+// Додає обробники подій на кнопки модального вікна та на його фон
 function setupModalListeners() {
   if (!modal) return;
-
-  // Кнопки закриття
   const closeBtn = document.getElementById('close-modal-btn');
   const cancelBtn = document.getElementById('cancel-btn');
   if (closeBtn) closeBtn.onclick = closeJoinModal;
   if (cancelBtn) cancelBtn.onclick = closeJoinModal;
-
-  // Клік по фону
   modal.onclick = (event) => {
     if (event.target === modal) closeJoinModal();
   };
-
-  // Підтвердження
   const confirmBtn = document.getElementById('confirm-join-btn');
   if (confirmBtn) {
     const newConfirmBtn = confirmBtn.cloneNode(true);
@@ -250,10 +187,9 @@ function setupModalListeners() {
   }
 }
 
-// --- 4. ЛОГІКА ПРИЄДНАННЯ (POST) ---
-
+// Відправляє запит на сервер для приєднання пацієнта до курсу за введеним ID та обробляє результат
 async function joinCourseAsUser(courseId) {
-  hideAllMessages(); // Зачищаємо старі написи перед новим запитом
+  hideAllMessages();
 
   try {
     const token = localStorage.getItem('access_token');
@@ -266,21 +202,15 @@ async function joinCourseAsUser(courseId) {
     });
 
     if (response.ok) {
-      if (modalInput) modalInput.value = ''; // Очищаємо поле вводу
-      // Викликаємо функцію успіху (вона сама покаже текст і через секунду закриє вікно)
+      if (modalInput) modalInput.value = '';
       showModalSuccess("Успішно приєднано!");
     } else {
       const err = await response.json();
-
-      // Базове повідомлення з бекенду
       let errorMessage = err.detail || err.message || 'Помилка приєднання';
 
-      // === ПЕРЕХОПЛЮЄМО ПОМИЛКУ ДУБЛЮВАННЯ ===
-      // Якщо бекенд повертає текст про те, що пацієнт вже є, змінюємо його на зрозуміле українське
       if (typeof errorMessage === 'string' && errorMessage.includes('already enrolled')) {
         errorMessage = "Ви вже приєднані до цього курсу!";
       }
-
       showModalError(errorMessage);
     }
   } catch (error) {
@@ -289,31 +219,24 @@ async function joinCourseAsUser(courseId) {
   }
 }
 
-// --- 5. РЕНДЕР (Відображення) ---
-
+// Генерує та відображає список курсів у боковій панелі навігації
 function renderSidebar(courses) {
   const list = document.getElementById('sidebar-list');
   if (!list) return;
   list.innerHTML = "";
-
   courses.forEach(course => {
     const li = document.createElement('li');
     li.textContent = course.title || `${course.course_name}`;
-
-    // Додаємо обробник кліку для переходу на сторінку курсу
     li.onclick = () => {
       window.location.href = `course_page.html?id=${course.id}`;
     };
-
     list.appendChild(li);
   });
 }
 
-// --- 6. ЛОГІКА ВИДАЛЕННЯ / ВІД'ЄДНАННЯ ---
+// Відправляє запит на видалення курсу (для лікаря) або від'єднання від нього (для пацієнта) та оновлює список
 async function handleCourseAction(courseId, role) {
   const isDoctor = role === 'doctor';
-
-  // Визначаємо правильний ендпоінт
   const endpoint = isDoctor
     ? `${API_BASE_URL}/courses/${courseId}`
     : `${API_BASE_URL}/patients/${courseId}/leave`;
@@ -328,13 +251,10 @@ async function handleCourseAction(courseId, role) {
     });
 
     if (response.ok) {
-      // Успішне видалення: просто тихо оновлюємо список курсів
-      // без жодних alert-віконець
       loadCourses(role);
     } else {
       const err = await response.json();
       console.error("Помилка видалення:", err);
-      // Залишаємо сповіщення лише для реальних помилок з бекенду
       alert(`Помилка: ${err.detail || 'Не вдалося виконати дію'}`);
     }
   } catch (error) {
@@ -343,7 +263,7 @@ async function handleCourseAction(courseId, role) {
   }
 }
 
-
+// Генерує картки курсів для головної сітки, відображаючи різну інформацію залежно від ролі
 function renderGrid(courses, role) {
   const grid = document.getElementById('courses-grid');
   if (!grid) return;
@@ -358,25 +278,19 @@ function renderGrid(courses, role) {
     const isDoctor = role === 'doctor'; // Перевіряємо чи це лікар
     const progress = course.progress ?? 0;
     const isCompleted = course.is_active === false;
-
     const actionText = isDoctor ? 'Видалити курс' : 'Від\'єднатись';
     const actionClass = isDoctor ? 'delete-course-btn' : 'leave-course-btn';
-
     const card = document.createElement('div');
-    // Додаємо клас завершеного курсу ТІЛЬКИ для пацієнта
     card.className = (!isDoctor && isCompleted) ? 'course-card completed-course' : 'course-card';
-
     card.onclick = (event) => {
       if (event.target.closest('.options-container')) return;
       window.location.href = `course_page.html?id=${course.id}`;
     };
 
-    // Візуальна позначка "(Завершено)" біля назви ТІЛЬКИ для пацієнта
     const titleHtml = (!isDoctor && isCompleted)
       ? `${course.course_name || 'Без назви'} <span style="font-size: 13px; color: #60a7bd; font-weight: normal;">(Завершено)</span>`
       : `${course.course_name || 'Без назви'}`;
 
-    // Формуємо блок прогресу ТІЛЬКИ для пацієнта (для лікаря це буде пустий рядок)
     const progressHtml = isDoctor ? '' : `
       <div style="margin-top: 20px;">
           <span class="progress-text">Прогрес: ${isCompleted ? '100' : progress}%</span>
@@ -409,11 +323,10 @@ function renderGrid(courses, role) {
   });
 }
 
-// === НОВА ФУНКЦІЯ: Отримуємо дані користувача з бекенду ===
+// Запитує дані поточного користувача з сервера та відображає його ім'я і прізвище в інтерфейсі
 async function fetchAndDisplayUser() {
   const token = localStorage.getItem('access_token');
   if (!token) return;
-
   try {
     const response = await fetch(`${API_BASE_URL}/users/me`, {
       method: 'GET',
@@ -422,17 +335,12 @@ async function fetchAndDisplayUser() {
         'Content-Type': 'application/json'
       }
     });
-
     if (response.ok) {
       const userData = await response.json();
-
-      // Знаходимо елемент на сторінці та вставляємо ім'я та прізвище
       const nameElement = document.getElementById('user-name');
       if (nameElement) {
         nameElement.textContent = `${userData.first_name} ${userData.last_name}`;
       }
-
-      // (Опціонально) Зберігаємо в пам'ять, щоб інші сторінки теж могли це швидко прочитати
       localStorage.setItem('user_first_name', userData.first_name);
       localStorage.setItem('user_last_name', userData.last_name);
     } else {
@@ -443,68 +351,45 @@ async function fetchAndDisplayUser() {
   }
 }
 
-
-
-
-
-
-
-
-// Функція для відкриття/закриття конкретного меню
+// Відкриває/закриває контекстне меню для конкретної картки курсу, закриваючи всі інші відкриті меню
 window.toggleDropdown = function(event) {
-  event.stopPropagation(); // Зупиняємо спливання, щоб меню не закрилося одразу
-
-  // Закриваємо всі інші відкриті меню перед відкриттям поточного
+  event.stopPropagation();
   document.querySelectorAll('.dropdown-menu').forEach(menu => {
     if (menu !== event.currentTarget.nextElementSibling) {
       menu.classList.add('hidden');
     }
   });
-
-  // Перемикаємо видимість меню, що знаходиться поруч з натиснутою кнопкою
   const menu = event.currentTarget.nextElementSibling;
   if (menu) {
     menu.classList.toggle('hidden');
   }
 };
 
-// Глобальний слухач кліків для закриття меню при кліку будь-де на сторінці
 document.addEventListener('click', () => {
   document.querySelectorAll('.dropdown-menu').forEach(menu => {
     menu.classList.add('hidden');
   });
 });
 
-// Оновлена функція updateWelcomePanel (тепер приймає role)
+// Оновлює лічильники активних і завершених курсів у верхній панелі (відображається лише для пацієнтів)
 function updateWelcomePanel(activeCount, completedCount, role) {
   const statsContainer = document.querySelector('.welcome-stats');
-
-  // Якщо це лікар - повністю ховаємо блок статистики
   if (role === 'doctor') {
     if (statsContainer) statsContainer.style.display = 'none';
     return;
   }
-
-  // Для пацієнта показуємо блок і оновлюємо цифри
   if (statsContainer) statsContainer.style.display = 'flex';
-
   const activeEl = document.getElementById('active-courses-count');
   const completedEl = document.getElementById('completed-courses-count');
-
   if (activeEl) activeEl.textContent = activeCount;
   if (completedEl) completedEl.textContent = completedCount;
 }
 
-// Функція для виходу з акаунту
+// Очищає локальне сховище від токенів та даних користувача і перенаправляє на сторінку входу
 function logoutUser(event) {
-  event.preventDefault(); // Зупиняємо стандартний перехід за посиланням
-
-  // Видаляємо токен доступу та інші дані користувача
+  event.preventDefault();
   localStorage.removeItem('access_token');
-  // Якщо ви зберігаєте роль або ім'я, їх також варто видалити
   localStorage.removeItem('user_role');
-
-  // Перенаправляємо на сторінку логіну
   window.location.href = 'main_and_auth.html';
 }
 

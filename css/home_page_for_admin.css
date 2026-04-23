@@ -1,4 +1,4 @@
-/* --- ЗАГАЛЬНІ --- */
+/* Загальні налаштування */
 body {
   margin: 0;
   padding: 0;
@@ -10,7 +10,7 @@ body {
   flex-direction: column;
 }
 
-/* --- ШАПКА (HEADER) --- */
+/* Шапка */
 .top-header {
   height: 70px;
   background: #4a8394;
@@ -43,7 +43,7 @@ body {
   filter: invert(1) brightness(100%);
 }
 
-/* --- ШАПКА АДМІНКИ (Заголовок сторінки та кнопки) --- */
+/* Заголовок сторінки та кнопки */
 .header {
   background: linear-gradient(120deg, #ffffff 0%, #f8fbfd 100%);
   padding: 25px 35px;
@@ -85,7 +85,7 @@ body {
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  display: none; /* Приховано за замовчуванням, керується через JS */
+  display: none;
   transition: background-color 0.3s ease, transform 0.2s ease;
   align-items: center;
   gap: 8px;
@@ -134,14 +134,14 @@ body {
   transform: scale(1.2);
 }
 
-/* --- ГОЛОВНИЙ МАКЕТ (SIDEBAR + MAIN) --- */
+/* Головний макет */
 .layout-container {
   display: flex;
   flex: 1;
   overflow: hidden;
 }
 
-/* --- БОКОВА ПАНЕЛЬ --- */
+/* Бокова панель */
 .sidebar {
   width: 300px;
   background-color: #c9e2e8;
@@ -244,14 +244,14 @@ body {
   width: 6px;
 }
 
-/* --- ОСНОВНИЙ КОНТЕНТ --- */
+/* Основний контент */
 .main-content {
   flex: 1;
   padding: 30px;
   overflow-y: auto;
 }
 
-/* Table Styling */
+/* Таблиці */
 .table-container {
   overflow-y: auto;
   margin: 40px 40px;
@@ -300,6 +300,7 @@ body {
 .status-text.active { color: #1d3037; }
 .status-text.inactive { color: #737477; }
 
+/* Активація / Деактивація */
 .actions {
   display: flex;
   gap: 12px;
@@ -337,7 +338,7 @@ body {
   cursor: not-allowed;
 }
 
-/* --- МОДАЛЬНІ ВІКНА --- */
+/* Модальні вікна */
 .modal {
   display: none;
   position: fixed;
@@ -391,7 +392,7 @@ body {
   padding-bottom: 10px;
 }
 
-/* --- ФОРМИ В МОДАЛЬНИХ ВІКНАХ --- */
+/* Форми у модальних вікнах */
 .form-group {
   margin-bottom: 20px;
 }
@@ -422,7 +423,7 @@ body {
   box-shadow: 0 0 0 3px rgba(74, 131, 148, 0.2);
 }
 
-/* --- СТИЛІ ДЛЯ КОПІЮВАННЯ ID --- */
+/* Копіювання ID */
 .id-cell {
   display: flex;
   align-items: center;
@@ -442,6 +443,67 @@ body {
 }
 
 .copy-icon.copied {
-  color: #27ae60; /* Зелений колір при успішному копіюванні */
+  color: #27ae60;
   transform: scale(1.1);
+}
+
+/* Система сповіщень */
+#notification-container {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  pointer-events: none;
+}
+
+.toast-notification {
+  min-width: 280px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideInRight 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  opacity: 0;
+  pointer-events: auto;
+}
+
+.toast-notification.error {
+  background-color: #d63031;
+}
+
+.toast-notification.success {
+  background-color: #27ae60;
+}
+
+.toast-notification i {
+  font-size: 20px;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+/* Помилки у модальних вікнах*/
+.form-error-message {
+  color: #d63031;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 15px;
+  min-height: 20px;
 }

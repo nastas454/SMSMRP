@@ -1,8 +1,4 @@
-/**
- * Розшифровує JWT токен і повертає об'єкт payload (дані).
- * @param {string} token
- * @returns {object|null}
- */
+// Розшифровує JWT токен та повертає його корисне навантаження (payload) у вигляді об'єкта
 function parseJwt(token) {
   if (!token) return null;
   try {
@@ -18,25 +14,20 @@ function parseJwt(token) {
   }
 }
 
-/**
- * Отримує роль користувача з токена або сховища.
- * @returns {string} 'user' або 'doctor'
- */
+// Отримує роль поточного користувача з розшифрованого токена або з локального сховища
 function getUserRole() {
   const token = localStorage.getItem('access_token');
   if (!token) return null;
-
   const payload = parseJwt(token);
-  // Змініть 'role' на те поле, яке реально використовує ваш бекенд (наприклад, 'sub' або 'user_role')
   return payload ? (payload.role || localStorage.getItem('user_role')) : null;
 }
 
+// Повертає правильну форму слова залежно від числівника
 function getDeclension(number, words) {
   const num100 = Math.abs(number) % 100;
   const num10 = num100 % 10;
-
-  if (num100 > 10 && num100 < 20) return words[2]; // 11-19 занять
-  if (num10 > 1 && num10 < 5) return words[1];     // 2-4 заняття
-  if (num10 === 1) return words[0];                // 1 заняття
-  return words[2];                                 // 0, 5-9 занять
+  if (num100 > 10 && num100 < 20) return words[2];
+  if (num10 > 1 && num10 < 5) return words[1];
+  if (num10 === 1) return words[0];
+  return words[2];
 }

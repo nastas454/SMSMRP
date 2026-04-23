@@ -72,6 +72,7 @@
       <button id="delete-account-btn" class="delete-account-btn">
         <i class="fas fa-trash-alt"></i> видалити акаунт
       </button>
+      <div id="delete-status-message" style="text-align: center; margin-top: 15px; font-weight: 500; min-height: 20px;"></div>
     </div>
 
     <div class="edit-card edit-card-container">
@@ -121,6 +122,20 @@
 
   </div>
 </main>
+
+<div id="delete-confirm-modal" class="custom-modal">
+  <div class="custom-modal-content">
+    <div class="custom-modal-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h3 class="custom-modal-title">Видалення акаунта</h3>
+    <p class="custom-modal-text">Ви впевнені, що хочете видалити свій акаунт? <br>Цю дію неможливо скасувати, і всі ваші дані будуть втрачені.</p>
+    <div class="custom-modal-actions">
+      <button id="cancel-delete-btn" class="modal-btn cancel-btn">Скасувати</button>
+      <button id="confirm-delete-btn" class="modal-btn confirm-btn">Видалити назавжди</button>
+    </div>
+  </div>
+</div>
 
 <script src="js/utils.js"></script>
 <script src="js/account_page.js"></script>

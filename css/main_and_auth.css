@@ -15,13 +15,12 @@ body, html {
   position: fixed;
   border-radius: 50%;
   background: linear-gradient(45deg, #8ac7da, #57aed1);
-  opacity: 0.3;   /* прозорість */
+  opacity: 0.3;
   z-index: 0;
-  animation: float 15s infinite ease-in-out;   /* швидкість анімації */
-  pointer-events: none; /* щоб вони не заважали клікати */
+  animation: float 15s infinite ease-in-out;
+  pointer-events: none;
 }
 
-/* Бульбашка головного екрану (зліва зверху) */
 .c1 {
   width: 300px;
   height: 300px;
@@ -29,7 +28,6 @@ body, html {
   left: -50px;
 }
 
-/* Бульбашка головного екрану (справа знизу) */
 .c2 {
   width: 400px;
   height: 400px;
@@ -63,14 +61,8 @@ body, html {
 /* Основне лого */
 .main-logo {
   width: 120px;
-  height: auto; /* зберігає пропорції логотипу */
-  margin-bottom: 10px; /* Відступ від логотипу до тексту */
-
-  /* Якщо SVG чорний, а фон темний - цей фільтр зробить його білим */
-  /* filter: invert(1) brightness(100%); */
-
-  /* Додаємо легку тінь, щоб лого читалось на будь-якому фоні */
-  /* /filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); */
+  height: auto;
+  margin-bottom: 10px;
 }
 
 /* Назва */
@@ -93,15 +85,15 @@ body, html {
 .split-container {
   display: flex;
   position: relative;
-  width: 100vw;          /* ширина видимого екрана */
+  width: 100vw;
   max-width: none;
-  height: 40vh;        /* висота смужки */
+  height: 40vh;
   background: #e1ebed;
   overflow: hidden;
   margin-top: 60px;
   padding: 0;
   border-radius: 0;
-  box-shadow: 0 0 30px rgba(0,0,0,0.3); /* тінь зверху і знизу */
+  box-shadow: 0 0 30px rgba(0,0,0,0.3);
   z-index: 10;
 }
 
@@ -116,7 +108,7 @@ body, html {
 
 /* Анімація при наведенні на блок */
 .split-pane:hover .split-icon {
-  transform: scale(1.2) rotate(-10deg); /* трохи збільшується і нахиляється */
+  transform: scale(1.2) rotate(-10deg);
 }
 
 /* Плитки для різних ролей для входу */
@@ -124,7 +116,7 @@ body, html {
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center; /* центруємо текст вертикально */
+  align-items: center;
   cursor: pointer;
   transition: flex 0.9s ease;
   position: relative;
@@ -248,7 +240,6 @@ body, html {
   color: #284d5b;
 }
 
-/* Колір кнопки "закрити" у вікні зворотнього зв'язку */
 .close-btn:hover { color: #333; }
 
 /* Стилі полів форми контактів */
@@ -310,8 +301,8 @@ body, html {
   position: fixed;
   border-radius: 50%;
   background: linear-gradient(45deg, #4facfe, #00f2fe);
-  opacity: 0.2;     /* трохи прозоріші, щоб не відволікати */
-  z-index: 0;       /* найнижчий шар */
+  opacity: 0.2;
+  z-index: 0;
   animation: float 15s infinite ease-in-out;
   pointer-events: none;
 }
@@ -354,8 +345,8 @@ body, html {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  z-index: 100; /* має бути вище за все */
-  transition: opacity 0.3s ease; /* плавна поява */
+  z-index: 100;
+  transition: opacity 0.3s ease;
 }
 
 /* Клас для приховування */
@@ -373,8 +364,8 @@ body, html {
   max-width: 400px;
   text-align: center;
   position: relative;
-  z-index: 102; /* вище за фон контейнера */
-  margin-top: 60px; /* відступ від логотипу */
+  z-index: 102;
+  margin-top: 60px;
 }
 
 /* Стилізація елементів введення */
@@ -385,7 +376,7 @@ body, html {
 
 /* Помилка введення даних */
 .error-message {
-  display: none; /* спочатку приховано */
+  display: none;
   color: #d63031;
   background-color: #ff767520;
   padding: 10px;
@@ -442,14 +433,12 @@ body, html {
 
 /* Самі кнопки (Вхід / Реєстрація) */
 .toggle-btns button {
-  flex: 1;                        /* кнопки однакової ширини */
+  flex: 1;
   background: #e1ebed;
   border: none;
-  padding: 12px 0;                /* висота кнопки */
+  padding: 12px 0;
   border-radius: 8px;
   cursor: pointer;
-
-  /* Додаємо шрифт і плавність */
   font-family: 'Montserrat', sans-serif;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -470,18 +459,16 @@ body, html {
 /* Контейнер реєстрації */
 .form-row {
   display: flex;
-  gap: 15px; /* відстань між полями збоку */
+  gap: 15px;
   width: 100%;
 }
 
 /* Змушує поля всередині рядка ділити місце порівну */
 .form-row .form-group {
-  flex: 1; /* займати рівну частину */
+  flex: 1;
   margin-bottom: 12px;
 }
 
-/* Стилізація під шрифт */
-/* Змушуємо поля і кнопки "бачити" шрифт */
 input, textarea, button, select {
   font-family: 'Montserrat', sans-serif !important;
 }
@@ -491,7 +478,7 @@ input, textarea, button, select {
   font-weight: 600;
   letter-spacing: -0.5px;
   color: #284d5b;
-  text-transform: uppercase; /* капс */
+  text-transform: uppercase;
   font-size: 24px;
 }
 
@@ -509,7 +496,7 @@ input, textarea, button, select {
 .form-group input,
 .form-group textarea {
   background-color: #f5f6f8;
-  border: 2px solid transparent; /* рамка прозора, поки не клікнеш */
+  border: 2px solid transparent;
   border-radius: 12px;
   padding: 12px;
   font-weight: 500;
@@ -530,43 +517,35 @@ input, textarea, button, select {
 .submit-btn {
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1.5px; /* широкі відступи */
+  letter-spacing: 1.5px;
   border-radius: 50px;
   padding: 15px;
-  background: linear-gradient(90deg, #60a7bd, #4c8698); /* градієнт */
-  box-shadow: 0 10px 20px rgba(98, 125, 152, 0.3); /* тінь */
+  background: linear-gradient(90deg, #60a7bd, #4c8698);
+  box-shadow: 0 10px 20px rgba(98, 125, 152, 0.3);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 /* Ефект для кнопки  */
 .submit-btn:hover {
-  transform: translateY(-2px); /* легкий підйом при наведенні */
+  transform: translateY(-2px);
   box-shadow: 0 15px 25px rgba(99, 122, 159, 0.4);
 }
 
 /* Стилізація випадаючого списку поля "Стать" */
 .form-group select {
-  /* Форма */
   width: 100%;
   padding: 12px 15px;
   border-radius: 12px;
-
-  /* Колір (в неактивному стані) */
   background-color: #f5f6f8;
   color: #284d5b;
-  border: 2px solid transparent; /* прозора рамка */
-
+  border: 2px solid transparent;
   font-family: 'Montserrat', sans-serif;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-
-  /* Прибираємо стандартний вигляд браузера, щоб стрілка була гарною) */
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-
-  /* Додаємо свою стрілку (галочку) */
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23284d5b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
   background-position: right 15px top 50%;
@@ -583,7 +562,7 @@ input, textarea, button, select {
 
 /* Фон списку */
 .form-group select option {
-  background-color: #ffffff; /* білий фон списку */
+  background-color: #ffffff;
   color: #284d5b;
   padding: 10px;
 }

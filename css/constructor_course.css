@@ -11,8 +11,8 @@ body {
   position: fixed;
   border-radius: 50%;
   background: linear-gradient(45deg, #4facfe, #00f2fe);
-  opacity: 0.2;     /* трохи прозоріші, щоб не відволікати */
-  z-index: -1;       /* найнижчий шар */
+  opacity: 0.2;
+  z-index: -1;
   animation: float 15s infinite ease-in-out;
   pointer-events: none;
 }
@@ -60,13 +60,11 @@ body {
   opacity: 0.1;
 }
 
-
 /* Анімація плавання бульбашок */
 @keyframes float {
   0%, 100% { transform: translateY(0) scale(1.2); }
   50% { transform: translateY(30px) scale(1.5); }
 }
-
 
 .main-wrapper {
   max-width: 800px;
@@ -75,7 +73,7 @@ body {
   z-index: 1;
 }
 
-
+/* Кнопка "Назад" */
 .back-link {
   text-decoration: none;
   color: #284d5b;
@@ -89,13 +87,13 @@ body {
   cursor: pointer;
 }
 
-
+/* Заголовок */
 .constructor-header {
   text-align: center;
   margin-bottom: 30px;
 }
 
-
+/* Основні блоки */
 .card-panel, .day-block {
   background: #cce0e5;
   border-radius: 20px;
@@ -103,7 +101,6 @@ body {
   box-shadow: 0 10px 30px rgba(16,24,27,0.2);
   margin-bottom: 25px;
 }
-
 
 .card-panel h3 {
   margin-top: 0;
@@ -119,9 +116,7 @@ body {
   transition: border-color 0.3s;
 }
 
-
 .day-block:hover { border-color: #60a7bd; }
-
 
 .day-header {
   display: flex;
@@ -133,10 +128,9 @@ body {
   border-radius: 10px;
 }
 
-
 .day-header h4 { margin: 0; }
 
-/* --- СТИЛІ ДЛЯ РІВНЯ СКЛАДНОСТІ --- */
+/* Рівні складності */
 .card-header-flex {
   display: flex;
   justify-content: space-between;
@@ -147,7 +141,7 @@ body {
 }
 
 .card-header-flex h3 {
-  border-bottom: none; /* Відміняємо старий стиль */
+  border-bottom: none;
   padding-bottom: 0;
   margin-bottom: 0;
 }
@@ -198,7 +192,7 @@ body {
   transform: scale(1.1);
 }
 
-/* --- СТИЛІ ДЛЯ МОДАЛЬНОГО ВІКНА --- */
+/* Модальне вікно */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -260,7 +254,7 @@ body {
   color: white;
 }
 
-/* --- НОВІ СТИЛІ ДЛЯ ЗАТРИМКИ ЧАСУ --- */
+/* Затримка часу між заняттями */
 .delay-group {
   display: flex;
   align-items: center;
@@ -284,8 +278,8 @@ body {
   border-color: #60a7bd;
   outline: none;
 }
-/* ------------------------------------ */
 
+/* Блок вправи */
 .exercise-item {
   background: #f7faff;
   padding: 20px;
@@ -339,7 +333,7 @@ body {
 }
 
 .form-row .form-group {
-  flex: 1; /* Змушує елементи в рядку займати однакову ширину */
+  flex: 1;
 }
 
 .form-group label {
@@ -379,7 +373,6 @@ input:focus, textarea:focus, select:focus {
   font-weight: 500;
 }
 
-
 .add-day-btn {
   width: 100%;
   padding: 18px;
@@ -392,9 +385,7 @@ input:focus, textarea:focus, select:focus {
   transition: all 0.3s;
 }
 
-
 .add-day-btn:hover { background: rgba(96, 167, 189, 0.5); }
-
 
 .add-ex-btn {
   width: 100%;
@@ -432,7 +423,7 @@ input:focus, textarea:focus, select:focus {
 
 @media (max-width: 600px) { .form-row { flex-direction: column; gap: 0; } }
 
-/* --- СТИЛІ ДЛЯ ПОМИЛОК ВАЛІДАЦІЇ --- */
+/* Помилки валідації */
 .input-error-highlight {
   border: 2px solid #dc3545 !important;
   background-color: #fff8f8 !important;
@@ -460,4 +451,14 @@ input:focus, textarea:focus, select:focus {
   font-weight: 600;
   display: block;
   animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Коли поля заблоковані */
+.form-group input:disabled,
+.form-group textarea:disabled {
+  background-color: #e1ebed;
+  color: #658a98;
+  cursor: not-allowed;
+  border-color: #c1d9f4;
+  opacity: 0.7;
 }
