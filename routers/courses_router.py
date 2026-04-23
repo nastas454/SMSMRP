@@ -3,7 +3,6 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Body, HTTPException
 from starlette import status
 from starlette.responses import JSONResponse
-
 from core.auth_tools import get_current_payload, require_doctor, require_doctor_or_patient
 from services.courses_service import CoursesService
 from shcemas.course_schemas import CoursesCreate, CoursesUpdate
@@ -22,7 +21,6 @@ async def create_course(course_service: Service, course: CoursesCreate = Body(),
 @router.get("/{course_id:uuid}", dependencies=[Depends(require_doctor_or_patient)])
 async def get_course(course_service: Service, course_id: UUID):
     return await course_service.get_course(course_id)
-
 
 @router.put("/{course_id:uuid}/update")
 async def update_existing_course(course_id: UUID, course_update: CoursesUpdate, course_service: Service, doctor_id: dict = Depends(get_current_payload)):

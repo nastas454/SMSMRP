@@ -1,9 +1,7 @@
 import uuid
-
 from sqlalchemy import Column, Integer, String, ARRAY, ForeignKey, UUID, Boolean
 from sqlalchemy.orm import relationship
 from core.database import Base
-
 
 class Courses(Base):
     __tablename__ = 'courses'

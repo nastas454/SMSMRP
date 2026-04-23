@@ -1,7 +1,6 @@
 from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from models.associations import PatientCourse
 from models.courses import Courses
 from models.patients import Patients
@@ -24,7 +23,6 @@ class CoursesRepository(CommonRepository[Courses]):
         course_obj.doctor_name = f_name
         course_obj.doctor_lastname = l_name
         return course_obj
-
 
     async def get_doctor_one_course(self, course_id: UUID, doctor_id: UUID) -> Courses|None:
         stmt = select(Courses).where(Courses.id == course_id, Courses.doctor_id == doctor_id)
@@ -69,3 +67,6 @@ class CoursesRepository(CommonRepository[Courses]):
         self.db.add(new_enrollment)
         await self.db.commit()
 
+    async def leave_course_patient(self, course_patient: PatientCourse):
+        await self.db.delete(course_patient)
+        await self.db.commit()

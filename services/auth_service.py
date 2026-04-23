@@ -11,7 +11,6 @@ from repositories.users_repository import UsersRepository
 from shcemas.patient_schemas import PatientCreate
 from shcemas.users_schemas import UsersLogin, UsersCreate
 
-
 class AuthService:
     def __init__(self, db: AsyncSession = Depends(get_session_local)):
         self.db = db
@@ -32,10 +31,13 @@ class AuthService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Невірний пароль"
             )
-
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Ваш акаунт було заблоковано"
+            )
         access_token = self.jwt.create_access_token(str(user.id), user.role)
         refresh_token = self.jwt.create_refresh_token(str(user.id), user.role)
-
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
@@ -49,19 +51,15 @@ class AuthService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Невалідний або прострочений refresh токен"
             )
-
         user_id = payload.get("sub")
         role = payload.get("role")
-
         if not user_id or not role:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Некоректний формат токена"
             )
-
         new_access_token = self.jwt.create_access_token(user_id, role)
         new_refresh_token = self.jwt.create_refresh_token(user_id, role)
-
         return {
             "access_token": new_access_token,
             "refresh_token": new_refresh_token,

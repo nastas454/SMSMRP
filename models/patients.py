@@ -1,5 +1,4 @@
-from sqlalchemy import Integer, Column, String, Enum, ForeignKey, UUID
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import Integer, Column, Enum, ForeignKey, UUID
 from sqlalchemy.orm import relationship
 from models.enums.sex_enum import Sex
 from models.user import Users

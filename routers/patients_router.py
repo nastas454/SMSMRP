@@ -2,9 +2,7 @@ from typing import Annotated
 from uuid import UUID
 from fastapi import APIRouter
 from fastapi.params import Depends
-
 from core.auth_tools import get_current_payload, require_patient
-from services import patients_service
 from services.patients_service import PatientsService
 from shcemas.patient_schemas import PatientsResponse
 

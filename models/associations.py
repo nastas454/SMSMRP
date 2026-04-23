@@ -1,10 +1,8 @@
 import uuid
-from datetime import datetime
 from sqlalchemy import Column, Integer, DateTime, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from core.database import Base
-
 
 class PatientCourse(Base):
     __tablename__ = 'patient_courses'

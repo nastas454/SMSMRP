@@ -2,9 +2,7 @@ from typing import Annotated
 from uuid import UUID
 from fastapi import APIRouter
 from fastapi.params import Depends, Form
-
-from core.auth_tools import get_current_payload, RoleChecker, require_admin
-from models.enums.role_enum import Role
+from core.auth_tools import get_current_payload, require_admin
 from services.admin_service import AdminService
 from shcemas.users_schemas import UsersCreate
 

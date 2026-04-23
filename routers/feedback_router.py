@@ -1,11 +1,6 @@
 from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-
-from starlette.responses import JSONResponse
-
 from core.auth_tools import get_current_payload
 from services.feedback_service import CourseFeedbackService
 from shcemas.feedback_schemas import CourseFeedbackResponse, CourseFeedbackCreate

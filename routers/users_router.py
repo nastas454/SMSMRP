@@ -1,7 +1,5 @@
 from typing import Annotated
-from uuid import UUID
 from fastapi import APIRouter, Depends
-
 from core.auth_tools import get_current_payload
 from services.users_service import UsersService
 from shcemas.users_schemas import ChangeUser, UsersResponse

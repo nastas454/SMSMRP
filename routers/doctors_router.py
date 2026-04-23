@@ -1,7 +1,5 @@
 from typing import Annotated
-from uuid import UUID
 from fastapi import APIRouter, Depends
-
 from core.auth_tools import get_current_payload, require_doctor
 from services.doctors_service import DoctorsService
 

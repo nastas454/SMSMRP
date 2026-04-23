@@ -2,9 +2,7 @@ import json
 import boto3
 from botocore.client import Config
 import uuid
-
 from botocore.exceptions import ClientError
-
 
 class S3Service:
     def __init__(self):

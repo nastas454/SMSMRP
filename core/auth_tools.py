@@ -9,8 +9,7 @@ oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/users/login"
 )
 
-
-# --- 1. АВТЕНТИФІКАЦІЯ ---
+# Автентифікація
 def get_current_payload(token: str = Depends(oauth2_scheme)):
     payload = JwtUtility.decode_token(token)
 
@@ -22,8 +21,7 @@ def get_current_payload(token: str = Depends(oauth2_scheme)):
         )
     return payload
 
-
-# --- 2. АВТОРИЗАЦІЯ ---
+# Авторизація
 class RoleChecker:
     def __init__(self, allowed_roles: List[str]):
         self.allowed_roles = allowed_roles
@@ -39,7 +37,6 @@ class RoleChecker:
             )
 
         return UUID(user_id) if isinstance(user_id, str) else user_id
-
 
 # Готові залежності для використання в ендпоінтах
 require_patient = RoleChecker([Role.PATIENT.value])

@@ -2,7 +2,6 @@ from sqlalchemy import Column, ForeignKey, UUID
 from sqlalchemy.orm import relationship
 from models.user import Users
 
-
 class Doctors(Users):
     __tablename__ = 'doctors'
 

@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# НОВИЙ БЛОК: Встановлюємо gcc та бібліотеки для PostgreSQL
+# Встановлюємо gcc та бібліотеки для PostgreSQL
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \

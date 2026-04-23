@@ -1,10 +1,6 @@
 from typing import Optional
 from uuid import UUID
-
 from pydantic import BaseModel, EmailStr, ConfigDict
-
-from models.enums.sex_enum import Sex
-
 
 class UsersCreate(BaseModel):
     first_name: str

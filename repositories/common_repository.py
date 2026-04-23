@@ -1,5 +1,5 @@
 from typing import Generic, Type, TypeVar
-from sqlalchemy import select, exists, UUID
+from sqlalchemy import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 T = TypeVar("T")

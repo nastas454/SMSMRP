@@ -1,17 +1,15 @@
-from typing import Self
 from uuid import UUID
 from datetime import datetime, timedelta
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.database import SessionLocal, get_session_local
+from starlette import status
+from core.database import get_session_local
 from models.courses import Courses
 from repositories.courses_repository import CoursesRepository
 from repositories.doctors_repository import DoctorsRepository
 from repositories.patients_repository import PatientsRepository
 from services.s3_service import S3Service
-from shcemas.course_schemas import CoursesCreate, CoursesResponse, CoursesUpdate
-from shcemas.patient_schemas import PatientsResponse
-
+from shcemas.course_schemas import CoursesCreate, CoursesResponse, CoursesUpdate, PatientsOnCourseResponse
 
 class CoursesService:
     def __init__(self, db: AsyncSession = Depends(get_session_local), s3_service: S3Service = Depends(S3Service)):
@@ -58,11 +56,14 @@ class CoursesService:
     async def get_patients_on_course(self, course_id: UUID):
         course = await self.course_repo.get_by_id(course_id)
         if course is None:
-            return {"message": "Course not found"}
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Курс не знайдений"
+            )
         patients = await self.patient_repo.get_patients_on_course(course)
         if not patients:
-            return {"message": "Patients not found"}
-        return patients
+            return []
+        return [PatientsOnCourseResponse.model_validate(patient)for patient in patients]
 
     async def get_course_content(self, course_id: UUID):
         course = await self.course_repo.get_by_id(course_id)
@@ -85,18 +86,14 @@ class CoursesService:
             return {"message": "Цей курс вже повністю завершено"}
         if enrollment.last_completed_at is not None:
             return {"message": "Ви вже завершили цей день, очікуйте відкриття наступного"}
-
         course = await self.course_repo.get_by_id(course_id)
         content = self.extract_level_data(self.s3.get_course_json(course.course_s3_key), enrollment.difficulty)
         if "error" in content:
             return content
-
         total_days = content.get("total_days", 1)
         current_day = enrollment.current_unlocked_day
-
         calculated_progress = int((current_day / total_days) * 100)
         enrollment.progress = min(calculated_progress, 100)
-
         if current_day >= total_days:
             enrollment.is_active = False
             enrollment.progress = 100
@@ -112,20 +109,16 @@ class CoursesService:
         course = await self.course_repo.get_by_id(course_id)
         if not course:
             return {"message": "Курс не знайдено"}
-
         enrollment = await self.patient_repo.get_enrollment(patient_id, course_id)
         if not enrollment:
             return {"message": "Ви не записані на цей курс"}
-
         content = self.s3.get_course_json(course.course_s3_key)
         if "error" in content:
             return content
-
         patient_difficulty = getattr(enrollment, 'difficulty', 2)
         levels = content.get("levels", [])
         total_days = 0
         days_data = []
-
         if levels:
             target_level = next((lvl for lvl in levels if lvl.get("difficulty") == patient_difficulty), None)
             if target_level:
@@ -136,9 +129,7 @@ class CoursesService:
         else:
             total_days = content.get("total_days", 1)
             days_data = content.get("days", [])
-
         current_day = enrollment.current_unlocked_day
-
         if enrollment.last_completed_at and current_day < total_days:
             next_day_data = next((d for d in days_data if d["day_number"] == current_day + 1), None)
             if next_day_data:
@@ -149,7 +140,6 @@ class CoursesService:
                     enrollment.last_completed_at = None
                     await self.db.commit()
                     current_day = enrollment.current_unlocked_day
-
         response = {
             "current_day": current_day,
             "total_days": total_days,
@@ -158,7 +148,6 @@ class CoursesService:
             "day_content": None,
             "time_left": None
         }
-
         if enrollment.last_completed_at:
             if current_day >= total_days:
                 response["status"] = "completed"
@@ -176,7 +165,6 @@ class CoursesService:
         else:
             current_day_data = next((d for d in days_data if d["day_number"] == current_day), None)
             response["day_content"] = current_day_data
-
         return response
 
     def extract_level_data(self, course_data: dict, target_difficulty: int) -> dict:

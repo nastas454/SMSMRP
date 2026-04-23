@@ -1,5 +1,4 @@
-from datetime import datetime
-from sqlalchemy import Column, DateTime, ForeignKey, UUID
+from sqlalchemy import Column, ForeignKey, UUID
 from models.user import Users
 
 

@@ -1,14 +1,11 @@
-from sqlalchemy import exists, select
+from datetime import datetime
 from core.database import SessionLocal
 from core.password_hasher import PasswordHasher
 from models.admin import Admins
 from models.enums.role_enum import Role
-from models.user import Users
 from repositories.admin_repository import AdminRepository
 from repositories.users_repository import UsersRepository
-from services import admin_service
 import logging
-
 
 async def create_admin():
     async with SessionLocal() as db:
@@ -19,8 +16,7 @@ async def create_admin():
             admin_repo = AdminRepository(db)
             user_repo = UsersRepository(db)
 
-            admin_exists = await user_repo.if_login_exists(admin_login)
-            if admin_exists:
+            if await user_repo.if_login_exists(admin_login) or await user_repo.if_email_exists(admin_email):
                 print("Адмін вже існує в базі")
                 return
 
@@ -30,7 +26,8 @@ async def create_admin():
                 email=admin_email,
                 login=admin_login,
                 password=PasswordHasher.hash(admin_password),
-                role=Role.ADMIN.value
+                role=Role.ADMIN.value,
+                create_at=datetime(2026, 1, 1)
             )
             await admin_repo.create_entity(new_admin)
             print("Адмін успішно створений при запуску!")

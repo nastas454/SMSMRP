@@ -1,9 +1,7 @@
-from dns.e164 import query
 from sqlalchemy import select, exists, UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.user import Users
 from repositories.common_repository import CommonRepository
-
 
 class UsersRepository(CommonRepository[Users]):
     def __init__(self, db: AsyncSession):

@@ -1,7 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter
 from fastapi.params import Form, Depends, Body
-
 from services.auth_service import AuthService
 from shcemas.patient_schemas import PatientCreate
 from shcemas.users_schemas import UsersLogin, UsersCreate

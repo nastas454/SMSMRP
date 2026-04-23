@@ -1,8 +1,7 @@
 import uuid
 from typing import Any, Optional
-
-from pydantic import BaseModel, ConfigDict, Field
-
+from pydantic import BaseModel, ConfigDict, Field, EmailStr
+from models.enums.sex_enum import Sex
 
 class CoursesCreate(BaseModel):
     course_name: str
@@ -33,5 +32,17 @@ class CoursesUpdate(BaseModel):
     course_length: Optional[int] = None
     course_content: Optional[dict[str, Any]] = None
     is_active: Optional[bool] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+class PatientsOnCourseResponse(BaseModel):
+    id: uuid.UUID
+    first_name: str
+    last_name:str
+    sex: Sex
+    age: int
+    email: EmailStr
+    current_unlocked_day: int
+    is_course_active: bool
 
     model_config = ConfigDict(from_attributes=True)

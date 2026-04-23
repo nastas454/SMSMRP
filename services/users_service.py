@@ -1,14 +1,11 @@
 from fastapi import Depends, HTTPException
 from sqlalchemy import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.testing.pickleable import User
-
 from core.database import get_session_local
 from core.password_hasher import PasswordHasher
 from repositories.users_repository import UsersRepository
 from services.admin_service import AdminService
 from shcemas.users_schemas import ChangeUser
-
 
 class UsersService:
     def __init__(self, db: AsyncSession = Depends(get_session_local)):
@@ -37,6 +34,8 @@ class UsersService:
         user = await self.user_repo.get_by_id(user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
+        if await self.user_repo.if_login_exists(new_login):
+            raise HTTPException(status_code=409, detail="Такий логін вже існує")
         user.login = new_login
         await self.user_repo.change_entity(user)
         return{
@@ -47,6 +46,8 @@ class UsersService:
         user = await self.user_repo.get_by_id(user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
+        if await self.user_repo.if_email_exists(new_email):
+            raise HTTPException(status_code=409, detail="Така пошта вже існує")
         user.email = new_email
         await self.user_repo.change_entity(user)
         return{

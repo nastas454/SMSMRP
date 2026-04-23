@@ -1,14 +1,11 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-
 from core.database import get_session_local
-from models.associations import PatientCourse
 from models.feedback import CourseFeedback
 from repositories.feedback_repository import CourseFeedbackRepository
 from repositories.patients_repository import PatientsRepository
 from shcemas.feedback_schemas import CourseFeedbackCreate, CourseFeedbackResponse
-
 
 class CourseFeedbackService:
     def __init__(self, db: AsyncSession = Depends(get_session_local)):
